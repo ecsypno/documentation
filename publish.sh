@@ -8,6 +8,8 @@ cd ../../../workspace/scnr/book/
 mdbook build
 cp -R ../../../workspace/scnr/book/book/* ../../../workspace/ecsypno/documentation/scnr
 
+cd /home/zapotek/workspace/ecsypno/documentation
+
 git add .
 git commit -m "Update book"
 git push origin main
