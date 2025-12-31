@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light" dir="ltr">
+<html lang="en" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -8,43 +8,57 @@
 
 
         <!-- Custom HTML head -->
-        
+
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="favicon.svg">
-        <link rel="shortcut icon" href="favicon.png">
-        <link rel="stylesheet" href="css/variables.css">
-        <link rel="stylesheet" href="css/general.css">
-        <link rel="stylesheet" href="css/chrome.css">
-        <link rel="stylesheet" href="css/print.css" media="print">
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-2459343d.css">
+        <link rel="stylesheet" href="css/chrome-ae938929.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="fonts/fonts.css">
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
 
-    </head>
-    <body class="sidebar-visible no-js">
-    <div id="body-container">
-        <!-- Provide site root to javascript -->
-        <script>
-            var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
-        </script>
 
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-f11d39ff.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-29fa3473.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
 
                 if (theme.startsWith('"') && theme.endsWith('"')) {
                     localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
@@ -58,87 +72,69 @@
 
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script>
-            var theme;
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            var html = document.querySelector('html');
+            const html = document.documentElement;
             html.classList.remove('light')
             html.classList.add(theme);
-            var body = document.querySelector('body');
-            body.classList.remove('no-js')
-            body.classList.add('js');
+            html.classList.add("js");
         </script>
 
-        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var body = document.querySelector('body');
-            var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
             } else {
                 sidebar = 'hidden';
+                sidebar_toggle.checked = false;
             }
-            sidebar_toggle.checked = sidebar === 'visible';
-            body.classList.remove('sidebar-visible');
-            body.classList.add("sidebar-" + sidebar);
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
         </script>
 
-        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded affix "><a href="installation.html">Installation</a></li><li class="chapter-item expanded affix "><a href="system-requirements.html">System requirements</a></li><li class="chapter-item expanded affix "><li class="part-title">Deployment</li><li class="chapter-item expanded "><a href="deployment/direct.html"><strong aria-hidden="true">1.</strong> Direct</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="deployment/scripted.html"><strong aria-hidden="true">1.1.</strong> Scripted</a></li></ol></li><li class="chapter-item expanded "><a href="deployment/distributed/index.html"><strong aria-hidden="true">2.</strong> Distributed</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="deployment/distributed/agent.html"><strong aria-hidden="true">2.1.</strong> Agent</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="deployment/distributed/agent/grid.html"><strong aria-hidden="true">2.1.1.</strong> Grid</a></li></ol></li><li class="chapter-item expanded "><a href="deployment/distributed/scheduler.html"><strong aria-hidden="true">2.2.</strong> Scheduler</a></li></ol></li><li class="chapter-item expanded "><a href="deployment/introspector/index.html"><strong aria-hidden="true">3.</strong> Introspector</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="deployment/introspector/ruby.html"><strong aria-hidden="true">3.1.</strong> Ruby</a></li><li class="chapter-item expanded "><a href="deployment/introspector/java.html"><strong aria-hidden="true">3.2.</strong> Java</a></li><li class="chapter-item expanded "><a href="deployment/introspector/dotnet.html"><strong aria-hidden="true">3.3.</strong> .NET</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Interfaces</li><li class="chapter-item expanded "><a href="interfaces/cli.html"><strong aria-hidden="true">4.</strong> CLI</a></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/index.html"><strong aria-hidden="true">5.</strong> Ruby API</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="interfaces/ruby-api/data/index.html"><strong aria-hidden="true">5.1.</strong> Data</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="interfaces/ruby-api/data/sitemap.html"><strong aria-hidden="true">5.1.1.</strong> Sitemap</a></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/data/urls.html"><strong aria-hidden="true">5.1.2.</strong> Urls</a></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/data/pages.html"><strong aria-hidden="true">5.1.3.</strong> Pages</a></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/data/issues.html"><strong aria-hidden="true">5.1.4.</strong> Issues</a></li></ol></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/state.html"><strong aria-hidden="true">5.2.</strong> State</a></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/browserpool.html"><strong aria-hidden="true">5.3.</strong> Browserpool</a></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/dom.html"><strong aria-hidden="true">5.4.</strong> Dom</a></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/http.html"><strong aria-hidden="true">5.5.</strong> Http</a></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/input.html"><strong aria-hidden="true">5.6.</strong> Input</a></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/logging.html"><strong aria-hidden="true">5.7.</strong> Logging</a></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/checks.html"><strong aria-hidden="true">5.8.</strong> Checks</a></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/plugins.html"><strong aria-hidden="true">5.9.</strong> Plugins</a></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/fingerprinters.html"><strong aria-hidden="true">5.10.</strong> Fingerprinters</a></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/scan/index.html"><strong aria-hidden="true">5.11.</strong> Scan</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="interfaces/ruby-api/scan/options.html"><strong aria-hidden="true">5.11.1.</strong> Options</a></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/scan/scope.html"><strong aria-hidden="true">5.11.2.</strong> Scope</a></li><li class="chapter-item expanded "><a href="interfaces/ruby-api/scan/session.html"><strong aria-hidden="true">5.11.3.</strong> Session</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="interfaces/rest-api/index.html"><strong aria-hidden="true">6.</strong> REST API</a></li><li class="chapter-item expanded "><a href="interfaces/web/index.html"><strong aria-hidden="true">7.</strong> Web UI</a></li><li class="chapter-item expanded affix "><li class="part-title">How to</li><li class="chapter-item expanded "><a href="how-to/generate-reports.html"><strong aria-hidden="true">8.</strong> Generate reports</a></li><li class="chapter-item expanded "><a href="how-to/optimize-scans.html"><strong aria-hidden="true">9.</strong> Optimize scans</a></li><li class="chapter-item expanded "><a href="how-to/maintain-a-valid-session.html"><strong aria-hidden="true">10.</strong> Maintain a valid session</a></li><li class="chapter-item expanded "><a href="how-to/scan-services.html"><strong aria-hidden="true">11.</strong> Scan services</a></li><li class="chapter-item expanded "><a href="how-to/scale.html"><strong aria-hidden="true">12.</strong> Scale</a></li><li class="chapter-item expanded affix "><a href="COPYING.html">Copyright</a></li></ol>
-            </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
             </div>
         </nav>
 
-        <!-- Track and set sidebar scroll position -->
-        <script>
-            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
-                }
-            }, { passive: true });
-            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
-            sessionStorage.removeItem('sidebar-scroll');
-            if (sidebarScrollTop) {
-                // preserve sidebar scroll position when navigating via links within sidebar
-                sidebarScrollbox.scrollTop = sidebarScrollTop;
-            } else {
-                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
-                var activeSection = document.querySelector('#sidebar .active');
-                if (activeSection) {
-                    activeSection.scrollIntoView({ block: 'center' });
-                }
-            }
-        </script>
-
-        <div id="page-wrapper" class="page-wrapper">
+        <div id="mdbook-page-wrapper" class="page-wrapper">
 
             <div class="page">
-                                <div id="menu-bar-hover-placeholder"></div>
-                <div id="menu-bar" class="menu-bar sticky">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
-                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                            <i class="fa fa-bars"></i>
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
                         </label>
-                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                            <i class="fa fa-paint-brush"></i>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
                         </button>
-                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                            <i class="fa fa-search"></i>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
                         </button>
                     </div>
 
@@ -146,33 +142,38 @@
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
-                            <i id="print-button" class="fa fa-print"></i>
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
                         </a>
 
                     </div>
                 </div>
 
-                <div id="search-wrapper" class="hidden">
-                    <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
                     </form>
-                    <div id="searchresults-outer" class="searchresults-outer hidden">
-                        <div id="searchresults-header" class="searchresults-header"></div>
-                        <ul id="searchresults">
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
                         </ul>
                     </div>
                 </div>
 
                 <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
                 <script>
-                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
-                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
-                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
                         link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
                     });
                 </script>
 
-                <div id="content" class="content">
+                <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
 <h2 id="description"><a class="header" href="#description">Description</a></h2>
@@ -182,10 +183,10 @@ application security scanner framework, capable of analyzing the behavior and
 security of modern web applications and web APIs.</p>
 <p>You can access Codename SCNR via multiple interfaces, such as:</p>
 <ul>
-<li><a href="./interfaces/cli.html">CLI</a></li>
-<li><a href="./interfaces/ruby-api/index.html">Ruby API</a></li>
-<li><a href="./interfaces/rest-api/index.html">REST API</a></li>
-<li><a href="./interfaces/web/index.html">Web UI</a></li>
+<li><a href="#cli">CLI</a></li>
+<li><a href="#ruby-api">Ruby API</a></li>
+<li><a href="#rest">REST API</a></li>
+<li><a href="#web-ui">Web UI</a></li>
 </ul>
 <h2 id="back-end-support"><a class="header" href="#back-end-support">Back-end support</a></h2>
 <p>A wide range of back-end technologies is supported, including:</p>
@@ -314,7 +315,7 @@ extend functionality.</p>
 scans by moving decision making points and configuration to user-specified
 methods and can extend to even creating a custom scanner for any web application
 backed by the Codename SCNR engine.</p>
-<p>The API is tidy and simple and easily allows you to plug-in to key API<sup class="footnote-reference"><a href="#dsel">1</a></sup> scan points
+<p>The API is tidy and simple and easily allows you to plug-in to key API<sup class="footnote-reference" id="fr-dsel-1"><a href="#footnote-dsel">1</a></sup> scan points
 in order to get the best results from any scan.</p>
 <p>Scripts are written in Ruby and can thus be stored in your favorite CVS, this
 enables you to work side-by-side with the web application development team and
@@ -331,35 +332,47 @@ to node, accommodating highly optimized load-balancing and cost saving policies.
 <p>Deployment options range from command-line utilities for direct scans,
 scripted scans (for configuration and custom scanners) as well as distributed
 deployments to perform scans from remote hosts and Grid/cloud/SaaS setups.</p>
-<p>Its simple distributed architecture<sup class="footnote-reference"><a href="#cuboid">2</a></sup> allows for easy creation of self-healing,
+<p>Its simple distributed architecture<sup class="footnote-reference" id="fr-cuboid-1"><a href="#footnote-cuboid">2</a></sup> allows for easy creation of self-healing,
 load-balanced (vertically and horizontally) scanner grids; basically allowing for
 the creation of private scanner clouds in either yours or a Cloud provider’s infrastructure.</p>
 <h2 id="conclusion"><a class="header" href="#conclusion">Conclusion</a></h2>
 <p>Thus, Codename SCNR can in essence fit into any SDLC with great grace, ease and little care.</p>
-<div class="footnote-definition" id="dsel"><sup class="footnote-definition-label">1</sup>
-<p>API/script functionality is provided by <a href="https://github.com/qadron/DSeL">DSeL</a>.</p>
-</div>
-<div class="footnote-definition" id="cuboid"><sup class="footnote-definition-label">2</sup>
-<p>Distributed functionality is provided by <a href="https://github.com/qadron/cuboid">Cuboid</a>.</p>
-</div>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
+<hr>
+<ol class="footnote-definition">
+<li id="footnote-dsel">
+<p>API/script functionality is provided by <a href="https://github.com/qadron/DSeL">DSeL</a>. <a href="#fr-dsel-1">↩</a></p>
+</li>
+<li id="footnote-cuboid">
+<p>Distributed functionality is provided by <a href="https://github.com/qadron/cuboid">Cuboid</a>. <a href="#fr-cuboid-1">↩</a></p>
+</li>
+</ol>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
 <p>For installation instructions please refer to the <a href="https://github.com/scnr/installer/blob/main/README.md">installer</a>.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="system-requirements"><a class="header" href="#system-requirements">System requirements</a></h1>
-<div class="table-wrapper"><table><thead><tr><th>Operating System</th><th>Architecture</th><th>RAM</th><th>Disk</th><th>CPU</th></tr></thead><tbody>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="system-requirements"><a class="header" href="#system-requirements">System requirements</a></h1>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Operating System</th><th>Architecture</th><th>RAM</th><th>Disk</th><th>CPU</th></tr>
+</thead>
+<tbody>
 <tr><td>Linux</td><td>x86 64bit</td><td>2GB</td><td>4GB</td><td>Multicore</td></tr>
-</tbody></table>
+</tbody>
+</table>
 </div>
 <h2 id="resource-constrained-environments"><a class="header" href="#resource-constrained-environments">Resource constrained environments</a></h2>
 <p>To optimize the resources a scan may use please consult:</p>
 <ul>
-<li><a href="./how-to/optimize-scans.html">Optimize scans</a></li>
+<li><a href="#optimize-scans">Optimize scans</a></li>
 </ul>
 <p>In addition, <em>Agents</em> and other servers can have their max-slots adjusted
 to a user-specified value, instead of the default, which is <code>auto</code> and based
 on the aforementioned system requirements.</p>
 <p>Please issue the <code>-h</code> flag to see available options for each executable in order
 to examine the applicable overrides.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="direct"><a class="header" href="#direct">Direct</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="direct"><a class="header" href="#direct">Direct</a></h1>
 <p>The easiest approach is a direct scan using the <code>scnr</code> CLI executable.</p>
 <p>To see all available options run:</p>
 <pre><code class="language-bash">bin/scnr -h
@@ -368,7 +381,8 @@ to examine the applicable overrides.</p>
 <p>The following command will run a scan with default settings against <a href="http://testhmtml5.vulnweb.com">http://testhmtml5.vulnweb.com</a>.</p>
 <pre><code class="language-bash">bin/scnr http://testhmtml5.vulnweb.com
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="scripted"><a class="header" href="#scripted">Scripted</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="scripted"><a class="header" href="#scripted">Scripted</a></h1>
 <p>Scripted scans allow you to configure the system and take over decision making points
 for a much more fine-grained scan.
 Aside from that, scripts also allow you to quickly add custom components on the
@@ -1196,12 +1210,14 @@ end
 <p>Supposing the above is saved as <code>html5.scanner.rb</code>:</p>
 <pre><code class="language-bash">bin/scnr_script html5.scanner.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="distributed"><a class="header" href="#distributed">Distributed</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="distributed"><a class="header" href="#distributed">Distributed</a></h1>
 <p>Distribution features are deferred to <a href="https://github.com/qadron/cuboid">Cuboid</a>;
 hence, a quick read through its <a href="https://github.com/qadron/cuboid/blob/master/README.md">readme</a>
 will outline the architecture.</p>
 <p>In this case, the Cuboid application is SCNR.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="agent"><a class="header" href="#agent">Agent</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="agent"><a class="header" href="#agent">Agent</a></h1>
 <p>To start an <em>Agent</em> run the <code>scnr_agent</code> CLI executable.</p>
 <p>To see all available options run:</p>
 <pre><code class="language-bash">bin/scnr_agent -h
@@ -1236,7 +1252,8 @@ the <em>Agent</em> node.</p>
 <pre><code>[~] Agent is at maximum utilization, please try again later.
 </code></pre>
 <p>In which case you can keep retrying until a <em>slot</em> opens up.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="grid"><a class="header" href="#grid">Grid</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="grid"><a class="header" href="#grid">Grid</a></h1>
 <p>A <em>Grid</em> is simply a group of <em>Agents</em> and its setup is as simple as specifying
 an already running <em>Agent</em> as a <em>peer</em> to a future <em>Agent</em>.</p>
 <p>The order in which you start or specify <em>peers</em> is irrelevant, <em>Agents</em>
@@ -1273,8 +1290,9 @@ be receiving any workload.</p>
 <p>Now we have a <em>Grid</em> of 3 <em>Agents</em>.</p>
 <p>The point of course is to run each <em>Agent</em> on a different machine in real life.</p>
 <h3 id="client-1"><a class="header" href="#client-1">Client</a></h3>
-<p>Same as <a href="deployment/distributed/agent//scanning/distributed/agent.html#client">Agent client</a>.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="scheduler"><a class="header" href="#scheduler">Scheduler</a></h1>
+<p>Same as <a href="/scanning/distributed/agent.html#client">Agent client</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="scheduler"><a class="header" href="#scheduler">Scheduler</a></h1>
 <p>To start a <em>Scheduler</em> run the <code>scnr_scheduler</code> CLI executable.</p>
 <p>To see all available options run:</p>
 <pre><code class="language-bash">bin/scnr_scheduler -h
@@ -1337,23 +1355,31 @@ load-balanced across the <em>Grid</em> according the the configured <em>strategy
 
  [-] Failed [0]
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="introspector"><a class="header" href="#introspector">Introspector</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="introspector"><a class="header" href="#introspector">Introspector</a></h1>
 <p>The Codename SCNR Introspector is basically middleware for your web application.</p>
 <p>When this middleware is used, advanced execution and data flow information about
 the web application is gathered, allowing for easier identification and remediation of
 each identified issue.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="ruby"><a class="header" href="#ruby">Ruby</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="ruby"><a class="header" href="#ruby">Ruby</a></h1>
 <h2 id="install"><a class="header" href="#install">Install</a></h2>
 <pre><code class="language-bash">gem install scnr-introspector
 </code></pre>
 <h2 id="use-middleware"><a class="header" href="#use-middleware">Use middleware</a></h2>
 <h3 id="options"><a class="header" href="#options">Options</a></h3>
-<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Description</th><th>Default</th><th>Example</th></tr></thead><tbody>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Option</th><th>Description</th><th>Default</th><th>Example</th></tr>
+</thead>
+<tbody>
 <tr><td><code>path_start_with</code></td><td>Only instrument classes whose path starts with this prefix</td><td>none</td><td><code>example/</code></td></tr>
 <tr><td><code>path_ends_with</code></td><td>Only instrument classes whose path ends with this suffix</td><td>none</td><td><code>app.rb</code></td></tr>
 <tr><td><code>path_include_patterns</code></td><td>Only instrument classes whose path matches all regex patterns</td><td>none</td><td><code>.*service.*</code></td></tr>
 <tr><td><code>path_exclude_patterns</code></td><td>Exclude classes matching whose path matches any regex patterns</td><td>none</td><td><code>.*test.*</code></td></tr>
-</tbody></table>
+</tbody>
+</table>
 </div>
 <p><code>app.rb</code>:</p>
 <pre><code class="language-ruby">require 'scnr/introspector' # Include!
@@ -1415,15 +1441,22 @@ Content-Length: 7055
 {"execution_flow":{"points":[{"path":"examples/sinatra/app.rb","line_number":17,"class_name":"MyApp","method_name":"GET /","event":"call","source":"    get '/' do\n","file_contents":"require 'scnr/introspector'\nrequire 'sinatra/base'\n\nclass MyApp &lt; Sinatra::Base\n    use SCNR::Introspector, scope: {\n      path_start_with: __FILE__\n    }\n\n    def noop\n    end\n\n    def process_params( params )\n        noop\n        params.values.join( ' ' )\n    end\n\n    get '/' do\n        @instance_variable = {\n            blah: 'foo'\n        }\n        local_variable = 1\n\n        &lt;&lt;EOHTML\n        #{process_params( params )}\n        &lt;a href=\"?v=stuff\"&gt;XSS&lt;/a&gt;\nEOHTML\n    end\n\n    run!\nend\n"},{"path":"examples/sinatra/app.rb","line_number":19,"class_name":"MyApp","method_name":"GET /","event":"line","source":"            blah: 'foo'\n","file_contents":"require 'scnr/introspector'\nrequire 'sinatra/base'\n\nclass MyApp &lt; Sinatra::Base\n    use SCNR::Introspector, scope: {\n      path_start_with: __FILE__\n    }\n\n    def noop\n    end\n\n    def process_params( params )\n        noop\n        params.values.join( ' ' )\n    end\n\n    get '/' do\n        @instance_variable = {\n            blah: 'foo'\n        }\n        local_variable = 1\n\n        &lt;&lt;EOHTML\n        #{process_params( params )}\n        &lt;a href=\"?v=stuff\"&gt;XSS&lt;/a&gt;\nEOHTML\n    end\n\n    run!\nend\n"},{"path":"examples/sinatra/app.rb","line_number":21,"class_name":"MyApp","method_name":"GET /","event":"line","source":"        local_variable = 1\n","file_contents":"require 'scnr/introspector'\nrequire 'sinatra/base'\n\nclass MyApp &lt; Sinatra::Base\n    use SCNR::Introspector, scope: {\n      path_start_with: __FILE__\n    }\n\n    def noop\n    end\n\n    def process_params( params )\n        noop\n        params.values.join( ' ' )\n    end\n\n    get '/' do\n        @instance_variable = {\n            blah: 'foo'\n        }\n        local_variable = 1\n\n        &lt;&lt;EOHTML\n        #{process_params( params )}\n        &lt;a href=\"?v=stuff\"&gt;XSS&lt;/a&gt;\nEOHTML\n    end\n\n    run!\nend\n"},{"path":"examples/sinatra/app.rb","line_number":23,"class_name":"MyApp","method_name":"GET /","event":"line","source":"        &lt;&lt;EOHTML\n","file_contents":"require 'scnr/introspector'\nrequire 'sinatra/base'\n\nclass MyApp &lt; Sinatra::Base\n    use SCNR::Introspector, scope: {\n      path_start_with: __FILE__\n    }\n\n    def noop\n    end\n\n    def process_params( params )\n        noop\n        params.values.join( ' ' )\n    end\n\n    get '/' do\n        @instance_variable = {\n            blah: 'foo'\n        }\n        local_variable = 1\n\n        &lt;&lt;EOHTML\n        #{process_params( params )}\n        &lt;a href=\"?v=stuff\"&gt;XSS&lt;/a&gt;\nEOHTML\n    end\n\n    run!\nend\n"},{"path":"examples/sinatra/app.rb","line_number":12,"class_name":"MyApp","method_name":"process_params","event":"call","source":"    def process_params( params )\n","file_contents":"require 'scnr/introspector'\nrequire 'sinatra/base'\n\nclass MyApp &lt; Sinatra::Base\n    use SCNR::Introspector, scope: {\n      path_start_with: __FILE__\n    }\n\n    def noop\n    end\n\n    def process_params( params )\n        noop\n        params.values.join( ' ' )\n    end\n\n    get '/' do\n        @instance_variable = {\n            blah: 'foo'\n        }\n        local_variable = 1\n\n        &lt;&lt;EOHTML\n        #{process_params( params )}\n        &lt;a href=\"?v=stuff\"&gt;XSS&lt;/a&gt;\nEOHTML\n    end\n\n    run!\nend\n"},{"path":"examples/sinatra/app.rb","line_number":13,"class_name":"MyApp","method_name":"process_params","event":"line","source":"        noop\n","file_contents":"require 'scnr/introspector'\nrequire 'sinatra/base'\n\nclass MyApp &lt; Sinatra::Base\n    use SCNR::Introspector, scope: {\n      path_start_with: __FILE__\n    }\n\n    def noop\n    end\n\n    def process_params( params )\n        noop\n        params.values.join( ' ' )\n    end\n\n    get '/' do\n        @instance_variable = {\n            blah: 'foo'\n        }\n        local_variable = 1\n\n        &lt;&lt;EOHTML\n        #{process_params( params )}\n        &lt;a href=\"?v=stuff\"&gt;XSS&lt;/a&gt;\nEOHTML\n    end\n\n    run!\nend\n"},{"path":"examples/sinatra/app.rb","line_number":9,"class_name":"MyApp","method_name":"noop","event":"call","source":"    def noop\n","file_contents":"require 'scnr/introspector'\nrequire 'sinatra/base'\n\nclass MyApp &lt; Sinatra::Base\n    use SCNR::Introspector, scope: {\n      path_start_with: __FILE__\n    }\n\n    def noop\n    end\n\n    def process_params( params )\n        noop\n        params.values.join( ' ' )\n    end\n\n    get '/' do\n        @instance_variable = {\n            blah: 'foo'\n        }\n        local_variable = 1\n\n        &lt;&lt;EOHTML\n        #{process_params( params )}\n        &lt;a href=\"?v=stuff\"&gt;XSS&lt;/a&gt;\nEOHTML\n    end\n\n    run!\nend\n"},{"path":"examples/sinatra/app.rb","line_number":14,"class_name":"MyApp","method_name":"process_params","event":"line","source":"        params.values.join( ' ' )\n","file_contents":"require 'scnr/introspector'\nrequire 'sinatra/base'\n\nclass MyApp &lt; Sinatra::Base\n    use SCNR::Introspector, scope: {\n      path_start_with: __FILE__\n    }\n\n    def noop\n    end\n\n    def process_params( params )\n        noop\n        params.values.join( ' ' )\n    end\n\n    get '/' do\n        @instance_variable = {\n            blah: 'foo'\n        }\n        local_variable = 1\n\n        &lt;&lt;EOHTML\n        #{process_params( params )}\n        &lt;a href=\"?v=stuff\"&gt;XSS&lt;/a&gt;\nEOHTML\n    end\n\n    run!\nend\n"},{"path":"examples/sinatra/app.rb","line_number":14,"class_name":"Hash","method_name":"values","event":"c_call","source":"        params.values.join( ' ' )\n","file_contents":"require 'scnr/introspector'\nrequire 'sinatra/base'\n\nclass MyApp &lt; Sinatra::Base\n    use SCNR::Introspector, scope: {\n      path_start_with: __FILE__\n    }\n\n    def noop\n    end\n\n    def process_params( params )\n        noop\n        params.values.join( ' ' )\n    end\n\n    get '/' do\n        @instance_variable = {\n            blah: 'foo'\n        }\n        local_variable = 1\n\n        &lt;&lt;EOHTML\n        #{process_params( params )}\n        &lt;a href=\"?v=stuff\"&gt;XSS&lt;/a&gt;\nEOHTML\n    end\n\n    run!\nend\n"},{"path":"examples/sinatra/app.rb","line_number":14,"class_name":"Array","method_name":"join","event":"c_call","source":"        params.values.join( ' ' )\n","file_contents":"require 'scnr/introspector'\nrequire 'sinatra/base'\n\nclass MyApp &lt; Sinatra::Base\n    use SCNR::Introspector, scope: {\n      path_start_with: __FILE__\n    }\n\n    def noop\n    end\n\n    def process_params( params )\n        noop\n        params.values.join( ' ' )\n    end\n\n    get '/' do\n        @instance_variable = {\n            blah: 'foo'\n        }\n        local_variable = 1\n\n        &lt;&lt;EOHTML\n        #{process_params( params )}\n        &lt;a href=\"?v=stuff\"&gt;XSS&lt;/a&gt;\nEOHTML\n    end\n\n    run!\nend\n"}]},"platforms":["ruby","linux"]}
 --&gt;
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="java"><a class="header" href="#java">Java</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="java"><a class="header" href="#java">Java</a></h1>
 <h2 id="options-1"><a class="header" href="#options-1">Options</a></h2>
-<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Description</th><th>Default</th><th>Example</th></tr></thead><tbody>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Option</th><th>Description</th><th>Default</th><th>Example</th></tr>
+</thead>
+<tbody>
 <tr><td><code>path_start_with</code></td><td>Only instrument classes whose path starts with this prefix</td><td>none</td><td><code>com/example</code></td></tr>
 <tr><td><code>path_ends_with</code></td><td>Only instrument classes whose path ends with this suffix</td><td>none</td><td><code>Controller</code></td></tr>
 <tr><td><code>path_include_pattern</code></td><td>Only instrument classes matching this regex pattern</td><td>none</td><td><code>.*Service.*</code></td></tr>
 <tr><td><code>path_exclude_pattern</code></td><td>Exclude classes matching this regex pattern</td><td>none</td><td><code>.*Test.*</code></td></tr>
 <tr><td><code>source_directory</code></td><td>Root directory containing source files</td><td><code>src/main/java/</code></td><td><code>/path/to/src</code></td></tr>
-</tbody></table>
+</tbody>
+</table>
 </div>
 <h2 id="download"><a class="header" href="#download">Download</a></h2>
 <p><a href="https://github.com/scnr/introspector-java-releases/releases/latest">Download</a> the latest <code>JAR</code> archive.</p>
@@ -1482,7 +1515,8 @@ Content-Length: 7055
 }
 Test --&gt;
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="net"><a class="header" href="#net">.NET</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="net"><a class="header" href="#net">.NET</a></h1>
 <h2 id="installation-1"><a class="header" href="#installation-1">Installation</a></h2>
 <h3 id="install-middleware-1"><a class="header" href="#install-middleware-1">Install Middleware</a></h3>
 <p>Add to your project:</p>
@@ -1605,7 +1639,8 @@ Server: Kestrel
 }
 Test --&gt;
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="cli"><a class="header" href="#cli">CLI</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="cli"><a class="header" href="#cli">CLI</a></h1>
 <p>Command-line interface executables can be found under the <code>bin/</code> directory and
 at the time of writing are:</p>
 <ol>
@@ -1632,7 +1667,8 @@ at the time of writing are:</p>
 <li><code>scnr_shell</code> – Starts a Bash shell under the package environment.</li>
 <li><code>scnr_system_info</code> – Presents system information about the host.</li>
 </ol>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="ruby-api"><a class="header" href="#ruby-api">Ruby API</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="ruby-api"><a class="header" href="#ruby-api">Ruby API</a></h1>
 <p>The Ruby API utilizes the <a href="https://github.com/qadron/dsel">DSeL</a> DSL/API
 generator and runner and allows you to:</p>
 <ol>
@@ -1992,7 +2028,8 @@ end
 <p>Supposing the above is saved as <code>html5.scanner.rb</code>:</p>
 <pre><code class="language-bash">bin/scnr_script html5.scanner.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="data"><a class="header" href="#data">Data</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="data"><a class="header" href="#data">Data</a></h1>
 <p>Encapsulates functionality that has to do with the data of <code>SCNR::Engine</code>.</p>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
@@ -2005,7 +2042,8 @@ end
 
 end
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="sitemap"><a class="header" href="#sitemap">Sitemap</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="sitemap"><a class="header" href="#sitemap">Sitemap</a></h1>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
     Data {
@@ -2023,7 +2061,8 @@ end
 <h2 id="example-2"><a class="header" href="#example-2">Example</a></h2>
 <pre><code class="language-bash">bin/scnr http://example.com/ --checks=- --script=sitemap.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="urls"><a class="header" href="#urls">Urls</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="urls"><a class="header" href="#urls">Urls</a></h1>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
     Data {
@@ -2040,7 +2079,8 @@ end
 <h2 id="example-3"><a class="header" href="#example-3">Example</a></h2>
 <pre><code class="language-bash">bin/scnr http://example.com/ --checks=- --script=urls.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="pages"><a class="header" href="#pages">Pages</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="pages"><a class="header" href="#pages">Pages</a></h1>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
     Data {
@@ -2057,7 +2097,8 @@ end
 <h2 id="example-4"><a class="header" href="#example-4">Example</a></h2>
 <pre><code class="language-bash">bin/scnr http://testhtml5.vulnweb.com/ --checks=- --script=pages.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="issues"><a class="header" href="#issues">Issues</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="issues"><a class="header" href="#issues">Issues</a></h1>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
     Data {
@@ -2077,7 +2118,8 @@ end
 <h2 id="example-5"><a class="header" href="#example-5">Example</a></h2>
 <pre><code class="language-bash">bin/scnr http://example.com/ --checks=allowed_methods --script=issues.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="state"><a class="header" href="#state">State</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="state"><a class="header" href="#state">State</a></h1>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
     State {
@@ -2092,7 +2134,8 @@ end
 <h2 id="example-6"><a class="header" href="#example-6">Example</a></h2>
 <pre><code class="language-bash">bin/scnr http://example.com/ --checks=- --script=state.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="browserpool"><a class="header" href="#browserpool">Browserpool</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="browserpool"><a class="header" href="#browserpool">Browserpool</a></h1>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
     Browserpool {
@@ -2121,7 +2164,8 @@ end
 <h2 id="example-7"><a class="header" href="#example-7">Example</a></h2>
 <pre><code class="language-bash">bin/scnr http://html5.vulnweb.com/ --checks=- --script=browserpool.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="dom"><a class="header" href="#dom">Dom</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="dom"><a class="header" href="#dom">Dom</a></h1>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
     Dom {
@@ -2188,7 +2232,8 @@ end
 <h2 id="example-8"><a class="header" href="#example-8">Example</a></h2>
 <pre><code class="language-bash">bin/scnr http://html5.vulnweb.com/ --checks=- --script=dom.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="http"><a class="header" href="#http">Http</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="http"><a class="header" href="#http">Http</a></h1>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
     Http {
@@ -2219,7 +2264,8 @@ end
 <h2 id="example-9"><a class="header" href="#example-9">Example</a></h2>
 <pre><code class="language-bash">bin/scnr https://wordpress.com --checks=- --script=http.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="input"><a class="header" href="#input">Input</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="input"><a class="header" href="#input">Input</a></h1>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
     Input {
@@ -2238,7 +2284,8 @@ end
 <h2 id="example-10"><a class="header" href="#example-10">Example</a></h2>
 <pre><code class="language-bash">bin/scnr https://testhtml5.vulnweb.com --checks=xss --script=input.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="logging"><a class="header" href="#logging">Logging</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="logging"><a class="header" href="#logging">Logging</a></h1>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
     Logging {
@@ -2262,7 +2309,8 @@ end
 <h2 id="example-11"><a class="header" href="#example-11">Example</a></h2>
 <pre><code class="language-bash">bin/scnr https://example.com --checks=- --script=logging.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="checks"><a class="header" href="#checks">Checks</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="checks"><a class="header" href="#checks">Checks</a></h1>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
     Checks {
@@ -2299,7 +2347,8 @@ end
 <h2 id="example-12"><a class="header" href="#example-12">Example</a></h2>
 <pre><code class="language-bash">bin/scnr http://testhtml5.vulnweb.com --script=checks.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="plugins"><a class="header" href="#plugins">Plugins</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="plugins"><a class="header" href="#plugins">Plugins</a></h1>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
     Plugins {
@@ -2341,7 +2390,8 @@ end
 <h2 id="example-13"><a class="header" href="#example-13">Example</a></h2>
 <pre><code class="language-bash">bin/scnr http://testhtml5.vulnweb.com --checks=- --script=plugins.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="fingerprinters"><a class="header" href="#fingerprinters">Fingerprinters</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="fingerprinters"><a class="header" href="#fingerprinters">Fingerprinters</a></h1>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
     Fingerprinters {
@@ -2358,7 +2408,8 @@ end
 <h2 id="example-14"><a class="header" href="#example-14">Example</a></h2>
 <pre><code class="language-bash">bin/scnr http://testhtml5.vulnweb.com --checks=- --script=fingerprinters.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="scan"><a class="header" href="#scan">Scan</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="scan"><a class="header" href="#scan">Scan</a></h1>
 <p>Encapsulates functionality that has to do with the scan.</p>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
@@ -2461,7 +2512,8 @@ ap api.scan.generate_report
 <p>Assuming the above is saved as <code>html5.scanner.rb</code>:</p>
 <pre><code>bin/scnr_script html5.scanner.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="options-2"><a class="header" href="#options-2">Options</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="options-2"><a class="header" href="#options-2">Options</a></h1>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
     Scan {
@@ -2552,7 +2604,8 @@ ap api.scan.generate_report
 
 end
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="scope"><a class="header" href="#scope">Scope</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="scope"><a class="header" href="#scope">Scope</a></h1>
 <p>Determines which resources are in or out of scope. All return values will be cast
 to boolean.</p>
 <pre><code class="language-ruby">SCNR::Application::API.run do
@@ -2592,7 +2645,8 @@ end
 <h2 id="example-16"><a class="header" href="#example-16">Example</a></h2>
 <pre><code class="language-bash">bin/scnr http://testhtml5.vulnweb.com --checks=- --script=scope.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="session"><a class="header" href="#session">Session</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="session"><a class="header" href="#session">Session</a></h1>
 <pre><code class="language-ruby">SCNR::Application::API.run do
 
     Scan {
@@ -2640,7 +2694,8 @@ end
 <h2 id="example-17"><a class="header" href="#example-17">Example</a></h2>
 <pre><code class="language-bash">bin/scnr http://testhtml5.vulnweb.com --checks=- --script=session.rb
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="rest"><a class="header" href="#rest">REST</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="rest"><a class="header" href="#rest">REST</a></h1>
 <h2 id="server-3"><a class="header" href="#server-3">Server</a></h2>
 <p>To start the REST server:</p>
 <pre><code class="language-bash">bin/scnr_rest_server
@@ -2650,14 +2705,25 @@ end
 </code></pre>
 <h2 id="api"><a class="header" href="#api">API</a></h2>
 <h3 id="scan-1"><a class="header" href="#scan-1">Scan</a></h3>
-<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Resource</th><th>Parameters</th><th>Description</th></tr></thead><tbody>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Method</th><th>Resource</th><th>Parameters</th><th>Description</th></tr>
+</thead>
+<tbody>
 <tr><td><code>GET</code></td><td><code>/instances/:id/scan/progress</code></td><td></td><td>Get scan progress.</td></tr>
 <tr><td><code>GET</code></td><td><code>/instances/:id/scan/session</code></td><td></td><td>Get scan session of a completed/aborted scan.</td></tr>
 <tr><td><code>GET</code></td><td><code>/instances/:id/scan/report.json</code></td><td></td><td>Get the scan report.</td></tr>
-</tbody></table>
+</tbody>
+</table>
 </div>
 <h3 id="instances"><a class="header" href="#instances">Instances</a></h3>
-<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Resource</th><th>Parameters</th><th>Description</th></tr></thead><tbody>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Method</th><th>Resource</th><th>Parameters</th><th>Description</th></tr>
+</thead>
+<tbody>
 <tr><td><code>GET</code></td><td><code>/instances</code></td><td></td><td>List all <em>Instances</em>.</td></tr>
 <tr><td><code>POST</code></td><td><code>/instances</code></td><td>Scan options (<code>Hash</code>)</td><td>Create a new <em>Instance</em> with the given scan options.</td></tr>
 <tr><td><code>POST</code></td><td><code>/instances/restore</code></td><td><code>{ 'session': 'path' }</code></td><td>Create a new <em>Instance</em> from a restored <em>Scan</em> session.</td></tr>
@@ -2667,7 +2733,8 @@ end
 <tr><td><code>PUT</code></td><td><code>/instances/:id/resume</code></td><td></td><td>Resume the <em>Instance</em>.</td></tr>
 <tr><td><code>PUT</code></td><td><code>/instances/:id/abort</code></td><td></td><td>Abort the <em>Instance</em>.</td></tr>
 <tr><td><code>DELETE</code></td><td><code>/instances/:id</code></td><td></td><td>Abort and shutdown the <em>Instance</em>.</td></tr>
-</tbody></table>
+</tbody>
+</table>
 </div>
 <h4 id="scan-options"><a class="header" href="#scan-options">Scan options</a></h4>
 <pre><code>{
@@ -2850,21 +2917,38 @@ end
 }
 </code></pre>
 <h3 id="agent-1"><a class="header" href="#agent-1">Agent</a></h3>
-<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Resource</th><th>Parameters</th><th>Description</th></tr></thead><tbody>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Method</th><th>Resource</th><th>Parameters</th><th>Description</th></tr>
+</thead>
+<tbody>
 <tr><td><code>GET</code></td><td><code>/agent/url</code></td><td></td><td>Get the configured <em>Agent</em> URL.</td></tr>
 <tr><td><code>PUT</code></td><td><code>/agent/url</code></td><td>URL (<code>String</code>)</td><td>Set the <em>Agent</em> URL.</td></tr>
 <tr><td><code>DELETE</code></td><td><code>/agent/url</code></td><td></td><td>Remove the <em>Agent</em>.</td></tr>
-</tbody></table>
+</tbody>
+</table>
 </div>
 <h3 id="grid-2"><a class="header" href="#grid-2">Grid</a></h3>
-<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Resource</th><th>Parameters</th><th>Description</th></tr></thead><tbody>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Method</th><th>Resource</th><th>Parameters</th><th>Description</th></tr>
+</thead>
+<tbody>
 <tr><td><code>GET</code></td><td><code>/grid</code></td><td></td><td>Get <em>Grid</em> info.</td></tr>
 <tr><td><code>GET</code></td><td><code>/grid/:agent</code></td><td></td><td>Get info of <em>Grid</em> member by URL.</td></tr>
 <tr><td><code>DELETE</code></td><td><code>/grid/:agent</code></td><td></td><td>Unplug <em>Agent</em> from the <em>Grid</em> by URL.</td></tr>
-</tbody></table>
+</tbody>
+</table>
 </div>
 <h3 id="scheduler-1"><a class="header" href="#scheduler-1">Scheduler</a></h3>
-<div class="table-wrapper"><table><thead><tr><th>Method</th><th>Resource</th><th>Parameters</th><th>Description</th></tr></thead><tbody>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Method</th><th>Resource</th><th>Parameters</th><th>Description</th></tr>
+</thead>
+<tbody>
 <tr><td><code>GET</code></td><td><code>/scheduler</code></td><td></td><td>Get <em>Scheduler</em> info.</td></tr>
 <tr><td><code>GET</code></td><td><code>/scheduler/url</code></td><td></td><td>Get <em>Scheduler</em> URL.</td></tr>
 <tr><td><code>PUT</code></td><td><code>/scheduler/url</code></td><td>URL (<code>String</code>)</td><td>Set the <em>Scheduler</em> URL.</td></tr>
@@ -2878,7 +2962,8 @@ end
 <tr><td><code>GET</code></td><td><code>/scheduler/:instance</code></td><td></td><td>Get <em>Instance</em> info.</td></tr>
 <tr><td><code>PUT</code></td><td><code>/scheduler/:instance/detach</code></td><td></td><td>Detach the given <em>Instance</em> from the <em>Scheduler</em>.</td></tr>
 <tr><td><code>DELETE</code></td><td><code>/scheduler/:instance</code></td><td></td><td>Remove queued <em>Instance</em> job from the <em>Scheduler</em> queue.</td></tr>
-</tbody></table>
+</tbody>
+</table>
 </div>
 <h2 id="examples-4"><a class="header" href="#examples-4">Examples</a></h2>
 <h3 id="starting-the-rest-server"><a class="header" href="#starting-the-rest-server">Starting the REST server</a></h3>
@@ -3049,7 +3134,8 @@ monitor_and_report( instance_id )
 # Shutdown the Instance.
 request :delete, "instances/#{instance_id}"
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="web-ui"><a class="header" href="#web-ui">Web UI</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="web-ui"><a class="header" href="#web-ui">Web UI</a></h1>
 <p>The WebUI allows you to easily run, manage and schedule scans and their results via an intuitive web interface.</p>
 <h2 id="boot-up"><a class="header" href="#boot-up">Boot-up</a></h2>
 <p>To boot the Pro interface please run:</p>
@@ -3089,51 +3175,62 @@ request :delete, "instances/#{instance_id}"
 <h2 id="screenshots"><a class="header" href="#screenshots">Screenshots</a></h2>
 <h3 id="sites"><a class="header" href="#sites">Sites</a></h3>
 <h4 id="list"><a class="header" href="#list">List</a></h4>
-<p><a href="interfaces/web/screenshots/Screenshot_20220504_082733.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082733.png" alt="Sites list" /></a>
-<a href="interfaces/web/screenshots/Screenshot_20220504_083434.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083434.png" alt="Sites list" /></a></p>
+<p><a href="interfaces/web/screenshots/Screenshot_20220504_082733.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082733.png" alt="Sites list"></a>
+<a href="interfaces/web/screenshots/Screenshot_20220504_083434.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083434.png" alt="Sites list"></a></p>
 <h4 id="settings"><a class="header" href="#settings">Settings</a></h4>
-<p><a href="interfaces/web/screenshots/Screenshot_20220504_082801.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082801.png" alt="Sites settings" /></a>
-<a href="interfaces/web/screenshots/Screenshot_20220504_082829.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082829.png" alt="Sites settings" /></a></p>
+<p><a href="interfaces/web/screenshots/Screenshot_20220504_082801.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082801.png" alt="Sites settings"></a>
+<a href="interfaces/web/screenshots/Screenshot_20220504_082829.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082829.png" alt="Sites settings"></a></p>
 <h4 id="scans"><a class="header" href="#scans">Scans</a></h4>
-<p><a href="interfaces/web/screenshots/Screenshot_20220504_082949.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082949.png" alt="Scans" /></a></p>
+<p><a href="interfaces/web/screenshots/Screenshot_20220504_082949.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082949.png" alt="Scans"></a></p>
 <h5 id="new"><a class="header" href="#new">New</a></h5>
-<p><a href="interfaces/web/screenshots/Screenshot_20220504_083006.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083006.png" alt="New scan" /></a></p>
+<p><a href="interfaces/web/screenshots/Screenshot_20220504_083006.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083006.png" alt="New scan"></a></p>
 <h5 id="summary"><a class="header" href="#summary">Summary</a></h5>
-<p><a href="interfaces/web/screenshots/Screenshot_20220504_083050.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083050.png" alt="Scan summary" /></a></p>
+<p><a href="interfaces/web/screenshots/Screenshot_20220504_083050.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083050.png" alt="Scan summary"></a></p>
 <h5 id="issues-1"><a class="header" href="#issues-1">Issues</a></h5>
-<p><a href="interfaces/web/screenshots/Screenshot_20220329_123849.png"><img src="interfaces/web/screenshots/Screenshot_20220329_123849.png" alt="Issues list" /></a></p>
+<p><a href="interfaces/web/screenshots/Screenshot_20220329_123849.png"><img src="interfaces/web/screenshots/Screenshot_20220329_123849.png" alt="Issues list"></a></p>
 <h6 id="issue"><a class="header" href="#issue">Issue</a></h6>
-<p><a href="interfaces/web/screenshots/Screenshot_20220504_083144.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083144.png" alt="Scan issue" /></a>
-<a href="interfaces/web/screenshots/Screenshot_20220504_083154.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083154.png" alt="Scan issue" /></a>
-<a href="interfaces/web/screenshots/Screenshot_20220504_083210.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083210.png" alt="Scan issue" /></a>
-<a href="interfaces/web/screenshots/Screenshot_20220504_083243.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083243.png" alt="Scan issue" /></a>
-<a href="interfaces/web/screenshots/Screenshot_20220504_083304.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083304.png" alt="Scan issue" /></a></p>
+<p><a href="interfaces/web/screenshots/Screenshot_20220504_083144.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083144.png" alt="Scan issue"></a>
+<a href="interfaces/web/screenshots/Screenshot_20220504_083154.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083154.png" alt="Scan issue"></a>
+<a href="interfaces/web/screenshots/Screenshot_20220504_083210.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083210.png" alt="Scan issue"></a>
+<a href="interfaces/web/screenshots/Screenshot_20220504_083243.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083243.png" alt="Scan issue"></a>
+<a href="interfaces/web/screenshots/Screenshot_20220504_083304.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083304.png" alt="Scan issue"></a></p>
 <h5 id="coverage"><a class="header" href="#coverage">Coverage</a></h5>
-<p><a href="interfaces/web/screenshots/Screenshot_20220504_083104.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083104.png" alt="Scan coverage" /></a>
-<a href="interfaces/web/screenshots/Screenshot_20220504_083509.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083509.png" alt="Scan coverage" /></a></p>
+<p><a href="interfaces/web/screenshots/Screenshot_20220504_083104.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083104.png" alt="Scan coverage"></a>
+<a href="interfaces/web/screenshots/Screenshot_20220504_083509.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083509.png" alt="Scan coverage"></a></p>
 <h5 id="health"><a class="header" href="#health">Health</a></h5>
-<p><a href="interfaces/web/screenshots/Screenshot_20220504_083113.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083113.png" alt="Scan health" /></a></p>
+<p><a href="interfaces/web/screenshots/Screenshot_20220504_083113.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083113.png" alt="Scan health"></a></p>
 <h5 id="events"><a class="header" href="#events">Events</a></h5>
-<p><a href="interfaces/web/screenshots/Screenshot_20220504_083127.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083127.png" alt="Scan events" /></a></p>
+<p><a href="interfaces/web/screenshots/Screenshot_20220504_083127.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083127.png" alt="Scan events"></a></p>
 <h4 id="user-roles"><a class="header" href="#user-roles">User roles</a></h4>
 <h5 id="list-1"><a class="header" href="#list-1">List</a></h5>
-<p><a href="interfaces/web/screenshots/Screenshot_20220504_082852.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082852.png" alt="User roles list" /></a></p>
+<p><a href="interfaces/web/screenshots/Screenshot_20220504_082852.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082852.png" alt="User roles list"></a></p>
 <h5 id="new-1"><a class="header" href="#new-1">New</a></h5>
-<p><a href="interfaces/web/screenshots/Screenshot_20220504_082906.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082906.png" alt="User roles new" /></a>
-<a href="interfaces/web/screenshots/Screenshot_20220504_082914.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082914.png" alt="User roles new" /></a>
-<a href="interfaces/web/screenshots/Screenshot_20220504_082926.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082926.png" alt="User roles new" /></a>
-<a href="interfaces/web/screenshots/Screenshot_20220504_082934.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082934.png" alt="User roles new" /></a></p>
+<p><a href="interfaces/web/screenshots/Screenshot_20220504_082906.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082906.png" alt="User roles new"></a>
+<a href="interfaces/web/screenshots/Screenshot_20220504_082914.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082914.png" alt="User roles new"></a>
+<a href="interfaces/web/screenshots/Screenshot_20220504_082926.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082926.png" alt="User roles new"></a>
+<a href="interfaces/web/screenshots/Screenshot_20220504_082934.png"><img src="interfaces/web/screenshots/Screenshot_20220504_082934.png" alt="User roles new"></a></p>
 <h3 id="profiles"><a class="header" href="#profiles">Profiles</a></h3>
 <h4 id="list-2"><a class="header" href="#list-2">List</a></h4>
-<p><a href="interfaces/web/screenshots/Screenshot_20220504_083319.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083319.png" alt="Profiles list" /></a></p>
+<p><a href="interfaces/web/screenshots/Screenshot_20220504_083319.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083319.png" alt="Profiles list"></a></p>
 <h4 id="show"><a class="header" href="#show">Show</a></h4>
-<p><a href="interfaces/web/screenshots/Screenshot_20220504_083330.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083330.png" alt="Profile show" /></a></p>
+<p><a href="interfaces/web/screenshots/Screenshot_20220504_083330.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083330.png" alt="Profile show"></a></p>
 <h3 id="devices"><a class="header" href="#devices">Devices</a></h3>
 <h4 id="list-3"><a class="header" href="#list-3">List</a></h4>
-<p><a href="interfaces/web/screenshots/Screenshot_20220504_083347.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083347.png" alt="Devices list" /></a></p>
+<p><a href="interfaces/web/screenshots/Screenshot_20220504_083347.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083347.png" alt="Devices list"></a></p>
 <h3 id="settings-1"><a class="header" href="#settings-1">Settings</a></h3>
-<p><a href="interfaces/web/screenshots/Screenshot_20220504_083407.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083407.png" alt="Settings" /></a></p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="generate-reports"><a class="header" href="#generate-reports">Generate reports</a></h1>
+<p><a href="interfaces/web/screenshots/Screenshot_20220504_083407.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083407.png" alt="Settings"></a></p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="run-air-gapped"><a class="header" href="#run-air-gapped">Run air-gapped</a></h1>
+<p>In order to run Codename SCNR in an air-gapped environment you need to:</p>
+<ul>
+<li>Run an instance of <code>bin/scnr_check_server</code> in your local network – Provides functionality needed for SSRF types of checks.
+<ul>
+<li>Set the <code>SCNR_CHECK_SERVER</code> environment variable to the check server URL – ex. <code>http://10.1.1.1:9292</code>.</li>
+</ul>
+</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="generate-reports"><a class="header" href="#generate-reports">Generate reports</a></h1>
 <h2 id="pro"><a class="header" href="#pro">Pro</a></h2>
 <p>You can export scan results in several formats from the “Export” tab of an aborted or completed revision scan.</p>
 <h2 id="cli-1"><a class="header" href="#cli-1">CLI</a></h2>
@@ -3259,7 +3356,8 @@ Options:
 Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
 Version:        0.2
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="optimize-scans"><a class="header" href="#optimize-scans">Optimize scans</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="optimize-scans"><a class="header" href="#optimize-scans">Optimize scans</a></h1>
 <p>Left to its own devices, Codename SCNR will try to optimize itself to match any given
 circumstance, but there are limitations to what it can do automatically.</p>
 <p>If a scan is taking too long, chances are that there are ways to make it go much
@@ -3267,15 +3365,15 @@ faster by taking a couple of minutes to configure the system to closer match you
 <p>In addition to performance, the following options also affect resource usage so
 you can experiment with them to better match your available resources as well.</p>
 <ol>
-<li><a href="how-to/optimize-scans.html#only-enable-security-checks-that-concern-you">Only enable security checks that concern you</a></li>
-<li><a href="how-to/optimize-scans.html#tailor-the-audit-process-to-the-platforms-of-the-web-application">Tailor the audit process to the platforms of the web application</a></li>
-<li><a href="how-to/optimize-scans.html#ensure-server-responsiveness">Ensure server responsiveness</a></li>
-<li><a href="how-to/optimize-scans.html#balance-ram-consumption-and-performance">Balance RAM consumption and performance</a></li>
-<li><a href="how-to/optimize-scans.html#reduce-ram-consumption-by-avoiding-large-resources">Reduce RAM consumption by avoiding large resources</a></li>
-<li><a href="how-to/optimize-scans.html#dont-follow-redundant-pages">Don’t follow redundant pages</a></li>
-<li><a href="how-to/optimize-scans.html#adjust-the-amount-of-browser-workers">Adjust the amount of browser workers</a></li>
-<li><a href="how-to/optimize-scans.html#pick-the-audit-mode-that-suits-you-best">Pick the audit mode that suits you best</a></li>
-<li><a href="how-to/optimize-scans.html#scan-incrementally">Scan incrementally</a></li>
+<li><a href="#only-enable-security-checks-that-concern-you">Only enable security checks that concern you</a></li>
+<li><a href="#tailor-the-audit-process-to-the-platforms-of-the-web-application">Tailor the audit process to the platforms of the web application</a></li>
+<li><a href="#ensure-server-responsiveness">Ensure server responsiveness</a></li>
+<li><a href="#balance-ram-consumption-and-performance">Balance RAM consumption and performance</a></li>
+<li><a href="#reduce-ram-consumption-by-avoiding-large-resources">Reduce RAM consumption by avoiding large resources</a></li>
+<li><a href="#dont-follow-redundant-pages">Don’t follow redundant pages</a></li>
+<li><a href="#adjust-the-amount-of-browser-workers">Adjust the amount of browser workers</a></li>
+<li><a href="#pick-the-audit-mode-that-suits-you-best">Pick the audit mode that suits you best</a></li>
+<li><a href="#scan-incrementally">Scan incrementally</a></li>
 </ol>
 <h2 id="only-enable-security-checks-that-concern-you"><a class="header" href="#only-enable-security-checks-that-concern-you">Only enable security checks that concern you</a></h2>
 <p>By default, SCNR will load <strong>all</strong> checks, which may not be what you want.</p>
@@ -3402,13 +3500,14 @@ of time.</p>
 <p>The location of the session file is printed at the end of each scan and can be restored via:</p>
 <pre><code>./bin/scnr_restore SESSION_FILE
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="maintain-a-valid-session"><a class="header" href="#maintain-a-valid-session">Maintain a valid session</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="maintain-a-valid-session"><a class="header" href="#maintain-a-valid-session">Maintain a valid session</a></h1>
 <p>Codename SCNR supports automated logout detection and re-login, as well as improved login procedures.</p>
 <ul>
-<li><a href="how-to/maintain-a-valid-session.html#login_form-plugin">Form-based login</a></li>
-<li><a href="how-to/maintain-a-valid-session.html#login_script-plugin">Script-based login</a></li>
-<li><a href="how-to/maintain-a-valid-session.html#proxy-plugin">Proxy-based login</a></li>
-<li><a href="how-to/maintain-a-valid-session.html#cookie-jar">Cookie-jar login</a></li>
+<li><a href="#login_form-plugin">Form-based login</a></li>
+<li><a href="#login_script-plugin">Script-based login</a></li>
+<li><a href="#proxy-plugin">Proxy-based login</a></li>
+<li><a href="#cookie-jar">Cookie-jar login</a></li>
 </ul>
 <h2 id="login_form-plugin"><a class="header" href="#login_form-plugin">login_form plugin</a></h2>
 <p>The <code>login_form</code> plugin expects for following options:</p>
@@ -3430,7 +3529,7 @@ be the same as the autologin <code>check</code> option).</p>
 to the same extent.</p>
 <p>For example, if the login form is by default hidden and requires a sequence of UI
 interactions in order to become visible, this plugin will not be able to submit it.</p>
-<p>For more complex sequences please use the <a href="how-to/maintain-a-valid-session.html#login_script-plugin">login_script</a> plugin.</p>
+<p>For more complex sequences please use the <a href="#login_script-plugin">login_script</a> plugin.</p>
 <h3 id="example-18"><a class="header" href="#example-18">Example</a></h3>
 <pre><code>bin/scnr http://testfire.net --plugin=login_form:url=http://testfire.net/bank/login.aspx,parameters="uid=jsmith&amp;passw=Demo1234",check="Sign Off|MY ACCOUNT" --scope-exclude-pattern=logout
 </code></pre>
@@ -3521,7 +3620,7 @@ server responses as well as browser requests.</p>
 <p>Since the proxy can inspect all this traffic, it can be instructed to record a
 login sequence and then deduce the login form and the values with which it was filled.</p>
 <p>Like the <code>form_login</code> plugin, the <code>proxy</code> plugin will configure the system accordingly.</p>
-<h3 id="example-19"><a class="header" href="#example-19">Example</a></h3>
+<h3 id="example-1-1"><a class="header" href="#example-1-1">Example</a></h3>
 <pre><code>bin/scnr http://testfire.net --plugin=proxy --scope-exclude-pattern=logout
 </code></pre>
 <p>You then need to configure your browser to use this proxy when connecting to the
@@ -3538,7 +3637,8 @@ a login check and verifying that the deduced login sequence works properly.</p>
 </ul>
 <p>This way SCNR will still be able to know if it gets logged out (which is helpful to several system components) but won’t be able to log-in automatically.</p>
 <p>Of course, you should still exclude any path that can lead to the destruction of the session.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="scan-services"><a class="header" href="#scan-services">Scan services</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="scan-services"><a class="header" href="#scan-services">Scan services</a></h1>
 <p>At the moment the are no specialized service crawlers, however auditing web
 services is possible by first training the system via its <code>proxy</code> plugin.</p>
 <h2 id="capturing-inputs"><a class="header" href="#capturing-inputs">Capturing inputs</a></h2>
@@ -3592,7 +3692,8 @@ and then reuse the exported vector data for subsequent scans.</p>
 </code></pre>
 <p>If you require further information, you can enable the <code>--output-debug</code> option;
 acceptable verbosity values range from <code>1</code> to <code>3</code>, <code>1</code> being the default.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="scale"><a class="header" href="#scale">Scale</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="scale"><a class="header" href="#scale">Scale</a></h1>
 <p>SCNR can be configured into a <em>Grid</em>, in order to combine the resources of multiple
 nodes and thus perform large amounts of scans simultaneously or complete individual
 scans faster.</p>
@@ -3605,7 +3706,7 @@ when booting up a new one.</p>
 <p>This allows for creating a private Cloud of scanners, with minimal configuration,
 that can handle an indefinite amount of workload.</p>
 <p>Prior to continuing, it would be best if you took a look at SCNR’s
-<a href="how-to//deployment/distributed/index.html">distributed architecture</a>.</p>
+<a href="/deployment/distributed/index.html">distributed architecture</a>.</p>
 <h2 id="strategies-1"><a class="header" href="#strategies-1">Strategies</a></h2>
 <p>Scaling strategies can be configured via the <code>--strategy</code> option of <em>Agents</em>,
 like so:</p>
@@ -3671,7 +3772,8 @@ hundreds of thousands or even millions of pages.</p>
 <p>The <code>--multi-instances=5</code> option will instruct SCNR to use 5 <em>Instances</em> to run this
 particular scan, with the aforementioned <em>Instances</em> being of course load-balanced
 across the <em>Grid</em>.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="copyright"><a class="header" href="#copyright">Copyright</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="copyright"><a class="header" href="#copyright">Copyright</a></h1>
 <p>Copyright 2024 <a href="https://ecsypno.com">Ecsypno</a>.</p>
 <p>All rights reserved.</p>
 
@@ -3692,6 +3794,11 @@ across the <em>Grid</em>.</p>
 
         </div>
 
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
 
 
 
@@ -3700,13 +3807,13 @@ across the <em>Grid</em>.</p>
         </script>
 
 
-        <script src="elasticlunr.min.js"></script>
-        <script src="mark.min.js"></script>
-        <script src="searcher.js"></script>
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-c2a407aa.js"></script>
 
-        <script src="clipboard.min.js"></script>
-        <script src="highlight.js"></script>
-        <script src="book.js"></script>
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-a0b12cfe.js"></script>
 
         <!-- Custom JS scripts -->
 
@@ -3715,6 +3822,7 @@ across the <em>Grid</em>.</p>
             window.setTimeout(window.print, 100);
         });
         </script>
+
 
     </div>
     </body>
