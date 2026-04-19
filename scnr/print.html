@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-f11d39ff.js";
+            window.path_to_searchindex_js = "searchindex-0af7abd6.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-29fa3473.js"></script>
@@ -3223,6 +3223,12 @@ request :delete, "instances/#{instance_id}"
 <h1 id="run-air-gapped"><a class="header" href="#run-air-gapped">Run air-gapped</a></h1>
 <p>In order to run Codename SCNR in an air-gapped environment you need to:</p>
 <ul>
+<li>Place the license file at: <code>~/.scnr/license.key</code>
+<ul>
+<li>Either by copying it over from a previous activation on an Internet-enabled machine, or;</li>
+<li>by <a href="https://license.ecsypno.com/scnr">activating on-line</a>.</li>
+</ul>
+</li>
 <li>Run an instance of <code>bin/scnr_check_server</code> in your local network – Provides functionality needed for SSRF types of checks.
 <ul>
 <li>Set the <code>SCNR_CHECK_SERVER</code> environment variable to the check server URL – ex. <code>http://10.1.1.1:9292</code>.</li>
