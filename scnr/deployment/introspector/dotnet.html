@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>.NET - Codename SCNR Documentation</title>
+        <title>.NET - Velox Scan Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-0af7abd6.js";
+            window.path_to_searchindex_js = "../../searchindex-3fddfbcc.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-29fa3473.js"></script>
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Codename SCNR Documentation</h1>
+                    <h1 class="menu-title">Velox Scan Documentation</h1>
 
                     <div class="right-buttons">
                         <a href="../../print.html" title="Print this book" aria-label="Print this book">
@@ -232,7 +232,7 @@ app.Run();
 </code></pre>
 <pre><code class="language-bash">dotnet run --project Ecsypno.TestApp -c Release
 </code></pre>
-<p>Should output <code>[INTROSPECTOR] Codename SCNR Introspector middleware initialized.</code> at the top.</p>
+<p>Should output <code>[INTROSPECTOR] Velox Scan Introspector middleware initialized.</code> at the top.</p>
 <h2 id="patch"><a class="header" href="#patch">Patch</a></h2>
 <pre><code class="language-bash">dotnet build Ecsypno.TestApp -c Release # Build first.
 introspector Ecsypno.TestApp/bin/Release/ --path-ends-with Ecsypno.TestApp.dll --path-exclude-pattern "ref|obj"
@@ -253,7 +253,7 @@ introspector Ecsypno.TestApp/bin/Release/ --path-ends-with Ecsypno.TestApp.dll -
 </code></pre>
 <p>Should output:</p>
 <pre><code>[INTROSPECTOR] Patched assembly loaded: Ecsypno.TestApp/bin/Release/net8.0/Ecsypno.TestApp.dll
-[INTROSPECTOR] Codename SCNR Introspector middleware initialized.
+[INTROSPECTOR] Velox Scan Introspector middleware initialized.
 </code></pre>
 <pre><code class="language-bash">curl -i http://localhost:5055/xss?input=test -H "X-Scnr-Engine-Scan-Seed:Test" -H "X-Scnr-Introspector-Trace:1" -H "X-SCNR-Request-ID:1"
 </code></pre>
