@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Introduction - Velox Scan Documentation</title>
+        <title>Introduction - Spectre Scan Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -35,7 +35,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-3fddfbcc.js";
+            window.path_to_searchindex_js = "searchindex-c9b65e17.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-29fa3473.js"></script>
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Velox Scan Documentation</h1>
+                    <h1 class="menu-title">Spectre Scan Documentation</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -174,14 +174,14 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <p><img src="gfx/velox-scan-banner.png" alt="alt text"></p>
+                        <p><img src="gfx/spectre-scan-banner.png" alt="alt text"></p>
 <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
 <h2 id="description"><a class="header" href="#description">Description</a></h2>
-<p>Velox Scan is a modular, distributed, high-performance
+<p>Spectre Scan is a modular, distributed, high-performance
 <a href="https://en.wikipedia.org/wiki/Dynamic_application_security_testing">DAST</a> web
 application security scanner framework, capable of analyzing the behavior and
 security of modern web applications and web APIs.</p>
-<p>You can access Velox Scan via multiple interfaces, such as:</p>
+<p>You can access Spectre Scan via multiple interfaces, such as:</p>
 <ul>
 <li><a href="./interfaces/cli.html">CLI</a></li>
 <li><a href="./interfaces/ruby-api/index.html">Ruby API</a></li>
@@ -267,25 +267,25 @@ security of modern web applications and web APIs.</p>
 </li>
 </ol>
 <p>This list keeps growing but new platforms or failure to fingerprint supported
-ones don’t disable the Velox Scan engine, they merely force it to be more extensive in its scan.</p>
+ones don’t disable the Spectre Scan engine, they merely force it to be more extensive in its scan.</p>
 <p>Upon successful identification or configuration of platform types, the scan will
 be much more focused, less resource intensive and require less time to complete.</p>
 <h2 id="front-end-support"><a class="header" href="#front-end-support">Front-end support</a></h2>
 <p>HTML5, modern Javascript APIs and modern DOM APIs are supported by basing their
 execution and analysis on Google Chromium.</p>
-<p>Velox Scan injects a custom environment to monitor JS objects and APIs in order
+<p>Spectre Scan injects a custom environment to monitor JS objects and APIs in order
 to trace execution and data flows and thus provide highly in-depth reporting as to how a
 client-side security issue was identified which also greatly assists in its remediation.</p>
 <h2 id="incremental-scans"><a class="header" href="#incremental-scans">Incremental scans</a></h2>
 <p>Save valuable time by re-scanning only what has changed, rather than running full scans every single time.</p>
-<p>In order to save time on subsequent scans of the same target, Velox Scan allows you to extract a session file from
+<p>In order to save time on subsequent scans of the same target, Spectre Scan allows you to extract a session file from
 completed/aborted scans, in order to allow for incremental re-scans.</p>
 <p>This means that only newly introduced input vectors will be audited the next time around, which saves immense
 amounts of time from your workflow.</p>
 <p>For example, a <em>seed</em> (first) scan of a website that requires an hour to complete, can result in re-scan times of less
 that 10 minutes – depending on how many new input vectors were introduced.</p>
 <h2 id="behavioral-analysis"><a class="header" href="#behavioral-analysis">Behavioral analysis</a></h2>
-<p>Velox Scan will study the web application/service to identify how each input interacts
+<p>Spectre Scan will study the web application/service to identify how each input interacts
 with the front and back ends and tailor the audit for each specific input’s characteristics.</p>
 <p>This results in highly self-optimized scans using less resources and requiring
 less time to complete, as well as less server stress.</p>
@@ -314,14 +314,14 @@ extend functionality.</p>
 <p>Furthermore, scripted scans allow for the creation of basically tailor made
 scans by moving decision making points and configuration to user-specified
 methods and can extend to even creating a custom scanner for any web application
-backed by the Velox Scan engine.</p>
+backed by the Spectre Scan engine.</p>
 <p>The API is tidy and simple and easily allows you to plug-in to key API<sup class="footnote-reference" id="fr-dsel-1"><a href="#footnote-dsel">1</a></sup> scan points
 in order to get the best results from any scan.</p>
 <p>Scripts are written in Ruby and can thus be stored in your favorite CVS, this
 enables you to work side-by-side with the web application development team and
 have the right script revision alongside the respective web application revision.</p>
 <h2 id="scalability"><a class="header" href="#scalability">Scalability</a></h2>
-<p>No dependencies, no configuration; Velox Scan can build a cloud of itself that allows
+<p>No dependencies, no configuration; Spectre Scan can build a cloud of itself that allows
 you to scale both horizontally and vertically.</p>
 <p>Scale up by plugging more nodes to its <em>Grid</em>, or down by unplugging them.</p>
 <p>Furthermore, with multi-<em>Instance</em> scans you can not only distribute multiple
@@ -336,7 +336,7 @@ deployments to perform scans from remote hosts and Grid/cloud/SaaS setups.</p>
 load-balanced (vertically and horizontally) scanner grids; basically allowing for
 the creation of private scanner clouds in either yours or a Cloud provider’s infrastructure.</p>
 <h2 id="conclusion"><a class="header" href="#conclusion">Conclusion</a></h2>
-<p>Thus, Velox Scan can in essence fit into any SDLC with great grace, ease and little care.</p>
+<p>Thus, Spectre Scan can in essence fit into any SDLC with great grace, ease and little care.</p>
 <hr>
 <ol class="footnote-definition">
 <li id="footnote-dsel">
