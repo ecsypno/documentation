@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-933db9fa.js";
+            window.path_to_searchindex_js = "searchindex-476946a2.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-29fa3473.js"></script>
+        <script src="toc-e6c11880.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -3221,6 +3221,14 @@ request :delete, "instances/#{instance_id}"
 <h3 id="settings-1"><a class="header" href="#settings-1">Settings</a></h3>
 <p><a href="interfaces/web/screenshots/Screenshot_20220504_083407.png"><img src="interfaces/web/screenshots/Screenshot_20220504_083407.png" alt="Settings"></a></p>
 <div style="break-before: page; page-break-before: always;"></div>
+<h1 id="setup-ai"><a class="header" href="#setup-ai">Setup AI</a></h1>
+<p>Spectre Scan relies on <a href="https://openai.com/">OpenAI</a> to intelligently analyse issues, offer suggestions and provide feedback.</p>
+<h2 id="cli-1"><a class="header" href="#cli-1">CLI</a></h2>
+<pre><code>bin/scnr --plugin=openai:apikey=YOUR_API_KEY [URL]
+</code></pre>
+<h2 id="web-ui-1"><a class="header" href="#web-ui-1">Web UI</a></h2>
+<p>To set your Open AI token, go to the “Settings” page.</p>
+<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="run-air-gapped"><a class="header" href="#run-air-gapped">Run air-gapped</a></h1>
 <p>In order to run Spectre Scan in an air-gapped environment you need to:</p>
 <ul>
@@ -3240,7 +3248,7 @@ request :delete, "instances/#{instance_id}"
 <h1 id="generate-reports"><a class="header" href="#generate-reports">Generate reports</a></h1>
 <h2 id="pro"><a class="header" href="#pro">Pro</a></h2>
 <p>You can export scan results in several formats from the “Export” tab of an aborted or completed revision scan.</p>
-<h2 id="cli-1"><a class="header" href="#cli-1">CLI</a></h2>
+<h2 id="cli-2"><a class="header" href="#cli-2">CLI</a></h2>
 <p>There are 2 reference report format types that you may encounter when using Spectre Scan:</p>
 <ol>
 <li><code>*.crf</code> – Cuboid report file.</li>
