@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-c9b65e17.js";
+            window.path_to_searchindex_js = "searchindex-933db9fa.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-29fa3473.js"></script>
@@ -349,7 +349,7 @@ the creation of private scanner clouds in either yours or a Cloud provider’s i
 </ol>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
-<p>For installation instructions please refer to the <a href="https://github.com/ecsypno/Spectre-scan">installer</a>.</p>
+<p>For installation instructions please refer to the <a href="https://github.com/ecsypno/spectre-scan">installer</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="system-requirements"><a class="header" href="#system-requirements">System requirements</a></h1>
 <div class="table-wrapper">
@@ -1216,7 +1216,7 @@ end
 <p>Distribution features are deferred to <a href="https://github.com/qadron/cuboid">Cuboid</a>;
 hence, a quick read through its <a href="https://github.com/qadron/cuboid/blob/master/README.md">readme</a>
 will outline the architecture.</p>
-<p>In this case, the Cuboid application is SCNR.</p>
+<p>In this case, the Cuboid application is Spectre Scan.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="agent"><a class="header" href="#agent">Agent</a></h1>
 <p>To start an <em>Agent</em> run the <code>scnr_agent</code> CLI executable.</p>
@@ -1652,7 +1652,7 @@ at the time of writing are:</p>
 <li><code>scnr_agent_monitor</code> – Monitors a <em>Agent</em>.</li>
 <li><code>scnr_agent_unplug</code> – Unplugs a <em>Agent</em> from its <em>Grid</em>.</li>
 <li><code>scnr_instance_connect</code> – Utility to connect to an <em>Instance</em>.</li>
-<li><code>scnr_reporter</code> – Generates reports from <code>.crf</code> (Cuboid report file) and <code>.ser</code> (SCNR Engine report) report files.</li>
+<li><code>scnr_reporter</code> – Generates reports from <code>.crf</code> (Cuboid report file) and <code>.ser</code> (Spectre Scan report) report files.</li>
 <li><code>scnr_reproduce</code> – Reproduces an issue(s) from a given report.</li>
 <li><code>scnr_rest_server</code> – Starts a REST server daemon.</li>
 <li><code>scnr_restore</code> – Restores a suspended scan based on a snapshot file.</li>
@@ -3241,10 +3241,10 @@ request :delete, "instances/#{instance_id}"
 <h2 id="pro"><a class="header" href="#pro">Pro</a></h2>
 <p>You can export scan results in several formats from the “Export” tab of an aborted or completed revision scan.</p>
 <h2 id="cli-1"><a class="header" href="#cli-1">CLI</a></h2>
-<p>There are 2 reference report format types that you may encounter when using SCNR:</p>
+<p>There are 2 reference report format types that you may encounter when using Spectre Scan:</p>
 <ol>
 <li><code>*.crf</code> – Cuboid report file.</li>
-<li><code>*.ser</code> – <code>SCNR::Engine</code> report.</li>
+<li><code>*.ser</code> – Spectre Scan report.</li>
 </ol>
 <p>Both of these files can be handled by the CLI <code>scnr_reporter</code> utility in order
 to convert them to a multitude of formats or print the results to <code>STDOUT</code>.</p>
@@ -3383,7 +3383,7 @@ you can experiment with them to better match your available resources as well.</
 <li><a href="#scan-incrementally">Scan incrementally</a></li>
 </ol>
 <h2 id="only-enable-security-checks-that-concern-you"><a class="header" href="#only-enable-security-checks-that-concern-you">Only enable security checks that concern you</a></h2>
-<p>By default, SCNR will load <strong>all</strong> checks, which may not be what you want.</p>
+<p>By default, Spectre Scan will load <strong>all</strong> checks, which may not be what you want.</p>
 <p>If you are interested in high severity vulnerabilities or don’t care for things
 like discovery of common files and directories, and the like, you should disable
 the superfluous checks.</p>
@@ -3405,11 +3405,11 @@ are a large part of the overall scan.</p>
 <pre><code>--platforms=linux,mysql,php,apache
 </code></pre>
 <h2 id="ensure-server-responsiveness"><a class="header" href="#ensure-server-responsiveness">Ensure server responsiveness</a></h2>
-<p>By default, SCNR will monitor the response times of the server and throttle
+<p>By default, Spectre Scan will monitor the response times of the server and throttle
 itself down if it detects that the server is getting stressed.
 This happens in order to keep the server alive and responsive and maintain a
 stable connection to it.</p>
-<p>However, there are times with weak servers when they die before SCNR gets a
+<p>However, there are times with weak servers when they die before Spectre Scan gets a
 chance to adjust itself.</p>
 <p>You can bring up the scan statistics on the CLI screen by hitting <code>Enter</code>, in
 which case you’ll see something like:</p>
@@ -3428,7 +3428,7 @@ which case you’ll see something like:</p>
 <li>Burst average: 0 requests/second</li>
 <li>Throttled max concurrency: 2</li>
 </ul>
-<p>The response times were so high (1.75 seconds) that SCNR had to throttle its
+<p>The response times were so high (1.75 seconds) that Spectre Scan had to throttle its
 HTTP request concurrency from 10 requests to 2 requests, which would result in a
 drastically increased scan time.</p>
 <p>You can lower the default HTTP concurrency and try again to make sure that the
@@ -3439,7 +3439,7 @@ server at no point gets a stressful load:</p>
 <p>Most excessive RAM consumption issues are caused by large (or a lot of) HTTP requests,
 which need to be temporarily stored in memory in order for them to later be scheduled
 in a way that achieves optimal network concurrency.</p>
-<p>To cut this short, having a lot of HTTP requests in the queue allows SCNR to
+<p>To cut this short, having a lot of HTTP requests in the queue allows Spectre Scan to
 be better at performing a lot of them at the same time, and thus makes better
 use of your available bandwidth. So, a large queue means better network performance.</p>
 <p>However, a large queue can lead to some serious RAM consumption, depending on
@@ -3449,9 +3449,9 @@ decent performance, the default queue size is set to <code>50</code>.
 You can adjust this number to better suit your needs depending on the situation.</p>
 <p>You can adjust the HTTP request queue size via the <code>--http-request-queue-size</code> option.</p>
 <h2 id="reduce-ram-consumption-by-avoiding-large-resources"><a class="header" href="#reduce-ram-consumption-by-avoiding-large-resources">Reduce RAM consumption by avoiding large resources</a></h2>
-<p>SCNR performs a large number of analysis operations on each web page.
+<p>Spectre Scan performs a large number of analysis operations on each web page.
 This is usually not a problem, except for when dealing with web pages of large sizes.</p>
-<p>If you are in a RAM constrained environment, you can configure SCNR to not
+<p>If you are in a RAM constrained environment, you can configure Spectre Scan to not
 download and analyze pages which exceed a certain size limit – by default, that
 limit is 500KB.</p>
 <p>You can adjust the maximm allows size of HTTP response via the <code>--http-response-max-size</code> option.</p>
@@ -3462,7 +3462,7 @@ presenting different data.</p>
 <p>Auditing the first (or first few) of such pages is
 often enough and trying to follow and audit them all can sometimes result in an
 infinite crawl, as can be the case with calendars.</p>
-<p>SCNR provides 2 features to help deal with that:</p>
+<p>Spectre Scan provides 2 features to help deal with that:</p>
 <ul>
 <li>Redundancy filters: Specify <code>pattern</code> and <code>counter</code> pairs, pages matching the
 <code>pattern</code> will be followed the amount of times specified by the <code>counter</code>.
@@ -3478,7 +3478,7 @@ limited amount of times.
 </li>
 </ul>
 <h2 id="adjust-the-amount-of-browser-workers"><a class="header" href="#adjust-the-amount-of-browser-workers">Adjust the amount of browser workers</a></h2>
-<p>SCNR uses real browsers to support technologies such as HTML5, AJAX and DOM
+<p>Spectre Scan uses real browsers to support technologies such as HTML5, AJAX and DOM
 manipulation and perform deep analysis of client-side code.</p>
 <p>Even though browser operations are performed in parallel using a pool of workers,
 the default pool size is modest and operations can be time consuming.</p>
@@ -3588,7 +3588,7 @@ SCNR::Engine::Options.session.check_url     = to_absolute( response.headers.loca
 SCNR::Engine::Options.session.check_pattern = /Sign Off|MY ACCOUNT/
 </code></pre>
 <h3 id="from-cookie-jar"><a class="header" href="#from-cookie-jar">From cookie-jar</a></h3>
-<p>If an external process is used to manage sessions, you can keep SCNR in sync by
+<p>If an external process is used to manage sessions, you can keep Spectre Scan in sync by
 loading cookies from a shared Netscape-style cookie-jar file.</p>
 <pre><code class="language-ruby">http.cookie_jar.load 'cookies.txt'
 </code></pre>
@@ -3642,7 +3642,7 @@ a login check and verifying that the deduced login sequence works properly.</p>
 <li><code>--session-check-url</code></li>
 <li><code>--session-check-pattern</code></li>
 </ul>
-<p>This way SCNR will still be able to know if it gets logged out (which is helpful to several system components) but won’t be able to log-in automatically.</p>
+<p>This way Spectre Scan will still be able to know if it gets logged out (which is helpful to several system components) but won’t be able to log-in automatically.</p>
 <p>Of course, you should still exclude any path that can lead to the destruction of the session.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="scan-services"><a class="header" href="#scan-services">Scan services</a></h1>
@@ -3689,7 +3689,7 @@ and then reuse the exported vector data for subsequent scans.</p>
 <p>You can debug the proxy manually via simple <code>curl</code> commands, like so:</p>
 <pre><code class="language-bash">http_proxy=http://localhost:8282 curl -H "Content-Type: application/json" -X POST -d '{ "input": "value" }' http://target-url/my-resource
 </code></pre>
-<p>Then, in SCNR’s terminal you’ll see something like:</p>
+<p>Then, in Spectre Scan’s terminal you’ll see something like:</p>
 <pre><code>[*] Proxy: Requesting http://target-url/my-resource
 [~] Proxy:  *  0 forms
 [~] Proxy:  *  0 links
@@ -3701,7 +3701,7 @@ and then reuse the exported vector data for subsequent scans.</p>
 acceptable verbosity values range from <code>1</code> to <code>3</code>, <code>1</code> being the default.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="scale"><a class="header" href="#scale">Scale</a></h1>
-<p>SCNR can be configured into a <em>Grid</em>, in order to combine the resources of multiple
+<p>Spectre Scan can be configured into a <em>Grid</em>, in order to combine the resources of multiple
 nodes and thus perform large amounts of scans simultaneously or complete individual
 scans faster.</p>
 <p>Its <em>Grid</em> can distribute workload horizontally and vertically and can also easily
@@ -3712,7 +3712,7 @@ Doing so requires no configuration, other than specifying an already running <em
 when booting up a new one.</p>
 <p>This allows for creating a private Cloud of scanners, with minimal configuration,
 that can handle an indefinite amount of workload.</p>
-<p>Prior to continuing, it would be best if you took a look at SCNR’s
+<p>Prior to continuing, it would be best if you took a look at Spectre Scan’s
 <a href="/deployment/distributed/index.html">distributed architecture</a>.</p>
 <h2 id="strategies-1"><a class="header" href="#strategies-1">Strategies</a></h2>
 <p>Scaling strategies can be configured via the <code>--strategy</code> option of <em>Agents</em>,
@@ -3722,12 +3722,12 @@ like so:</p>
 <pre><code class="language-bash">bin/scnr_agent --strategy=vertical
 </code></pre>
 <h3 id="horizontal-default-1"><a class="header" href="#horizontal-default-1">Horizontal (default)</a></h3>
-<p>SCNR <em>Instances</em> will be provided by the least burdened <em>Agent</em>, i.e. the
+<p>Spectre Scan <em>Instances</em> will be provided by the least burdened <em>Agent</em>, i.e. the
 <em>Agent</em> with the least utilization of its <em>slots</em>.</p>
 <p>This strategy helps to keep the overall <em>Grid</em> health good by spreading the
 workload across as many nodes as possible.</p>
 <h3 id="vertical-1"><a class="header" href="#vertical-1">Vertical</a></h3>
-<p>SCNR <em>Instances</em> will be provided by the most burdened <em>Agent</em>, i.e. the
+<p>Spectre Scan <em>Instances</em> will be provided by the most burdened <em>Agent</em>, i.e. the
 <em>Agent</em> with the most utilization of its <em>slots</em>.</p>
 <p>This strategy helps to keep the overall <em>Grid</em> size (and thus cost) low by
 utilizing as few <em>Grid</em> nodes as possible.</p>
@@ -3769,14 +3769,14 @@ whichever node is optimal at any given time.</p>
 <p>In which case you can keep retrying until a <em>slot</em> opens up.</p>
 <h3 id="running-multi-instance-scans"><a class="header" href="#running-multi-instance-scans">Running multi-Instance scans</a></h3>
 <p>The above is useful when you have multiple scans to run and you want to run them
-at the same time; another cool feature of SCNR though is that it can parallelize
+at the same time; another cool feature of Spectre Scan though is that it can parallelize
 individual scans across the <em>Grid</em> thus resulting in huge single-scan performance gains.</p>
 <p>For example, this would be useful if you were to scan a site with tens of thousands,
 hundreds of thousands or even millions of pages.</p>
 <p>Even better, doing so is as easy as:</p>
 <pre><code class="language-bash">bin/scnr_spawn --agent-url=127.0.0.1:7331 http://testhtml5.vulnweb.com --multi-instances=5
 </code></pre>
-<p>The <code>--multi-instances=5</code> option will instruct SCNR to use 5 <em>Instances</em> to run this
+<p>The <code>--multi-instances=5</code> option will instruct Spectre Scan to use 5 <em>Instances</em> to run this
 particular scan, with the aforementioned <em>Instances</em> being of course load-balanced
 across the <em>Grid</em>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
