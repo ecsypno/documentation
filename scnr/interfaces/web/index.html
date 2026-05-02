@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-476946a2.js";
+            window.path_to_searchindex_js = "../../searchindex-c0187e98.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-e6c11880.js"></script>
@@ -182,82 +182,252 @@
 </code></pre>
 <p>After boot-up, you can <a href="http://localhost:9292">visit</a> the interface via your browser of choice.</p>
 <h2 id="features"><a class="header" href="#features">Features</a></h2>
+<h3 id="scan-management"><a class="header" href="#scan-management">Scan management</a></h3>
 <ul>
-<li>Live scan progress.</li>
-<li>Scan coverage display.</li>
-<li>Parallel scans.</li>
-<li>Recurring scans – incremental scanning with automated issue reviews:
+<li><strong>Quick scan.</strong> A one-input form in the navbar will scan any URL with sane
+defaults — useful for ad-hoc spot checks without leaving the current page.</li>
+<li><strong>Parallel scans.</strong> Run multiple scans concurrently against the same site,
+different sites, or both — bounded only by configured worker capacity.</li>
+<li><strong>Recurring scans.</strong> Re-scan the same target on a schedule and get an
+automatic review of every finding compared to the previous revision:
 <ul>
-<li>Fixed issues – Issues that don’t appear in subsequent scans.</li>
-<li>Regressions – Fixed issues that re-appeared in subsequent scans.</li>
+<li><strong>Fixed</strong> — issues that no longer appear.</li>
+<li><strong>Regressions</strong> — fixed issues that re-appeared.</li>
+<li><strong>New</strong> — first-time findings.</li>
+<li><strong>Trusted / untrusted / reviewed / false-positive</strong> — manual states for
+triage that carry forward across revisions.</li>
 </ul>
 </li>
-<li>Scheduled scans.
+<li><strong>Scheduled scans.</strong> Either pick from preset frequencies (hourly, daily,
+weekly…) or paste a cron expression. The scheduler surfaces upcoming
+occurrences and flags conflicts (overlapping start times, parallelism
+ceiling) before they fire.</li>
+<li><strong>Suspend / resume / repeat.</strong> Pause a long-running scan and resume from
+the same on-disk session later. One-click repeat re-runs a finished scan
+with the exact same configuration.</li>
+</ul>
+<h3 id="live-monitoring"><a class="header" href="#live-monitoring">Live monitoring</a></h3>
 <ul>
-<li>Simple frequency configuration.</li>
-<li>Cronline frequency configuration support.</li>
-<li>Identification of conflicting future scans in calendar.</li>
+<li><strong>Real-time progress.</strong> Coverage, request rate, discovered pages and
+newly-found issues stream into the UI over Action Cable as the scan
+runs — no manual refresh.</li>
+<li><strong>Live event-driven cache busts.</strong> Per-user dashboard / navbar caches
+invalidate the moment a model commits, so counts and badges stay
+truthful without polling.</li>
+<li><strong>Scan, revision and site live views.</strong> Drill in at the level you need:
+whole-site activity, a specific scan or a single revision.</li>
+</ul>
+<h3 id="findings--analysis"><a class="header" href="#findings--analysis">Findings &amp; analysis</a></h3>
+<ul>
+<li><strong>Issue detail with proof, remediation and exploit.</strong> Every finding is
+presented with the captured request / response, normalised proof, a
+per-check remediation guide and (when available) a working exploit
+payload.</li>
+<li><strong>DOM-XSS introspector.</strong> For DOM-level findings, follow the data flow
+from source to sink across the rendered page with captured stack frames
+and the page snapshot inline.</li>
+<li><strong>Coverage explorer.</strong> Every page the scanner reached, with HTTP
+status, content-type and a one-click jump to the issues attached to it.</li>
+<li><strong>Powerful filtering.</strong> Stack severity / state / type / scan / revision
+filters; narrow by site, by check, by URL pattern; permalinks survive
+reload and live-refresh.</li>
+<li><strong>Severity-aware sorting.</strong> High-impact findings always float to the
+top, with sibling-grouping so duplicate signatures collapse cleanly.</li>
+</ul>
+<h3 id="configuration"><a class="header" href="#configuration">Configuration</a></h3>
+<ul>
+<li><strong>Scan profiles.</strong> Reusable bundles of checks, scope rules,
+audit options and plug-ins. Per-user, per-site or shared.</li>
+<li><strong>Per-site overrides.</strong> Override profile scope rules at the site level
+without forking a whole profile.</li>
+<li><strong>Device emulation.</strong> Scan as a desktop browser, mobile, tablet, or
+any custom user-agent / viewport / touch combination.</li>
+<li><strong>Site user roles.</strong> Authenticate the scanner as one or more
+application personas:
+<ul>
+<li><strong>Form login</strong> — declarative URL + form parameters.</li>
+<li><strong>Script login</strong> — drop in Ruby with a prepared browser driver
+(Watir) or HTTP client.</li>
+<li>Each role gets its own captured session that persists across
+revisions.</li>
 </ul>
 </li>
-<li>Server/scanner/network health display.</li>
-<li>Powerful yet intuitive filtering.</li>
-<li>Website role management.
-<ul>
-<li>Form login.</li>
-<li>Script login.</li>
 </ul>
-</li>
-<li>Device emulation.</li>
-<li>Scan profiles.</li>
-<li>Extensive scan log.</li>
+<h3 id="operations--audit"><a class="header" href="#operations--audit">Operations &amp; audit</a></h3>
+<ul>
+<li><strong>Server / scanner / network health.</strong> Request rate, response times,
+browser-pool utilisation, error counts, queue depth — surfaced in
+charts that update live.</li>
+<li><strong>Full audit log.</strong> Every change to sites, scans, revisions, issues
+and user roles is captured (PaperTrail) with the actor, the diff
+and a click-through to the affected object — even after the object
+itself has been deleted.</li>
+<li><strong>Resilient scheduler.</strong> SQLite writer-lock contention, autoloader
+races and transient RPC errors are handled internally; the UI stays
+responsive while two or more scans hammer the database.</li>
+</ul>
+<h3 id="reporting--integrations"><a class="header" href="#reporting--integrations">Reporting &amp; integrations</a></h3>
+<ul>
+<li><strong>Multi-format export.</strong> HTML, JSON, XML, plain-text and the
+framework-native AFR archive — at the scan, revision or filtered
+result-set level.</li>
+<li><strong>Notifications.</strong> Per-event email / browser push for scan
+start / finish / failure / suspension and severity thresholds.</li>
+<li><strong>OpenAI assist.</strong> Optional LLM-backed remediation expansion for
+individual findings (configurable in Settings).</li>
+</ul>
+<h3 id="quality-of-life"><a class="header" href="#quality-of-life">Quality of life</a></h3>
+<ul>
+<li><strong>Light &amp; dark themes</strong> with a one-click toggle that persists across
+sessions and respects <code>prefers-color-scheme</code> on first visit.</li>
+<li><strong>Per-page UI state persistence.</strong> Severity-section open/closed,
+collapsed details, table sort and filter selections are remembered
+per browser without server round-trips.</li>
+<li><strong>Keyboard-friendly forms</strong> and focus-aware live-refresh: an open
+<code>&lt;select&gt;</code> or focused input is never swapped out from under you.</li>
+<li><strong>First-run welcome.</strong> A guided empty-state experience walks new
+installs from “no sites yet” to “scanning” without docs.</li>
 </ul>
 <h2 id="screenshots"><a class="header" href="#screenshots">Screenshots</a></h2>
+<h3 id="welcome"><a class="header" href="#welcome">Welcome</a></h3>
+<p>The first-run experience: an empty-state landing page with a quick-scan
+form and a path to add your first site.</p>
+<p><img src="screenshots/spectre-welcome.png" alt="Welcome screen"></p>
+<h3 id="dashboard"><a class="header" href="#dashboard">Dashboard</a></h3>
+<p>The dashboard is the home page once you have at least one site. It
+surfaces running scans, recent activity, aggregate counts and per-site
+health at a glance.</p>
+<h4 id="light-theme"><a class="header" href="#light-theme">Light theme</a></h4>
+<p><img src="screenshots/spectre-light-dashboard.png" alt="Dashboard — light theme"></p>
+<h4 id="dark-theme"><a class="header" href="#dark-theme">Dark theme</a></h4>
+<p><img src="screenshots/spectre-dashboard.png" alt="Dashboard — dark theme"></p>
+<h4 id="continued-view"><a class="header" href="#continued-view">Continued view</a></h4>
+<p>Tiles below the fold show recent revisions, performance trends and
+per-site rollups.</p>
+<p><img src="screenshots/spectre-dashboard-2.png" alt="Dashboard — continued"></p>
+<h4 id="sub-dashboard-by-severity"><a class="header" href="#sub-dashboard-by-severity">Sub-dashboard: by severity</a></h4>
+<p>A focused view that breaks every issue down by severity (high / medium
+/ low / informational), with click-through to the matching issue list.</p>
+<p><img src="screenshots/spectre-dashboard-by-severity.png" alt="Dashboard — by severity"></p>
+<h4 id="sub-dashboard-by-issue-type"><a class="header" href="#sub-dashboard-by-issue-type">Sub-dashboard: by issue type</a></h4>
+<p>Rolls every issue up by check / type so you can see at a glance which
+weakness families dominate the picture.</p>
+<p><img src="screenshots/spectre-dashboard-by-issue-type.png" alt="Dashboard — by issue type"></p>
 <h3 id="sites"><a class="header" href="#sites">Sites</a></h3>
-<h4 id="list"><a class="header" href="#list">List</a></h4>
-<p><a href="screenshots/Screenshot_20220504_082733.png"><img src="screenshots/Screenshot_20220504_082733.png" alt="Sites list"></a>
-<a href="screenshots/Screenshot_20220504_083434.png"><img src="screenshots/Screenshot_20220504_083434.png" alt="Sites list"></a></p>
-<h4 id="settings"><a class="header" href="#settings">Settings</a></h4>
-<p><a href="screenshots/Screenshot_20220504_082801.png"><img src="screenshots/Screenshot_20220504_082801.png" alt="Sites settings"></a>
-<a href="screenshots/Screenshot_20220504_082829.png"><img src="screenshots/Screenshot_20220504_082829.png" alt="Sites settings"></a></p>
-<h4 id="scans"><a class="header" href="#scans">Scans</a></h4>
-<p><a href="screenshots/Screenshot_20220504_082949.png"><img src="screenshots/Screenshot_20220504_082949.png" alt="Scans"></a></p>
-<h5 id="new"><a class="header" href="#new">New</a></h5>
-<p><a href="screenshots/Screenshot_20220504_083006.png"><img src="screenshots/Screenshot_20220504_083006.png" alt="New scan"></a></p>
-<h5 id="summary"><a class="header" href="#summary">Summary</a></h5>
-<p><a href="screenshots/Screenshot_20220504_083050.png"><img src="screenshots/Screenshot_20220504_083050.png" alt="Scan summary"></a></p>
-<h5 id="issues"><a class="header" href="#issues">Issues</a></h5>
-<p><a href="screenshots/Screenshot_20220329_123849.png"><img src="screenshots/Screenshot_20220329_123849.png" alt="Issues list"></a></p>
-<h6 id="issue"><a class="header" href="#issue">Issue</a></h6>
-<p><a href="screenshots/Screenshot_20220504_083144.png"><img src="screenshots/Screenshot_20220504_083144.png" alt="Scan issue"></a>
-<a href="screenshots/Screenshot_20220504_083154.png"><img src="screenshots/Screenshot_20220504_083154.png" alt="Scan issue"></a>
-<a href="screenshots/Screenshot_20220504_083210.png"><img src="screenshots/Screenshot_20220504_083210.png" alt="Scan issue"></a>
-<a href="screenshots/Screenshot_20220504_083243.png"><img src="screenshots/Screenshot_20220504_083243.png" alt="Scan issue"></a>
-<a href="screenshots/Screenshot_20220504_083304.png"><img src="screenshots/Screenshot_20220504_083304.png" alt="Scan issue"></a></p>
-<h5 id="coverage"><a class="header" href="#coverage">Coverage</a></h5>
-<p><a href="screenshots/Screenshot_20220504_083104.png"><img src="screenshots/Screenshot_20220504_083104.png" alt="Scan coverage"></a>
-<a href="screenshots/Screenshot_20220504_083509.png"><img src="screenshots/Screenshot_20220504_083509.png" alt="Scan coverage"></a></p>
-<h5 id="health"><a class="header" href="#health">Health</a></h5>
-<p><a href="screenshots/Screenshot_20220504_083113.png"><img src="screenshots/Screenshot_20220504_083113.png" alt="Scan health"></a></p>
-<h5 id="events"><a class="header" href="#events">Events</a></h5>
-<p><a href="screenshots/Screenshot_20220504_083127.png"><img src="screenshots/Screenshot_20220504_083127.png" alt="Scan events"></a></p>
+<p>Add and manage the sites you wish to scan. Each site keeps its own
+profiles, devices, user roles, scans and audit history.</p>
+<h4 id="all-sites"><a class="header" href="#all-sites">All sites</a></h4>
+<p><img src="screenshots/spectre-sites.png" alt="Sites index"></p>
+<h4 id="site-overview"><a class="header" href="#site-overview">Site overview</a></h4>
+<p>The per-site landing page — a snapshot of recent revisions, severity
+rollup and currently-running activity for that one site.</p>
+<p><img src="screenshots/spectre-overview.png" alt="Site overview"></p>
+<h4 id="site-live-status"><a class="header" href="#site-live-status">Site live status</a></h4>
+<p>Live progress for the site’s currently-running scan, updated in
+real-time over Action Cable.</p>
+<p><img src="screenshots/spectre-site-live.png" alt="Site — live"></p>
+<h4 id="site-scans"><a class="header" href="#site-scans">Site scans</a></h4>
+<p>The full scan list for a site, grouped by Active / Suspended /
+Finished / Schedule.</p>
+<p><img src="screenshots/spectre-site-scans.png" alt="Site scans"></p>
+<h4 id="site-settings"><a class="header" href="#site-settings">Site settings</a></h4>
+<p>Per-site knobs: protocol, host, port, default profile, default device
+and inherited scope rules.</p>
+<p><img src="screenshots/spectre-site-settings.png" alt="Site settings"></p>
 <h4 id="user-roles"><a class="header" href="#user-roles">User roles</a></h4>
-<h5 id="list-1"><a class="header" href="#list-1">List</a></h5>
-<p><a href="screenshots/Screenshot_20220504_082852.png"><img src="screenshots/Screenshot_20220504_082852.png" alt="User roles list"></a></p>
-<h5 id="new-1"><a class="header" href="#new-1">New</a></h5>
-<p><a href="screenshots/Screenshot_20220504_082906.png"><img src="screenshots/Screenshot_20220504_082906.png" alt="User roles new"></a>
-<a href="screenshots/Screenshot_20220504_082914.png"><img src="screenshots/Screenshot_20220504_082914.png" alt="User roles new"></a>
-<a href="screenshots/Screenshot_20220504_082926.png"><img src="screenshots/Screenshot_20220504_082926.png" alt="User roles new"></a>
-<a href="screenshots/Screenshot_20220504_082934.png"><img src="screenshots/Screenshot_20220504_082934.png" alt="User roles new"></a></p>
+<p>Manage authenticated personas the scanner can assume — handy for
+testing role-gated parts of the application.</p>
+<p><img src="screenshots/spectre-site-user-role.png" alt="Site user roles"></p>
+<h5 id="script-based-login"><a class="header" href="#script-based-login">Script-based login</a></h5>
+<p>When form-based login isn’t enough, drop in a Ruby snippet using a
+prepared browser driver or HTTP client.</p>
+<p><img src="screenshots/spectre-site-user-role-login-script.png" alt="Site user role — login script"></p>
+<h3 id="scans"><a class="header" href="#scans">Scans</a></h3>
+<p>Configure, schedule, monitor and re-run scans.</p>
+<h4 id="quick-scan"><a class="header" href="#quick-scan">Quick scan</a></h4>
+<p>The navbar’s quick-scan widget — one URL away from a default-profile
+scan against a brand-new or existing site.</p>
+<p><img src="screenshots/spectre-quick-scan.png" alt="Quick scan"></p>
+<h4 id="new-scan"><a class="header" href="#new-scan">New scan</a></h4>
+<p>The full configuration form: profile, device, role, schedule, custom
+scope, plug-ins.</p>
+<p><img src="screenshots/spectre-new-scan.png" alt="New scan"></p>
+<h4 id="scan-live"><a class="header" href="#scan-live">Scan live</a></h4>
+<p>Live scan progress at the scan level — running revision, queue stats,
+discovered pages, issues found so far.</p>
+<p><img src="screenshots/spectre-scan-live.png" alt="Scan — live"></p>
+<h4 id="generic-live-view"><a class="header" href="#generic-live-view">Generic live view</a></h4>
+<p>Live status surface used both for site-wide and scan-wide live
+monitoring.</p>
+<p><img src="screenshots/spectre-live.png" alt="Live status"></p>
+<h3 id="revisions"><a class="header" href="#revisions">Revisions</a></h3>
+<p>Each scan produces revisions — incremental snapshots of the same
+target. Revisions are where issues, coverage and reports actually
+live.</p>
+<h4 id="revision--live"><a class="header" href="#revision--live">Revision — live</a></h4>
+<p>Live monitoring of an individual revision while it scans.</p>
+<p><img src="screenshots/spectre-revision-live.png" alt="Revision — live"></p>
+<h4 id="revision--issues"><a class="header" href="#revision--issues">Revision — issues</a></h4>
+<p>The issue listing for a single revision, with severity / state /
+type filters.</p>
+<p><img src="screenshots/spectre-revision-issues.png" alt="Revision — issues"></p>
+<h3 id="issues"><a class="header" href="#issues">Issues</a></h3>
+<p>Drill into individual findings — proof, remediation guidance,
+exploit, request/response capture, dissected payloads.</p>
+<h4 id="issue-detail"><a class="header" href="#issue-detail">Issue detail</a></h4>
+<p><img src="screenshots/spectre-issue-1.png" alt="Issue — overview"></p>
+<p><img src="screenshots/spectre-issue-2.png" alt="Issue — proof / response"></p>
+<p><img src="screenshots/spectre-issue-3.png" alt="Issue — remediation"></p>
+<h4 id="dom-xss"><a class="header" href="#dom-xss">DOM XSS</a></h4>
+<p>DOM-XSS issue with the <strong>introspector</strong> view that traces the data flow
+from source to sink across the rendered page.</p>
+<p><img src="screenshots/spectre-issue-domxss.png" alt="Issue — DOM XSS"></p>
+<h4 id="recurring-scans--regressions--fixes"><a class="header" href="#recurring-scans--regressions--fixes">Recurring scans — regressions &amp; fixes</a></h4>
+<p>Recurring scans automatically diff their findings across revisions:
+fixed issues drop out, regressions get flagged, new findings get
+their own state.</p>
+<p><img src="screenshots/spectre-issue-rs-1.png" alt="Recurring scan — review (1)"></p>
+<p><img src="screenshots/spectre-issue-rs-2.png" alt="Recurring scan — review (2)"></p>
+<p><img src="screenshots/spectre-issue-rs-3.png" alt="Recurring scan — review (3)"></p>
+<h3 id="introspector"><a class="header" href="#introspector">Introspector</a></h3>
+<p>A dedicated view for DOM-level findings: source → sink data-flow
+trace, captured stack frames and the rendered page snapshot.</p>
+<p><img src="screenshots/spectre-introspector-1.png" alt="Introspector — flow (1)"></p>
+<p><img src="screenshots/spectre-introspector-2.png" alt="Introspector — flow (2)"></p>
+<p><img src="screenshots/spectre-introspector-3.png" alt="Introspector — flow (3)"></p>
+<p><img src="screenshots/spectre-introspector-4.png" alt="Introspector — flow (4)"></p>
+<h3 id="coverage"><a class="header" href="#coverage">Coverage</a></h3>
+<p>Every page the scanner reached, with HTTP status, content-type and a
+click-through to the issues that came out of each one.</p>
+<p><img src="screenshots/spectre-coverage.png" alt="Coverage"></p>
+<h3 id="health"><a class="header" href="#health">Health</a></h3>
+<p>Server / scanner / network health — request rate, response times,
+browser-pool utilisation, error counts.</p>
+<p><img src="screenshots/spectre-health.png" alt="Health"></p>
+<h3 id="logs"><a class="header" href="#logs">Logs</a></h3>
+<p>A full audit log of every change to sites, scans, revisions, issues
+and user roles. Filterable by event, object type and actor.</p>
+<p><img src="screenshots/spectre-logs.png" alt="Logs"></p>
 <h3 id="profiles"><a class="header" href="#profiles">Profiles</a></h3>
-<h4 id="list-2"><a class="header" href="#list-2">List</a></h4>
-<p><a href="screenshots/Screenshot_20220504_083319.png"><img src="screenshots/Screenshot_20220504_083319.png" alt="Profiles list"></a></p>
-<h4 id="show"><a class="header" href="#show">Show</a></h4>
-<p><a href="screenshots/Screenshot_20220504_083330.png"><img src="screenshots/Screenshot_20220504_083330.png" alt="Profile show"></a></p>
+<p>Reusable scan configurations: which checks to run, scope rules,
+plug-ins, audit options.</p>
+<h4 id="all-profiles"><a class="header" href="#all-profiles">All profiles</a></h4>
+<p><img src="screenshots/spectre-profiles.png" alt="Profiles"></p>
+<h4 id="profile-editor--checks"><a class="header" href="#profile-editor--checks">Profile editor — checks</a></h4>
+<p>Pick exactly which checks should run as part of a profile.</p>
+<p><img src="screenshots/spectre-profile-all-checks.png" alt="Profile — all checks"></p>
 <h3 id="devices"><a class="header" href="#devices">Devices</a></h3>
-<h4 id="list-3"><a class="header" href="#list-3">List</a></h4>
-<p><a href="screenshots/Screenshot_20220504_083347.png"><img src="screenshots/Screenshot_20220504_083347.png" alt="Devices list"></a></p>
-<h3 id="settings-1"><a class="header" href="#settings-1">Settings</a></h3>
-<p><a href="screenshots/Screenshot_20220504_083407.png"><img src="screenshots/Screenshot_20220504_083407.png" alt="Settings"></a></p>
+<p>Device emulation lets you scan as a desktop browser, mobile, tablet,
+or any custom user-agent / viewport combination.</p>
+<p><img src="screenshots/spectre-device-spectre.png" alt="Devices"></p>
+<h3 id="settings"><a class="header" href="#settings">Settings</a></h3>
+<p>Top-level application settings: notifications, OpenAI integration,
+default scan / HTTP / browser-pool tuning.</p>
+<p><img src="screenshots/spectre-settings.png" alt="Settings"></p>
+<h3 id="export"><a class="header" href="#export">Export</a></h3>
+<p>Export scan results in any of the supported report formats (HTML,
+JSON, XML, plain-text, AFR archive).</p>
+<p><img src="screenshots/spectre-export.png" alt="Export"></p>
 
                     </main>
 

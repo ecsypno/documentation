@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-262e7fd8.js";
+            window.path_to_searchindex_js = "../../searchindex-f60f53e8.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-09ed0dd2.js"></script>
@@ -182,30 +182,174 @@
 </code></pre>
 <p>After boot-up, you can <a href="http://localhost:9292">visit</a> the interface via your browser of choice.</p>
 <h2 id="features"><a class="header" href="#features">Features</a></h2>
+<h3 id="scan-management"><a class="header" href="#scan-management">Scan management</a></h3>
 <ul>
-<li>Live scan progress.</li>
-<li>Scan coverage display.</li>
-<li>Parallel scans.</li>
-<li>Recurring scans.</li>
-<li>Scheduled scans.
+<li><strong>Quick scan.</strong> A one-input form in the navbar will scan any URL with sane
+defaults — useful for ad-hoc spot checks without leaving the current page.</li>
+<li><strong>Parallel scans.</strong> Run multiple scans concurrently against the same site,
+different sites, or both — bounded only by configured worker capacity.</li>
+<li><strong>Recurring scans.</strong> Re-scan the same target on a schedule and get an
+automatic state diff of every entry compared to the previous revision:
 <ul>
-<li>Simple frequency configuration.</li>
-<li>Cronline frequency configuration support.</li>
-<li>Identification of conflicting future scans in calendar.</li>
+<li><strong>Fixed</strong> — entries that no longer appear.</li>
+<li><strong>Regressions</strong> — fixed entries that re-appeared.</li>
+<li><strong>New</strong> — first-time findings.</li>
+<li><strong>Trusted / untrusted / reviewed / false-positive</strong> — manual triage
+states that carry forward across revisions.</li>
 </ul>
 </li>
-<li>Server/scanner/network health display.</li>
-<li>Powerful yet intuitive filtering.</li>
-<li>Website role management.
+<li><strong>Scheduled scans.</strong> Either pick from preset frequencies (hourly, daily,
+weekly…) or paste a cron expression. The scheduler surfaces upcoming
+occurrences and flags conflicts (overlapping start times, parallelism
+ceiling) before they fire.</li>
+<li><strong>Suspend / resume / repeat.</strong> Pause a long-running scan and resume from
+the same on-disk session later. One-click repeat re-runs a finished scan
+with the exact same configuration.</li>
+</ul>
+<h3 id="live-monitoring"><a class="header" href="#live-monitoring">Live monitoring</a></h3>
 <ul>
-<li>Form login.</li>
-<li>Script login.</li>
+<li><strong>Real-time progress.</strong> Coverage, request rate, discovered pages and
+newly-found entries stream into the UI over Action Cable as the scan
+runs — no manual refresh.</li>
+<li><strong>Live event-driven cache busts.</strong> Per-user dashboard / navbar caches
+invalidate the moment a model commits, so counts and badges stay
+truthful without polling.</li>
+<li><strong>Scan, revision and site live views.</strong> Drill in at the level you need:
+whole-site activity, a specific scan or a single revision.</li>
+</ul>
+<h3 id="findings--analysis"><a class="header" href="#findings--analysis">Findings &amp; analysis</a></h3>
+<ul>
+<li><strong>DOM data-flow sinks.</strong> The signature feature: every entry is
+presented with the full source-to-sink data-flow trace through the
+rendered page, including the captured stack frames at each hop and
+the page snapshot inline.</li>
+<li><strong>Sink inspector.</strong> Step through the sink chain hop-by-hop, expand
+any stack frame to its surrounding source, and pivot to the request
+/ response that triggered the flow.</li>
+<li><strong>Entry detail.</strong> Each finding shows the captured request / response,
+affected input vector, normalised proof and the live page state at
+the moment of capture.</li>
+<li><strong>State diff across revisions.</strong> When recurring scans review their
+results, every entry surfaces its trajectory across revisions —
+first-seen / last-seen / fixed / regression — at a glance.</li>
+<li><strong>Coverage explorer.</strong> Every page the scanner reached, with HTTP
+status, content-type and a one-click jump to the entries attached
+to it.</li>
+<li><strong>Powerful filtering.</strong> Stack state / type / scan / revision filters;
+narrow by site, by URL pattern, by sink kind; permalinks survive
+reload and live-refresh.</li>
+</ul>
+<h3 id="configuration"><a class="header" href="#configuration">Configuration</a></h3>
+<ul>
+<li><strong>Scan profiles.</strong> Reusable bundles of checks, scope rules,
+audit options and plug-ins. Per-user, per-site or shared.</li>
+<li><strong>Per-site overrides.</strong> Override profile scope rules at the site level
+without forking a whole profile.</li>
+<li><strong>Device emulation.</strong> Scan as a desktop browser, mobile, tablet, or
+any custom user-agent / viewport / touch combination.</li>
+<li><strong>Site user roles.</strong> Authenticate the scanner as one or more
+application personas:
+<ul>
+<li><strong>Form login</strong> — declarative URL + form parameters.</li>
+<li><strong>Script login</strong> — drop in Ruby with a prepared browser driver
+(Watir) or HTTP client.</li>
+<li>Each role gets its own captured session that persists across
+revisions.</li>
 </ul>
 </li>
-<li>Device emulation.</li>
-<li>Scan profiles.</li>
-<li>Extensive scan log.</li>
 </ul>
+<h3 id="operations--audit"><a class="header" href="#operations--audit">Operations &amp; audit</a></h3>
+<ul>
+<li><strong>Server / scanner / network health.</strong> Request rate, response times,
+browser-pool utilisation, error counts, queue depth — surfaced in
+charts that update live, both globally and per-revision.</li>
+<li><strong>Full audit log.</strong> Every change to sites, scans, revisions, entries
+and user roles is captured (PaperTrail) with the actor, the diff
+and a click-through to the affected object — even after the object
+itself has been deleted.</li>
+<li><strong>Resilient scheduler.</strong> SQLite writer-lock contention, autoloader
+races and transient RPC errors are handled internally; the UI stays
+responsive while two or more scans hammer the database.</li>
+</ul>
+<h3 id="reporting--integrations"><a class="header" href="#reporting--integrations">Reporting &amp; integrations</a></h3>
+<ul>
+<li><strong>Multi-format export.</strong> HTML, JSON, XML, plain-text and the
+framework-native AFR archive — at the scan, revision or filtered
+result-set level.</li>
+<li><strong>Notifications.</strong> Per-event email / browser push for scan
+start / finish / failure / suspension.</li>
+</ul>
+<h3 id="quality-of-life"><a class="header" href="#quality-of-life">Quality of life</a></h3>
+<ul>
+<li><strong>Light &amp; dark themes</strong> with a one-click toggle that persists across
+sessions and respects <code>prefers-color-scheme</code> on first visit.</li>
+<li><strong>Per-page UI state persistence.</strong> Section open/closed, collapsed
+details, table sort and filter selections are remembered per
+browser without server round-trips.</li>
+<li><strong>Keyboard-friendly forms</strong> and focus-aware live-refresh: an open
+<code>&lt;select&gt;</code> or focused input is never swapped out from under you.</li>
+<li><strong>First-run welcome.</strong> A guided empty-state experience walks new
+installs from “no sites yet” to “scanning” without docs.</li>
+</ul>
+<h2 id="screenshots"><a class="header" href="#screenshots">Screenshots</a></h2>
+<h3 id="welcome"><a class="header" href="#welcome">Welcome</a></h3>
+<p>The first-run experience: an empty-state landing page with a
+quick-scan form and a path to add your first site.</p>
+<p><img src="screenshots/apex-welcome.png" alt="Welcome screen"></p>
+<h3 id="dashboard"><a class="header" href="#dashboard">Dashboard</a></h3>
+<p>The home page once you have at least one site. It surfaces running
+scans, recent activity, aggregate counts and per-site health at a
+glance.</p>
+<p><img src="screenshots/apex-dashboard.png" alt="Dashboard"></p>
+<h3 id="sites"><a class="header" href="#sites">Sites</a></h3>
+<h4 id="site-overview"><a class="header" href="#site-overview">Site overview</a></h4>
+<p>The per-site landing page — a snapshot of recent revisions, entry
+totals and currently-running activity for that one site.</p>
+<p><img src="screenshots/apex-site-overview.png" alt="Site overview"></p>
+<h4 id="scan"><a class="header" href="#scan">Scan</a></h4>
+<p>A specific scan inside a site, with its revision timeline, current
+status and a CTA into the live view.</p>
+<p><img src="screenshots/apex-site-scan.png" alt="Site — scan"></p>
+<h4 id="entries"><a class="header" href="#entries">Entries</a></h4>
+<p>The entry listing for a site — every finding across every scan and
+revision, with state badges and click-through to detail.</p>
+<p><img src="screenshots/apex-site-entries.png" alt="Site — entries"></p>
+<h5 id="filtered"><a class="header" href="#filtered">Filtered</a></h5>
+<p>The same entry listing with state / type / URL filters applied;
+filters live in the URL so the view is shareable.</p>
+<p><img src="screenshots/apex-site-entries-filtered.png" alt="Site — entries filtered"></p>
+<h3 id="revisions"><a class="header" href="#revisions">Revisions</a></h3>
+<h4 id="entries-1"><a class="header" href="#entries-1">Entries</a></h4>
+<p>The entry listing scoped to a single revision, with state diffs
+against the previous revision baked in.</p>
+<p><img src="screenshots/apex-revision-entries.png" alt="Revision — entries"></p>
+<h4 id="health"><a class="header" href="#health">Health</a></h4>
+<p>Per-revision request rate, response times, browser-pool utilisation
+and error counts — handy when comparing two revisions of the same
+target.</p>
+<p><img src="screenshots/apex-revision-health.png" alt="Revision — health"></p>
+<h3 id="entry"><a class="header" href="#entry">Entry</a></h3>
+<p>Drill into an individual finding: page state, captured request /
+response, sink chain, recurring-scan state history.</p>
+<h4 id="detail"><a class="header" href="#detail">Detail</a></h4>
+<p><img src="screenshots/apex-entry.png" alt="Entry — detail"></p>
+<h4 id="state-diff"><a class="header" href="#state-diff">State diff</a></h4>
+<p>For recurring scans: how this entry has changed across revisions —
+first-seen, fixed, regression, manual review state.</p>
+<p><img src="screenshots/apex-entry-state-diff.png" alt="Entry — state diff"></p>
+<h4 id="sinks"><a class="header" href="#sinks">Sinks</a></h4>
+<p>The summary of every DOM data-flow sink reached during the entry’s
+capture, ordered by depth and grouped by sink kind.</p>
+<p><img src="screenshots/apex-entry-sinks.png" alt="Entry — sinks"></p>
+<h4 id="sink-inspector"><a class="header" href="#sink-inspector">Sink inspector</a></h4>
+<p>Step through the source-to-sink chain hop-by-hop. Each hop expands
+into its captured stack frame, surrounding source and the page
+snapshot at the moment of capture.</p>
+<p><img src="screenshots/apex-entry-sinks-inspect.png" alt="Sink inspector — overview"></p>
+<p><img src="screenshots/apex-entry-sinks-inspect-2.png" alt="Sink inspector — frame (2)"></p>
+<p><img src="screenshots/apex-entry-sinks-inspect-3.png" alt="Sink inspector — frame (3)"></p>
+<p><img src="screenshots/apex-entry-sinks-inspect-4.png" alt="Sink inspector — frame (4)"></p>
+<p><img src="screenshots/apex-entry-sinks-inspect-5.png" alt="Sink inspector — frame (5)"></p>
 
                     </main>
 
