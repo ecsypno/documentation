@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-c0187e98.js";
+            window.path_to_searchindex_js = "searchindex-0f60916d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-e6c11880.js"></script>
@@ -376,11 +376,11 @@ to examine the applicable overrides.</p>
 <h1 id="direct"><a class="header" href="#direct">Direct</a></h1>
 <p>The easiest approach is a direct scan using the <code>scnr</code> CLI executable.</p>
 <p>To see all available options run:</p>
-<pre><code class="language-bash">bin/scnr -h
+<pre><code class="language-bash">bin/spectre -h
 </code></pre>
 <h2 id="example"><a class="header" href="#example">Example</a></h2>
 <p>The following command will run a scan with default settings against <a href="http://testhmtml5.vulnweb.com">http://testhmtml5.vulnweb.com</a>.</p>
-<pre><code class="language-bash">bin/scnr http://testhmtml5.vulnweb.com
+<pre><code class="language-bash">bin/spectre http://testhmtml5.vulnweb.com
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="scripted"><a class="header" href="#scripted">Scripted</a></h1>
@@ -609,7 +609,7 @@ end
 end
 </code></pre>
 <p>Supposing the above is saved as <code>html5.config.rb</code>:</p>
-<pre><code class="language-bash">bin/scnr http://testhtml5.vulnweb.com --script=html5.config.rb
+<pre><code class="language-bash">bin/spectre http://testhtml5.vulnweb.com --script=html5.config.rb
 </code></pre>
 <h3 id="standalone"><a class="header" href="#standalone">Standalone</a></h3>
 <p>This basically creates a custom scanner.</p>
@@ -617,7 +617,7 @@ end
 and not just serve as configuration.</p>
 <h4 id="with-helpers-1"><a class="header" href="#with-helpers-1">With helpers</a></h4>
 <p>When a scan script is large-ish and/or complicated it’s better to split it into the main file and helper handler methods.</p>
-<pre><code class="language-bash">bin/scnr_script scanner.rb
+<pre><code class="language-bash">bin/spectre_script scanner.rb
 </code></pre>
 <p><code>scanner.rb</code>:</p>
 <pre><code class="language-ruby">require 'scnr/engine/api'
@@ -1209,7 +1209,7 @@ SCNR::Application::API.run do
 end
 </code></pre>
 <p>Supposing the above is saved as <code>html5.scanner.rb</code>:</p>
-<pre><code class="language-bash">bin/scnr_script html5.scanner.rb
+<pre><code class="language-bash">bin/spectre_script html5.scanner.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="distributed"><a class="header" href="#distributed">Distributed</a></h1>
@@ -1221,7 +1221,7 @@ will outline the architecture.</p>
 <h1 id="agent"><a class="header" href="#agent">Agent</a></h1>
 <p>To start an <em>Agent</em> run the <code>scnr_agent</code> CLI executable.</p>
 <p>To see all available options run:</p>
-<pre><code class="language-bash">bin/scnr_agent -h
+<pre><code class="language-bash">bin/spectre_agent -h
 </code></pre>
 <p>Each <em>Agent</em> should run on a different machine and its main role is to
 provide <em>Instances</em> to clients; each <em>Instance</em> is a scanner process.</p>
@@ -1232,7 +1232,7 @@ it runs into <em>slots</em>, with each <em>slot</em> corresponding to enough spa
 <h1 id="example-1"><a class="header" href="#example-1">Example</a></h1>
 <h2 id="server"><a class="header" href="#server">Server</a></h2>
 <p>In one terminal run:</p>
-<pre><code class="language-bash">bin/scnr_agent
+<pre><code class="language-bash">bin/spectre_agent
 </code></pre>
 <p>The default port at the time of writing is <code>7331</code>, so you should see something like:</p>
 <pre><code>I, [2022-01-23T09:54:21.849679 #1121060]  INFO -- System: RPC Server started.
@@ -1243,7 +1243,7 @@ I, [2022-01-23T09:54:21.849730 #1121060]  INFO -- System: Listening on 127.0.0.1
 call in order to obtain an <em>Instance</em>; this can be achieved using the <code>scnr_spawn</code>
 CLI executable.</p>
 <p>In another terminal run:</p>
-<pre><code class="language-bash">bin/scnr_spawn --agent-url=127.0.0.1:7331 http://testhtml5.vulnweb.com
+<pre><code class="language-bash">bin/spectre_spawn --agent-url=127.0.0.1:7331 http://testhtml5.vulnweb.com
 </code></pre>
 <p>The above will run a scan with the default options against
 <a href="http://testhtml5.vulnweb.com">http://testhtml5.vulnweb.com</a>, originating from
@@ -1279,13 +1279,13 @@ be receiving any workload.</p>
 <h2 id="examples-1"><a class="header" href="#examples-1">Examples</a></h2>
 <h3 id="server-1"><a class="header" href="#server-1">Server</a></h3>
 <p>In one terminal run:</p>
-<pre><code class="language-bash">bin/scnr_agent
+<pre><code class="language-bash">bin/spectre_agent
 </code></pre>
 <p>In another terminal run:</p>
-<pre><code class="language-bash">bin/scnr_agent --port=7332 --peer=127.0.0.1:7331
+<pre><code class="language-bash">bin/spectre_agent --port=7332 --peer=127.0.0.1:7331
 </code></pre>
 <p>In another terminal run:</p>
-<pre><code class="language-bash">bin/scnr_agent --port=7333 --peer=127.0.0.1:7332
+<pre><code class="language-bash">bin/spectre_agent --port=7333 --peer=127.0.0.1:7332
 </code></pre>
 <p>(It doesn’t matter who the peer is as long as it’s part of the Grid.)</p>
 <p>Now we have a <em>Grid</em> of 3 <em>Agents</em>.</p>
@@ -1296,7 +1296,7 @@ be receiving any workload.</p>
 <h1 id="scheduler"><a class="header" href="#scheduler">Scheduler</a></h1>
 <p>To start a <em>Scheduler</em> run the <code>scnr_scheduler</code> CLI executable.</p>
 <p>To see all available options run:</p>
-<pre><code class="language-bash">bin/scnr_scheduler -h
+<pre><code class="language-bash">bin/spectre_scheduler -h
 </code></pre>
 <p>The main role of the <em>Scheduler</em> is to:</p>
 <ol>
@@ -1316,19 +1316,19 @@ load-balanced across the <em>Grid</em> according the the configured <em>strategy
 <h2 id="examples-2"><a class="header" href="#examples-2">Examples</a></h2>
 <h3 id="server-2"><a class="header" href="#server-2">Server</a></h3>
 <p>In one terminal run:</p>
-<pre><code class="language-bash">bin/scnr_scheduler
+<pre><code class="language-bash">bin/spectre_scheduler
 </code></pre>
 <h3 id="client-2"><a class="header" href="#client-2">Client</a></h3>
 <h4 id="pushing"><a class="header" href="#pushing">Pushing</a></h4>
 <p>In another terminal run:</p>
-<pre><code class="language-bash">bin/scnr_scheduler_push --scheduler-url=localhost:7331 http://testhtml5.vulnweb.com
+<pre><code class="language-bash">bin/spectre_scheduler_push --scheduler-url=localhost:7331 http://testhtml5.vulnweb.com
 </code></pre>
 <p>Then you should see something like:</p>
 <pre><code> [~] Pushed scan with ID: 5fed6c50f3699bacb841cc468cc97094
 </code></pre>
 <h4 id="monitoring"><a class="header" href="#monitoring">Monitoring</a></h4>
 <p>To see what the <em>Scheduler</em> is doing run:</p>
-<pre><code class="language-bash">bin/scnr_scheduler_list localhost:7331
+<pre><code class="language-bash">bin/spectre_scheduler_list localhost:7331
 </code></pre>
 <p>Then you should see something like:</p>
 <pre><code> [~] Queued [0]
@@ -1645,28 +1645,28 @@ Test --&gt;
 <p>Command-line interface executables can be found under the <code>bin/</code> directory and
 at the time of writing are:</p>
 <ol>
-<li><code>scnr</code> – Direct scanning utility.</li>
-<li><code>scnr_console</code> – A <a href="https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop">REPL</a> Ruby console running from the context of <code>SCNR::Engine</code>.</li>
-<li><code>scnr_spawn</code> – Issues <code>spawn</code> calls to <em>Agents</em> to start scans remotely.</li>
-<li><code>scnr_agent</code> – Starts a <em>Agent</em> daemon.</li>
-<li><code>scnr_agent_monitor</code> – Monitors a <em>Agent</em>.</li>
-<li><code>scnr_agent_unplug</code> – Unplugs a <em>Agent</em> from its <em>Grid</em>.</li>
-<li><code>scnr_instance_connect</code> – Utility to connect to an <em>Instance</em>.</li>
-<li><code>scnr_reporter</code> – Generates reports from <code>.crf</code> (Cuboid report file) and <code>.ser</code> (Spectre Scan report) report files.</li>
-<li><code>scnr_reproduce</code> – Reproduces an issue(s) from a given report.</li>
-<li><code>scnr_rest_server</code> – Starts a REST server daemon.</li>
-<li><code>scnr_restore</code> – Restores a suspended scan based on a snapshot file.</li>
-<li><code>scnr_scheduler</code> – Starts a <em>Scheduler</em> daemon.</li>
-<li><code>scnr_scheduler_attach</code> – Attaches a detached <em>Instance</em> to the given <em>Scheduler</em>.</li>
-<li><code>scnr_scheduler_clear</code> – Clears the <em>Scheduler</em> queue.</li>
-<li><code>scnr_scheduler_detach</code> – Detaches an <em>Instance</em> from the <em>Scheduler</em>.</li>
-<li><code>scnr_scheduler_get</code> – Retrieves information for a scheduled scan.</li>
-<li><code>scnr_scheduler_list</code> – Lists information about all scans under the <em>Scheduler</em>’s control.</li>
-<li><code>scnr_scheduler_push</code> – Scheduled a scan.</li>
-<li><code>scnr_scheduler_remove</code> – Removes a scheduled scan from the queue.</li>
-<li><code>scnr_script</code> – Runs a Ruby script under the context of <code>SCNR::Engine</code>.</li>
-<li><code>scnr_shell</code> – Starts a Bash shell under the package environment.</li>
-<li><code>scnr_system_info</code> – Presents system information about the host.</li>
+<li><code>spectre</code> – Direct scanning utility.</li>
+<li><code>spectre_console</code> – A <a href="https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop">REPL</a> Ruby console running from the context of <code>SCNR::Engine</code>.</li>
+<li><code>spectre_spawn</code> – Issues <code>spawn</code> calls to <em>Agents</em> to start scans remotely.</li>
+<li><code>spectre_agent</code> – Starts a <em>Agent</em> daemon.</li>
+<li><code>spectre_agent_monitor</code> – Monitors a <em>Agent</em>.</li>
+<li><code>spectre_agent_unplug</code> – Unplugs a <em>Agent</em> from its <em>Grid</em>.</li>
+<li><code>spectre_instance_connect</code> – Utility to connect to an <em>Instance</em>.</li>
+<li><code>spectre_reporter</code> – Generates reports from <code>.crf</code> (Cuboid report file) and <code>.ser</code> (Spectre Scan report) report files.</li>
+<li><code>spectre_reproduce</code> – Reproduces an issue(s) from a given report.</li>
+<li><code>spectre_rest_server</code> – Starts a REST server daemon.</li>
+<li><code>spectre_restore</code> – Restores a suspended scan based on a snapshot file.</li>
+<li><code>spectre_scheduler</code> – Starts a <em>Scheduler</em> daemon.</li>
+<li><code>spectre_scheduler_attach</code> – Attaches a detached <em>Instance</em> to the given <em>Scheduler</em>.</li>
+<li><code>spectre_scheduler_clear</code> – Clears the <em>Scheduler</em> queue.</li>
+<li><code>spectre_scheduler_detach</code> – Detaches an <em>Instance</em> from the <em>Scheduler</em>.</li>
+<li><code>spectre_scheduler_get</code> – Retrieves information for a scheduled scan.</li>
+<li><code>spectre_scheduler_list</code> – Lists information about all scans under the <em>Scheduler</em>’s control.</li>
+<li><code>spectre_scheduler_push</code> – Scheduled a scan.</li>
+<li><code>spectre_scheduler_remove</code> – Removes a scheduled scan from the queue.</li>
+<li><code>spectre_script</code> – Runs a Ruby script under the context of <code>SCNR::Engine</code>.</li>
+<li><code>spectre_shell</code> – Starts a Bash shell under the package environment.</li>
+<li><code>spectre_system_info</code> – Presents system information about the host.</li>
 </ol>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="ruby-api"><a class="header" href="#ruby-api">Ruby API</a></h1>
@@ -1815,7 +1815,7 @@ end
 end
 </code></pre>
 <p>Supposing the above is saved as <code>html5.config.rb</code>:</p>
-<pre><code class="language-bash">bin/scnr http://testhtml5.vulnweb.com --script=html5.config.rb
+<pre><code class="language-bash">bin/spectre http://testhtml5.vulnweb.com --script=html5.config.rb
 </code></pre>
 <h3 id="standalone-1"><a class="header" href="#standalone-1">Standalone</a></h3>
 <p>This basically creates a custom scanner.</p>
@@ -2027,7 +2027,7 @@ SCNR::Application::API.run do
 end
 </code></pre>
 <p>Supposing the above is saved as <code>html5.scanner.rb</code>:</p>
-<pre><code class="language-bash">bin/scnr_script html5.scanner.rb
+<pre><code class="language-bash">bin/spectre_script html5.scanner.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="data"><a class="header" href="#data">Data</a></h1>
@@ -2060,7 +2060,7 @@ end
 end
 </code></pre>
 <h2 id="example-2"><a class="header" href="#example-2">Example</a></h2>
-<pre><code class="language-bash">bin/scnr http://example.com/ --checks=- --script=sitemap.rb
+<pre><code class="language-bash">bin/spectre http://example.com/ --checks=- --script=sitemap.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="urls"><a class="header" href="#urls">Urls</a></h1>
@@ -2078,7 +2078,7 @@ end
 end
 </code></pre>
 <h2 id="example-3"><a class="header" href="#example-3">Example</a></h2>
-<pre><code class="language-bash">bin/scnr http://example.com/ --checks=- --script=urls.rb
+<pre><code class="language-bash">bin/spectre http://example.com/ --checks=- --script=urls.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="pages"><a class="header" href="#pages">Pages</a></h1>
@@ -2096,7 +2096,7 @@ end
 end
 </code></pre>
 <h2 id="example-4"><a class="header" href="#example-4">Example</a></h2>
-<pre><code class="language-bash">bin/scnr http://testhtml5.vulnweb.com/ --checks=- --script=pages.rb
+<pre><code class="language-bash">bin/spectre http://testhtml5.vulnweb.com/ --checks=- --script=pages.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="issues"><a class="header" href="#issues">Issues</a></h1>
@@ -2117,7 +2117,7 @@ end
 end
 </code></pre>
 <h2 id="example-5"><a class="header" href="#example-5">Example</a></h2>
-<pre><code class="language-bash">bin/scnr http://example.com/ --checks=allowed_methods --script=issues.rb
+<pre><code class="language-bash">bin/spectre http://example.com/ --checks=allowed_methods --script=issues.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="state"><a class="header" href="#state">State</a></h1>
@@ -2133,7 +2133,7 @@ end
 end
 </code></pre>
 <h2 id="example-6"><a class="header" href="#example-6">Example</a></h2>
-<pre><code class="language-bash">bin/scnr http://example.com/ --checks=- --script=state.rb
+<pre><code class="language-bash">bin/spectre http://example.com/ --checks=- --script=state.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="browserpool"><a class="header" href="#browserpool">Browserpool</a></h1>
@@ -2163,7 +2163,7 @@ end
 end
 </code></pre>
 <h2 id="example-7"><a class="header" href="#example-7">Example</a></h2>
-<pre><code class="language-bash">bin/scnr http://html5.vulnweb.com/ --checks=- --script=browserpool.rb
+<pre><code class="language-bash">bin/spectre http://html5.vulnweb.com/ --checks=- --script=browserpool.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="dom"><a class="header" href="#dom">Dom</a></h1>
@@ -2231,7 +2231,7 @@ end
 end
 </code></pre>
 <h2 id="example-8"><a class="header" href="#example-8">Example</a></h2>
-<pre><code class="language-bash">bin/scnr http://html5.vulnweb.com/ --checks=- --script=dom.rb
+<pre><code class="language-bash">bin/spectre http://html5.vulnweb.com/ --checks=- --script=dom.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="http"><a class="header" href="#http">Http</a></h1>
@@ -2263,7 +2263,7 @@ end
 end
 </code></pre>
 <h2 id="example-9"><a class="header" href="#example-9">Example</a></h2>
-<pre><code class="language-bash">bin/scnr https://wordpress.com --checks=- --script=http.rb
+<pre><code class="language-bash">bin/spectre https://wordpress.com --checks=- --script=http.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="input"><a class="header" href="#input">Input</a></h1>
@@ -2283,7 +2283,7 @@ end
 end
 </code></pre>
 <h2 id="example-10"><a class="header" href="#example-10">Example</a></h2>
-<pre><code class="language-bash">bin/scnr https://testhtml5.vulnweb.com --checks=xss --script=input.rb
+<pre><code class="language-bash">bin/spectre https://testhtml5.vulnweb.com --checks=xss --script=input.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="logging"><a class="header" href="#logging">Logging</a></h1>
@@ -2308,7 +2308,7 @@ end
 end
 </code></pre>
 <h2 id="example-11"><a class="header" href="#example-11">Example</a></h2>
-<pre><code class="language-bash">bin/scnr https://example.com --checks=- --script=logging.rb
+<pre><code class="language-bash">bin/spectre https://example.com --checks=- --script=logging.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="checks"><a class="header" href="#checks">Checks</a></h1>
@@ -2346,7 +2346,7 @@ end
 end
 </code></pre>
 <h2 id="example-12"><a class="header" href="#example-12">Example</a></h2>
-<pre><code class="language-bash">bin/scnr http://testhtml5.vulnweb.com --script=checks.rb
+<pre><code class="language-bash">bin/spectre http://testhtml5.vulnweb.com --script=checks.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="plugins"><a class="header" href="#plugins">Plugins</a></h1>
@@ -2389,7 +2389,7 @@ end
 end
 </code></pre>
 <h2 id="example-13"><a class="header" href="#example-13">Example</a></h2>
-<pre><code class="language-bash">bin/scnr http://testhtml5.vulnweb.com --checks=- --script=plugins.rb
+<pre><code class="language-bash">bin/spectre http://testhtml5.vulnweb.com --checks=- --script=plugins.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="fingerprinters"><a class="header" href="#fingerprinters">Fingerprinters</a></h1>
@@ -2407,7 +2407,7 @@ end
 end
 </code></pre>
 <h2 id="example-14"><a class="header" href="#example-14">Example</a></h2>
-<pre><code class="language-bash">bin/scnr http://testhtml5.vulnweb.com --checks=- --script=fingerprinters.rb
+<pre><code class="language-bash">bin/spectre http://testhtml5.vulnweb.com --checks=- --script=fingerprinters.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="scan"><a class="header" href="#scan">Scan</a></h1>
@@ -2511,7 +2511,7 @@ end
 ap api.scan.generate_report
 </code></pre>
 <p>Assuming the above is saved as <code>html5.scanner.rb</code>:</p>
-<pre><code>bin/scnr_script html5.scanner.rb
+<pre><code>bin/spectre_script html5.scanner.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="options-2"><a class="header" href="#options-2">Options</a></h1>
@@ -2644,7 +2644,7 @@ to boolean.</p>
 end
 </code></pre>
 <h2 id="example-16"><a class="header" href="#example-16">Example</a></h2>
-<pre><code class="language-bash">bin/scnr http://testhtml5.vulnweb.com --checks=- --script=scope.rb
+<pre><code class="language-bash">bin/spectre http://testhtml5.vulnweb.com --checks=- --script=scope.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="session"><a class="header" href="#session">Session</a></h1>
@@ -2693,16 +2693,16 @@ end
 end
 </code></pre>
 <h2 id="example-17"><a class="header" href="#example-17">Example</a></h2>
-<pre><code class="language-bash">bin/scnr http://testhtml5.vulnweb.com --checks=- --script=session.rb
+<pre><code class="language-bash">bin/spectre http://testhtml5.vulnweb.com --checks=- --script=session.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="rest"><a class="header" href="#rest">REST</a></h1>
 <h2 id="server-3"><a class="header" href="#server-3">Server</a></h2>
 <p>To start the REST server:</p>
-<pre><code class="language-bash">bin/scnr_rest_server
+<pre><code class="language-bash">bin/spectre_rest_server
 </code></pre>
 <p>To see REST server options:</p>
-<pre><code class="language-bash">bin/scnr_rest_server -h
+<pre><code class="language-bash">bin/spectre_rest_server -h
 </code></pre>
 <h2 id="api"><a class="header" href="#api">API</a></h2>
 <h3 id="scan-1"><a class="header" href="#scan-1">Scan</a></h3>
@@ -2969,7 +2969,7 @@ end
 <h2 id="examples-4"><a class="header" href="#examples-4">Examples</a></h2>
 <h3 id="starting-the-rest-server"><a class="header" href="#starting-the-rest-server">Starting the REST server</a></h3>
 <p>Start the server by issuing the following command:</p>
-<p><code>bin/scnr_rest_server</code></p>
+<p><code>bin/spectre_rest_server</code></p>
 <h3 id="client-3"><a class="header" href="#client-3">Client</a></h3>
 <pre><code class="language-ruby">#!/usr/bin/env ruby
 
@@ -3140,7 +3140,7 @@ request :delete, "instances/#{instance_id}"
 <p>The WebUI allows you to easily run, manage and schedule scans and their results via an intuitive web interface.</p>
 <h2 id="boot-up"><a class="header" href="#boot-up">Boot-up</a></h2>
 <p>To boot the Pro interface please run:</p>
-<pre><code>bin/scnr_pro
+<pre><code>bin/spectre_pro
 </code></pre>
 <p>After boot-up, you can <a href="http://localhost:9292">visit</a> the interface via your browser of choice.</p>
 <h2 id="features"><a class="header" href="#features">Features</a></h2>
@@ -3394,7 +3394,7 @@ JSON, XML, plain-text, AFR archive).</p>
 <h1 id="setup-ai"><a class="header" href="#setup-ai">Setup AI</a></h1>
 <p>Spectre Scan relies on <a href="https://openai.com/">OpenAI</a> to intelligently analyse issues, offer suggestions and provide feedback.</p>
 <h2 id="cli-1"><a class="header" href="#cli-1">CLI</a></h2>
-<pre><code>bin/scnr --plugin=openai:apikey=YOUR_API_KEY [URL]
+<pre><code>bin/spectre --plugin=openai:apikey=YOUR_API_KEY [URL]
 </code></pre>
 <h2 id="web-ui-1"><a class="header" href="#web-ui-1">Web UI</a></h2>
 <p>To set your Open AI token, go to the “Settings” page.</p>
@@ -3408,7 +3408,7 @@ JSON, XML, plain-text, AFR archive).</p>
 <li>by <a href="https://license.ecsypno.com/scnr">activating on-line</a>.</li>
 </ul>
 </li>
-<li>Run an instance of <code>bin/scnr_check_server</code> in your local network – Provides functionality needed for SSRF types of checks.
+<li>Run an instance of <code>bin/spectre_check_server</code> in your local network – Provides functionality needed for SSRF types of checks.
 <ul>
 <li>Set the <code>SCNR_CHECK_SERVER</code> environment variable to the check server URL – ex. <code>http://10.1.1.1:9292</code>.</li>
 </ul>
@@ -3427,10 +3427,10 @@ JSON, XML, plain-text, AFR archive).</p>
 <p>Both of these files can be handled by the CLI <code>scnr_reporter</code> utility in order
 to convert them to a multitude of formats or print the results to <code>STDOUT</code>.</p>
 <p>For example, to generate an HTML report:</p>
-<p><code>bin/scnr_reporter --report=html:outfile=my_report.html.zip /home/user/.scnr/reports/report.ser</code></p>
+<p><code>bin/spectre_reporter --report=html:outfile=my_report.html.zip /home/user/.scnr/reports/report.ser</code></p>
 <p>Or, to just print the report to STDOUT:</p>
-<p><code>bin/scnr_reporter --report=stdout /home/user/.scnr/reports/report.ser</code></p>
-<p>At the time of writing, <code>bin/scnr_reporter --reporters-list</code> yields:</p>
+<p><code>bin/spectre_reporter --report=stdout /home/user/.scnr/reports/report.ser</code></p>
+<p>At the time of writing, <code>bin/spectre_reporter --reporters-list</code> yields:</p>
 <pre><code> [~] Available reports:
 
  [*] ap:
@@ -3683,7 +3683,7 @@ completed/aborted scans, in order to allow for incremental re-scans.</p>
 <p>This means that only newly introduced input vectors will be audited the next time around, which can save immense amounts
 of time.</p>
 <p>The location of the session file is printed at the end of each scan and can be restored via:</p>
-<pre><code>./bin/scnr_restore SESSION_FILE
+<pre><code>./bin/spectre_restore SESSION_FILE
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="maintain-a-valid-session"><a class="header" href="#maintain-a-valid-session">Maintain a valid session</a></h1>
@@ -3716,7 +3716,7 @@ to the same extent.</p>
 interactions in order to become visible, this plugin will not be able to submit it.</p>
 <p>For more complex sequences please use the <a href="#login_script-plugin">login_script</a> plugin.</p>
 <h3 id="example-18"><a class="header" href="#example-18">Example</a></h3>
-<pre><code>bin/scnr http://testfire.net --plugin=login_form:url=http://testfire.net/bank/login.aspx,parameters="uid=jsmith&amp;passw=Demo1234",check="Sign Off|MY ACCOUNT" --scope-exclude-pattern=logout
+<pre><code>bin/spectre http://testfire.net --plugin=login_form:url=http://testfire.net/bank/login.aspx,parameters="uid=jsmith&amp;passw=Demo1234",check="Sign Off|MY ACCOUNT" --scope-exclude-pattern=logout
 </code></pre>
 <p>The login form found in <code>http://testfire.net/bank/login.aspx</code> which contains the
 <code>uid</code> and <code>passw</code> inputs will be <strong>updated</strong> with the given values and submitted.</p>
@@ -3806,7 +3806,7 @@ server responses as well as browser requests.</p>
 login sequence and then deduce the login form and the values with which it was filled.</p>
 <p>Like the <code>form_login</code> plugin, the <code>proxy</code> plugin will configure the system accordingly.</p>
 <h3 id="example-1-1"><a class="header" href="#example-1-1">Example</a></h3>
-<pre><code>bin/scnr http://testfire.net --plugin=proxy --scope-exclude-pattern=logout
+<pre><code>bin/spectre http://testfire.net --plugin=proxy --scope-exclude-pattern=logout
 </code></pre>
 <p>You then need to configure your browser to use this proxy when connecting to the
 webapp, press the <em>record</em> button just before logging in and the <em>stop</em> button after.</p>
@@ -3831,7 +3831,7 @@ services is possible by first training the system via its <code>proxy</code> plu
 and having its HTTP requests go through the <code>proxy</code> plugin.</p>
 <h3 id="proxy-plugin-setup"><a class="header" href="#proxy-plugin-setup">Proxy plugin setup</a></h3>
 <p>You can setup the proxy like so:</p>
-<pre><code>bin/scnr http://target-url --scope-page-limit=0 --checks=*,-passive/* --plugin=proxy --audit-jsons --audit-xmls
+<pre><code>bin/spectre http://target-url --scope-page-limit=0 --checks=*,-passive/* --plugin=proxy --audit-jsons --audit-xmls
 </code></pre>
 <p>The default proxy URL will be: <code>http://localhost:8282</code></p>
 <p>The <code>--scope-page-limit=0</code> option tells the system to not do any sort of crawl
@@ -3859,7 +3859,7 @@ run the training scenarios prior to each scan.</p>
 </code></pre>
 <h2 id="re-using-input-vector-data"><a class="header" href="#re-using-input-vector-data">Re-using input vector data</a></h2>
 <p>Data exported via the proxy plugin can be imported via the <code>vector_feed</code> plugin, like so:</p>
-<pre><code>bin/scnr http://target-url --scope-page-limit=0 --checks=*,-passive/* --plugin=vector_feed:yaml_file=vectors.yml
+<pre><code>bin/spectre http://target-url --scope-page-limit=0 --checks=*,-passive/* --plugin=vector_feed:yaml_file=vectors.yml
 </code></pre>
 <p>Thus, you only have to run your test-suite scenarios once, for the initial training
 and then reuse the exported vector data for subsequent scans.</p>
@@ -3895,9 +3895,9 @@ that can handle an indefinite amount of workload.</p>
 <h2 id="strategies-1"><a class="header" href="#strategies-1">Strategies</a></h2>
 <p>Scaling strategies can be configured via the <code>--strategy</code> option of <em>Agents</em>,
 like so:</p>
-<pre><code class="language-bash">bin/scnr_agent --strategy=horizonstal
+<pre><code class="language-bash">bin/spectre_agent --strategy=horizonstal
 </code></pre>
-<pre><code class="language-bash">bin/scnr_agent --strategy=vertical
+<pre><code class="language-bash">bin/spectre_agent --strategy=vertical
 </code></pre>
 <h3 id="horizontal-default-1"><a class="header" href="#horizontal-default-1">Horizontal (default)</a></h3>
 <p>Spectre Scan <em>Instances</em> will be provided by the least burdened <em>Agent</em>, i.e. the
@@ -3913,16 +3913,16 @@ utilizing as few <em>Grid</em> nodes as possible.</p>
 be receiving any workload.</p>
 <h2 id="creating-a-grid"><a class="header" href="#creating-a-grid">Creating a Grid</a></h2>
 <p>In one terminal run:</p>
-<pre><code class="language-bash">bin/scnr_agent
+<pre><code class="language-bash">bin/spectre_agent
 </code></pre>
 <p>This is the initial <em>Agent</em>.</p>
 <h3 id="scaling-up"><a class="header" href="#scaling-up">Scaling up</a></h3>
 <p>To scale up just boot more <em>Agents</em> and specify a peer.</p>
 <p>So, in another terminal run:</p>
-<pre><code class="language-bash">bin/scnr_agent --port=7332 --peer=127.0.0.1:7331
+<pre><code class="language-bash">bin/spectre_agent --port=7332 --peer=127.0.0.1:7331
 </code></pre>
 <p>Lastly, in yet another terminal run:</p>
-<pre><code class="language-bash">bin/scnr_agent --port=7333 --peer=127.0.0.1:7332
+<pre><code class="language-bash">bin/spectre_agent --port=7333 --peer=127.0.0.1:7332
 </code></pre>
 <p>(It doesn’t matter who the peer is as long as it’s part of the Grid.)</p>
 <p>Now we have a <em>Grid</em> of 3 <em>Agents</em>.</p>
@@ -3930,13 +3930,13 @@ be receiving any workload.</p>
 but this will do for now.</p>
 <h3 id="scaling-down"><a class="header" href="#scaling-down">Scaling down</a></h3>
 <p>You can scale down by <em>unplugging</em> an <em>Agent</em> from its <em>Grid</em> using:</p>
-<pre><code class="language-bash">bin/scnr_agent_unplug 127.0.0.1:7332
+<pre><code class="language-bash">bin/spectre_agent_unplug 127.0.0.1:7332
 </code></pre>
 <h2 id="running-grid-scans"><a class="header" href="#running-grid-scans">Running Grid scans</a></h2>
 <p>To start a scan that will be load-balanced across the <em>Grid</em>, simply issue
 a <code>spawn</code> request on any of the <em>Grid</em> members.</p>
 <p>Like so:</p>
-<pre><code class="language-bash">bin/scnr_spawn --agent-url=127.0.0.1:7331 http://testhtml5.vulnweb.com
+<pre><code class="language-bash">bin/spectre_spawn --agent-url=127.0.0.1:7331 http://testhtml5.vulnweb.com
 </code></pre>
 <p>The above will run a scan with the default options against
 <a href="http://testhtml5.vulnweb.com">http://testhtml5.vulnweb.com</a>, originating from
@@ -3952,7 +3952,7 @@ individual scans across the <em>Grid</em> thus resulting in huge single-scan per
 <p>For example, this would be useful if you were to scan a site with tens of thousands,
 hundreds of thousands or even millions of pages.</p>
 <p>Even better, doing so is as easy as:</p>
-<pre><code class="language-bash">bin/scnr_spawn --agent-url=127.0.0.1:7331 http://testhtml5.vulnweb.com --multi-instances=5
+<pre><code class="language-bash">bin/spectre_spawn --agent-url=127.0.0.1:7331 http://testhtml5.vulnweb.com --multi-instances=5
 </code></pre>
 <p>The <code>--multi-instances=5</code> option will instruct Spectre Scan to use 5 <em>Instances</em> to run this
 particular scan, with the aforementioned <em>Instances</em> being of course load-balanced

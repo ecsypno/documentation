@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-c0187e98.js";
+            window.path_to_searchindex_js = "../searchindex-0f60916d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-e6c11880.js"></script>
@@ -182,7 +182,7 @@ services is possible by first training the system via its <code>proxy</code> plu
 and having its HTTP requests go through the <code>proxy</code> plugin.</p>
 <h3 id="proxy-plugin-setup"><a class="header" href="#proxy-plugin-setup">Proxy plugin setup</a></h3>
 <p>You can setup the proxy like so:</p>
-<pre><code>bin/scnr http://target-url --scope-page-limit=0 --checks=*,-passive/* --plugin=proxy --audit-jsons --audit-xmls
+<pre><code>bin/spectre http://target-url --scope-page-limit=0 --checks=*,-passive/* --plugin=proxy --audit-jsons --audit-xmls
 </code></pre>
 <p>The default proxy URL will be: <code>http://localhost:8282</code></p>
 <p>The <code>--scope-page-limit=0</code> option tells the system to not do any sort of crawl
@@ -210,7 +210,7 @@ run the training scenarios prior to each scan.</p>
 </code></pre>
 <h2 id="re-using-input-vector-data"><a class="header" href="#re-using-input-vector-data">Re-using input vector data</a></h2>
 <p>Data exported via the proxy plugin can be imported via the <code>vector_feed</code> plugin, like so:</p>
-<pre><code>bin/scnr http://target-url --scope-page-limit=0 --checks=*,-passive/* --plugin=vector_feed:yaml_file=vectors.yml
+<pre><code>bin/spectre http://target-url --scope-page-limit=0 --checks=*,-passive/* --plugin=vector_feed:yaml_file=vectors.yml
 </code></pre>
 <p>Thus, you only have to run your test-suite scenarios once, for the initial training
 and then reuse the exported vector data for subsequent scans.</p>

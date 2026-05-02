@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-c0187e98.js";
+            window.path_to_searchindex_js = "../searchindex-0f60916d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-e6c11880.js"></script>
@@ -204,7 +204,7 @@ to the same extent.</p>
 interactions in order to become visible, this plugin will not be able to submit it.</p>
 <p>For more complex sequences please use the <a href="#login_script-plugin">login_script</a> plugin.</p>
 <h3 id="example"><a class="header" href="#example">Example</a></h3>
-<pre><code>bin/scnr http://testfire.net --plugin=login_form:url=http://testfire.net/bank/login.aspx,parameters="uid=jsmith&amp;passw=Demo1234",check="Sign Off|MY ACCOUNT" --scope-exclude-pattern=logout
+<pre><code>bin/spectre http://testfire.net --plugin=login_form:url=http://testfire.net/bank/login.aspx,parameters="uid=jsmith&amp;passw=Demo1234",check="Sign Off|MY ACCOUNT" --scope-exclude-pattern=logout
 </code></pre>
 <p>The login form found in <code>http://testfire.net/bank/login.aspx</code> which contains the
 <code>uid</code> and <code>passw</code> inputs will be <strong>updated</strong> with the given values and submitted.</p>
@@ -294,7 +294,7 @@ server responses as well as browser requests.</p>
 login sequence and then deduce the login form and the values with which it was filled.</p>
 <p>Like the <code>form_login</code> plugin, the <code>proxy</code> plugin will configure the system accordingly.</p>
 <h3 id="example-1"><a class="header" href="#example-1">Example</a></h3>
-<pre><code>bin/scnr http://testfire.net --plugin=proxy --scope-exclude-pattern=logout
+<pre><code>bin/spectre http://testfire.net --plugin=proxy --scope-exclude-pattern=logout
 </code></pre>
 <p>You then need to configure your browser to use this proxy when connecting to the
 webapp, press the <em>record</em> button just before logging in and the <em>stop</em> button after.</p>

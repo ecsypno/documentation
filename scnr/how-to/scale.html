@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-c0187e98.js";
+            window.path_to_searchindex_js = "../searchindex-0f60916d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-e6c11880.js"></script>
@@ -191,9 +191,9 @@ that can handle an indefinite amount of workload.</p>
 <h2 id="strategies"><a class="header" href="#strategies">Strategies</a></h2>
 <p>Scaling strategies can be configured via the <code>--strategy</code> option of <em>Agents</em>,
 like so:</p>
-<pre><code class="language-bash">bin/scnr_agent --strategy=horizonstal
+<pre><code class="language-bash">bin/spectre_agent --strategy=horizonstal
 </code></pre>
-<pre><code class="language-bash">bin/scnr_agent --strategy=vertical
+<pre><code class="language-bash">bin/spectre_agent --strategy=vertical
 </code></pre>
 <h3 id="horizontal-default"><a class="header" href="#horizontal-default">Horizontal (default)</a></h3>
 <p>Spectre Scan <em>Instances</em> will be provided by the least burdened <em>Agent</em>, i.e. the
@@ -209,16 +209,16 @@ utilizing as few <em>Grid</em> nodes as possible.</p>
 be receiving any workload.</p>
 <h2 id="creating-a-grid"><a class="header" href="#creating-a-grid">Creating a Grid</a></h2>
 <p>In one terminal run:</p>
-<pre><code class="language-bash">bin/scnr_agent
+<pre><code class="language-bash">bin/spectre_agent
 </code></pre>
 <p>This is the initial <em>Agent</em>.</p>
 <h3 id="scaling-up"><a class="header" href="#scaling-up">Scaling up</a></h3>
 <p>To scale up just boot more <em>Agents</em> and specify a peer.</p>
 <p>So, in another terminal run:</p>
-<pre><code class="language-bash">bin/scnr_agent --port=7332 --peer=127.0.0.1:7331
+<pre><code class="language-bash">bin/spectre_agent --port=7332 --peer=127.0.0.1:7331
 </code></pre>
 <p>Lastly, in yet another terminal run:</p>
-<pre><code class="language-bash">bin/scnr_agent --port=7333 --peer=127.0.0.1:7332
+<pre><code class="language-bash">bin/spectre_agent --port=7333 --peer=127.0.0.1:7332
 </code></pre>
 <p>(It doesn’t matter who the peer is as long as it’s part of the Grid.)</p>
 <p>Now we have a <em>Grid</em> of 3 <em>Agents</em>.</p>
@@ -226,13 +226,13 @@ be receiving any workload.</p>
 but this will do for now.</p>
 <h3 id="scaling-down"><a class="header" href="#scaling-down">Scaling down</a></h3>
 <p>You can scale down by <em>unplugging</em> an <em>Agent</em> from its <em>Grid</em> using:</p>
-<pre><code class="language-bash">bin/scnr_agent_unplug 127.0.0.1:7332
+<pre><code class="language-bash">bin/spectre_agent_unplug 127.0.0.1:7332
 </code></pre>
 <h2 id="running-grid-scans"><a class="header" href="#running-grid-scans">Running Grid scans</a></h2>
 <p>To start a scan that will be load-balanced across the <em>Grid</em>, simply issue
 a <code>spawn</code> request on any of the <em>Grid</em> members.</p>
 <p>Like so:</p>
-<pre><code class="language-bash">bin/scnr_spawn --agent-url=127.0.0.1:7331 http://testhtml5.vulnweb.com
+<pre><code class="language-bash">bin/spectre_spawn --agent-url=127.0.0.1:7331 http://testhtml5.vulnweb.com
 </code></pre>
 <p>The above will run a scan with the default options against
 <a href="http://testhtml5.vulnweb.com">http://testhtml5.vulnweb.com</a>, originating from
@@ -248,7 +248,7 @@ individual scans across the <em>Grid</em> thus resulting in huge single-scan per
 <p>For example, this would be useful if you were to scan a site with tens of thousands,
 hundreds of thousands or even millions of pages.</p>
 <p>Even better, doing so is as easy as:</p>
-<pre><code class="language-bash">bin/scnr_spawn --agent-url=127.0.0.1:7331 http://testhtml5.vulnweb.com --multi-instances=5
+<pre><code class="language-bash">bin/spectre_spawn --agent-url=127.0.0.1:7331 http://testhtml5.vulnweb.com --multi-instances=5
 </code></pre>
 <p>The <code>--multi-instances=5</code> option will instruct Spectre Scan to use 5 <em>Instances</em> to run this
 particular scan, with the aforementioned <em>Instances</em> being of course load-balanced

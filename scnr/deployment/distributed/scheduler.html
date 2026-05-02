@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-c0187e98.js";
+            window.path_to_searchindex_js = "../../searchindex-0f60916d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-e6c11880.js"></script>
@@ -177,7 +177,7 @@
                         <h1 id="scheduler"><a class="header" href="#scheduler">Scheduler</a></h1>
 <p>To start a <em>Scheduler</em> run the <code>scnr_scheduler</code> CLI executable.</p>
 <p>To see all available options run:</p>
-<pre><code class="language-bash">bin/scnr_scheduler -h
+<pre><code class="language-bash">bin/spectre_scheduler -h
 </code></pre>
 <p>The main role of the <em>Scheduler</em> is to:</p>
 <ol>
@@ -197,19 +197,19 @@ load-balanced across the <em>Grid</em> according the the configured <em>strategy
 <h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
 <h3 id="server"><a class="header" href="#server">Server</a></h3>
 <p>In one terminal run:</p>
-<pre><code class="language-bash">bin/scnr_scheduler
+<pre><code class="language-bash">bin/spectre_scheduler
 </code></pre>
 <h3 id="client"><a class="header" href="#client">Client</a></h3>
 <h4 id="pushing"><a class="header" href="#pushing">Pushing</a></h4>
 <p>In another terminal run:</p>
-<pre><code class="language-bash">bin/scnr_scheduler_push --scheduler-url=localhost:7331 http://testhtml5.vulnweb.com
+<pre><code class="language-bash">bin/spectre_scheduler_push --scheduler-url=localhost:7331 http://testhtml5.vulnweb.com
 </code></pre>
 <p>Then you should see something like:</p>
 <pre><code> [~] Pushed scan with ID: 5fed6c50f3699bacb841cc468cc97094
 </code></pre>
 <h4 id="monitoring"><a class="header" href="#monitoring">Monitoring</a></h4>
 <p>To see what the <em>Scheduler</em> is doing run:</p>
-<pre><code class="language-bash">bin/scnr_scheduler_list localhost:7331
+<pre><code class="language-bash">bin/spectre_scheduler_list localhost:7331
 </code></pre>
 <p>Then you should see something like:</p>
 <pre><code> [~] Queued [0]

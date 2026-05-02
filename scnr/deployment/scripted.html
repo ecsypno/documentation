@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-c0187e98.js";
+            window.path_to_searchindex_js = "../searchindex-0f60916d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-e6c11880.js"></script>
@@ -400,7 +400,7 @@ end
 end
 </code></pre>
 <p>Supposing the above is saved as <code>html5.config.rb</code>:</p>
-<pre><code class="language-bash">bin/scnr http://testhtml5.vulnweb.com --script=html5.config.rb
+<pre><code class="language-bash">bin/spectre http://testhtml5.vulnweb.com --script=html5.config.rb
 </code></pre>
 <h3 id="standalone"><a class="header" href="#standalone">Standalone</a></h3>
 <p>This basically creates a custom scanner.</p>
@@ -408,7 +408,7 @@ end
 and not just serve as configuration.</p>
 <h4 id="with-helpers-1"><a class="header" href="#with-helpers-1">With helpers</a></h4>
 <p>When a scan script is large-ish and/or complicated it’s better to split it into the main file and helper handler methods.</p>
-<pre><code class="language-bash">bin/scnr_script scanner.rb
+<pre><code class="language-bash">bin/spectre_script scanner.rb
 </code></pre>
 <p><code>scanner.rb</code>:</p>
 <pre><code class="language-ruby">require 'scnr/engine/api'
@@ -1000,7 +1000,7 @@ SCNR::Application::API.run do
 end
 </code></pre>
 <p>Supposing the above is saved as <code>html5.scanner.rb</code>:</p>
-<pre><code class="language-bash">bin/scnr_script html5.scanner.rb
+<pre><code class="language-bash">bin/spectre_script html5.scanner.rb
 </code></pre>
 
                     </main>

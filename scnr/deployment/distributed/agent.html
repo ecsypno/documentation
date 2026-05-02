@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-c0187e98.js";
+            window.path_to_searchindex_js = "../../searchindex-0f60916d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-e6c11880.js"></script>
@@ -177,7 +177,7 @@
                         <h1 id="agent"><a class="header" href="#agent">Agent</a></h1>
 <p>To start an <em>Agent</em> run the <code>scnr_agent</code> CLI executable.</p>
 <p>To see all available options run:</p>
-<pre><code class="language-bash">bin/scnr_agent -h
+<pre><code class="language-bash">bin/spectre_agent -h
 </code></pre>
 <p>Each <em>Agent</em> should run on a different machine and its main role is to
 provide <em>Instances</em> to clients; each <em>Instance</em> is a scanner process.</p>
@@ -188,7 +188,7 @@ it runs into <em>slots</em>, with each <em>slot</em> corresponding to enough spa
 <h1 id="example"><a class="header" href="#example">Example</a></h1>
 <h2 id="server"><a class="header" href="#server">Server</a></h2>
 <p>In one terminal run:</p>
-<pre><code class="language-bash">bin/scnr_agent
+<pre><code class="language-bash">bin/spectre_agent
 </code></pre>
 <p>The default port at the time of writing is <code>7331</code>, so you should see something like:</p>
 <pre><code>I, [2022-01-23T09:54:21.849679 #1121060]  INFO -- System: RPC Server started.
@@ -199,7 +199,7 @@ I, [2022-01-23T09:54:21.849730 #1121060]  INFO -- System: Listening on 127.0.0.1
 call in order to obtain an <em>Instance</em>; this can be achieved using the <code>scnr_spawn</code>
 CLI executable.</p>
 <p>In another terminal run:</p>
-<pre><code class="language-bash">bin/scnr_spawn --agent-url=127.0.0.1:7331 http://testhtml5.vulnweb.com
+<pre><code class="language-bash">bin/spectre_spawn --agent-url=127.0.0.1:7331 http://testhtml5.vulnweb.com
 </code></pre>
 <p>The above will run a scan with the default options against
 <a href="http://testhtml5.vulnweb.com">http://testhtml5.vulnweb.com</a>, originating from
