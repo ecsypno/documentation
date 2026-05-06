@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-1196af95.js";
+            window.path_to_searchindex_js = "../searchindex-a0e8dca3.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-e6c11880.js"></script>
+        <script src="../toc-f64bbaef.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -177,15 +177,15 @@
                         <h1 id="run-air-gapped"><a class="header" href="#run-air-gapped">Run air-gapped</a></h1>
 <p>In order to run Spectre Scan in an air-gapped environment you need to:</p>
 <ul>
-<li>Place the license file at: <code>~/.scnr/license.key</code>
+<li>Place the encrypted license file as <code>license</code> inside <code>~/.spectre/</code> (or <code>$SPECTRE_HOME/</code> if you’ve overridden the home dir).
 <ul>
-<li>Either by copying it over from a previous activation on an Internet-enabled machine, or;</li>
-<li>by <a href="https://license.ecsypno.com/scnr">activating on-line</a>.</li>
+<li>Either by copying it over from a previous activation on an Internet-enabled machine — copy <code>~/.spectre/license</code> (and, if present, the plaintext <code>~/.spectre/license.key</code> next to it), or;</li>
+<li>by <a href="https://license.ecsypno.com/spectre">activating on-line</a>.</li>
 </ul>
 </li>
 <li>Run an instance of <code>bin/spectre_check_server</code> in your local network – Provides functionality needed for SSRF types of checks.
 <ul>
-<li>Set the <code>SCNR_CHECK_SERVER</code> environment variable to the check server URL – ex. <code>http://10.1.1.1:9292</code>.</li>
+<li>Set the <code>SPECTRE_CHECK_SERVER</code> environment variable to the check server URL – ex. <code>http://10.1.1.1:9292</code>.</li>
 </ul>
 </li>
 </ul>

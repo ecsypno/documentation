@@ -35,10 +35,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ba3eca74.js";
+            window.path_to_searchindex_js = "../searchindex-f82e2683.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-09ed0dd2.js"></script>
+        <script src="../toc-dc061d7d.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -187,13 +187,14 @@ you can experiment with them to better match your available resources as well.</
 <li><a href="#reduce-ram-consumption-by-avoiding-large-resources">Reduce RAM consumption by avoiding large resources</a></li>
 <li><a href="#dont-follow-redundant-pages">Don’t follow redundant pages</a></li>
 <li><a href="#adjust-the-amount-of-browser-workers">Adjust the amount of browser workers</a></li>
+<li><a href="#narrow-recon-to-specific-sink-kinds">Narrow recon to specific sink kinds</a></li>
 </ol>
 <h2 id="ensure-server-responsiveness"><a class="header" href="#ensure-server-responsiveness">Ensure server responsiveness</a></h2>
-<p>By default, RKN will monitor the response times of the server and throttle
+<p>By default, Apex Recon will monitor the response times of the server and throttle
 itself down if it detects that the server is getting stressed.
 This happens in order to keep the server alive and responsive and maintain a
 stable connection to it.</p>
-<p>However, there are times with weak servers when they die before RKN gets a
+<p>However, there are times with weak servers when they die before Apex Recon gets a
 chance to adjust itself.</p>
 <p>You can bring up the scan statistics on the CLI screen by hitting <code>Enter</code>, in
 which case you’ll see something like:</p>
@@ -212,7 +213,7 @@ which case you’ll see something like:</p>
 <li>Burst average: 0 requests/second</li>
 <li>Throttled max concurrency: 2</li>
 </ul>
-<p>The response times were so high (1.75 seconds) that RKN had to throttle its
+<p>The response times were so high (1.75 seconds) that Apex Recon had to throttle its
 HTTP request concurrency from 10 requests to 2 requests, which would result in a
 drastically increased scan time.</p>
 <p>You can lower the default HTTP concurrency and try again to make sure that the
@@ -223,7 +224,7 @@ server at no point gets a stressful load:</p>
 <p>Most excessive RAM consumption issues are caused by large (or a lot of) HTTP requests,
 which need to be temporarily stored in memory in order for them to later be scheduled
 in a way that achieves optimal network concurrency.</p>
-<p>To cut this short, having a lot of HTTP requests in the queue allows RKN to
+<p>To cut this short, having a lot of HTTP requests in the queue allows Apex Recon to
 be better at performing a lot of them at the same time, and thus makes better
 use of your available bandwidth. So, a large queue means better network performance.</p>
 <p>However, a large queue can lead to some serious RAM consumption, depending on
@@ -233,9 +234,9 @@ decent performance, the default queue size is set to <code>50</code>.
 You can adjust this number to better suit your needs depending on the situation.</p>
 <p>You can adjust the HTTP request queue size via the <code>--http-request-queue-size</code> option.</p>
 <h2 id="reduce-ram-consumption-by-avoiding-large-resources"><a class="header" href="#reduce-ram-consumption-by-avoiding-large-resources">Reduce RAM consumption by avoiding large resources</a></h2>
-<p>RKN performs a large number of analysis operations on each web page.
+<p>Apex Recon performs a large number of analysis operations on each web page.
 This is usually not a problem, except for when dealing with web pages of large sizes.</p>
-<p>If you are in a RAM constrained environment, you can configure RKN to not
+<p>If you are in a RAM constrained environment, you can configure Apex Recon to not
 download and analyze pages which exceed a certain size limit – by default, that
 limit is 500KB.</p>
 <p>You can adjust the maximm allows size of HTTP response via the <code>--http-response-max-size</code> option.</p>
@@ -246,7 +247,7 @@ presenting different data.</p>
 <p>Auditing the first (or first few) of such pages is
 often enough and trying to follow and audit them all can sometimes result in an
 infinite crawl, as can be the case with calendars.</p>
-<p>RKN provides 2 features to help deal with that:</p>
+<p>Apex Recon provides 2 features to help deal with that:</p>
 <ul>
 <li>Redundancy filters: Specify <code>pattern</code> and <code>counter</code> pairs, pages matching the
 <code>pattern</code> will be followed the amount of times specified by the <code>counter</code>.
@@ -262,7 +263,7 @@ limited amount of times.
 </li>
 </ul>
 <h2 id="adjust-the-amount-of-browser-workers"><a class="header" href="#adjust-the-amount-of-browser-workers">Adjust the amount of browser workers</a></h2>
-<p>RKN uses real browsers to support technologies such as HTML5, AJAX and DOM
+<p>Apex Recon uses real browsers to support technologies such as HTML5, AJAX and DOM
 manipulation and perform deep analysis of client-side code.</p>
 <p>Even though browser operations are performed in parallel using a pool of workers,
 the default pool size is modest and operations can be time consuming.</p>
@@ -275,6 +276,40 @@ the amount of CPU cores) and will probably require some experimentation; on aver
 they will also accelerate workload generation.</p>
 <p>You can set this option via <code>--dom-pool-size</code>.
 The default is calculated based on the amount of available CPU cores your system has.</p>
+<h2 id="narrow-recon-to-specific-sink-kinds"><a class="header" href="#narrow-recon-to-specific-sink-kinds">Narrow recon to specific sink kinds</a></h2>
+<p>If you already know which class of finding you care about, restrict
+sink-tracing to that subset. Hits at filtered-out sinks are skipped
+at trace time, so they don’t pay the trace cost and they don’t
+bloat the report.</p>
+<p>The five sink kinds are:</p>
+<ul>
+<li><code>active</code> — input reaches an exec-context sink (eval / Runtime.exec
+/ SQL execute / innerHTML / DOM event handler). Highest leverage.</li>
+<li><code>body</code> — value reflected verbatim into the response body
+(XSS / HTML-injection-shaped surfaces).</li>
+<li><code>header_name</code> — value reflected into a response header NAME.</li>
+<li><code>header_value</code> — value reflected into a response header VALUE.</li>
+<li><code>blind</code> — input reaches a sink with no observable response signal
+(timing / out-of-band only).</li>
+</ul>
+<p>The CLI defaults to the first four and skips <code>blind</code> because blind
+hits are noise on most chatty targets. Override with
+<code>--sink-filter NAME</code> (repeatable):</p>
+<pre><code># Only exec-context findings — fastest narrowing for triage runs
+bin/apex https://example.com/ --sink-filter active
+
+# Add `blind` back to the default set
+bin/apex https://example.com/ \
+    --sink-filter active --sink-filter body \
+    --sink-filter header_name --sink-filter header_value \
+    --sink-filter blind
+</code></pre>
+<p>The first explicit <code>--sink-filter</code> flag clears the default;
+subsequent flags accumulate. From an MCP client, pass the same
+list as <code>options.sinks_filter</code> (omit the key to inherit the
+four-kind default; pass <code>[]</code> for a crawl-only run that produces
+just a sitemap). The web profile UI exposes the same toggles per
+profile.</p>
 
                     </main>
 

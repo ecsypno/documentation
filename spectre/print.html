@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-1196af95.js";
+            window.path_to_searchindex_js = "searchindex-a0e8dca3.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-e6c11880.js"></script>
+        <script src="toc-f64bbaef.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -1654,7 +1654,8 @@ at the time of writing are:</p>
 <li><code>spectre_instance_connect</code> – Utility to connect to an <em>Instance</em>.</li>
 <li><code>spectre_reporter</code> – Generates reports from <code>.crf</code> (Cuboid report file) and <code>.ser</code> (Spectre Scan report) report files.</li>
 <li><code>spectre_reproduce</code> – Reproduces an issue(s) from a given report.</li>
-<li><code>spectre_rest_server</code> – Starts a REST server daemon.</li>
+<li><code>spectre_rest_server</code> – Starts a <a href="#rest">REST</a> server daemon.</li>
+<li><code>spectre_mcp_server</code> – Starts an <a href="#mcp">MCP</a> server daemon.</li>
 <li><code>spectre_restore</code> – Restores a suspended scan based on a snapshot file.</li>
 <li><code>spectre_scheduler</code> – Starts a <em>Scheduler</em> daemon.</li>
 <li><code>spectre_scheduler_attach</code> – Attaches a detached <em>Instance</em> to the given <em>Scheduler</em>.</li>
@@ -3136,6 +3137,570 @@ monitor_and_report( instance_id )
 request :delete, "instances/#{instance_id}"
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
+<h1 id="mcp"><a class="header" href="#mcp">MCP</a></h1>
+<p>Spectre Scan ships a <a href="https://modelcontextprotocol.io/">Model Context Protocol</a> server so an AI client
+(Claude Desktop / Code, Cursor, Continue — anything that speaks MCP) can
+drive scans directly: spawn an <em>Instance</em>, watch its progress, fetch
+issues and reports, and tear it down again — over a single HTTP endpoint.</p>
+<p>It is the same conceptual surface as the <a href="#rest">REST API</a>,
+but exposed as MCP <em>tools</em>, <em>prompts</em>, and <em>resources</em>, and described to
+the client via the protocol’s own discovery calls (<code>tools/list</code>,
+<code>prompts/list</code>, <code>resources/list</code>). Whatever the model sees in its context
+is exactly what the surface advertises — the descriptions <em>are</em> the docs.</p>
+<p>This page is the canonical reference. It is the only document an AI
+needs to understand and drive the surface end to end; everything else
+in this section either complements it or provides language bindings.</p>
+<h2 id="server-4"><a class="header" href="#server-4">Server</a></h2>
+<p>To start the MCP server:</p>
+<pre><code class="language-bash">bin/spectre_mcp_server
+</code></pre>
+<p>To see CLI options:</p>
+<pre><code class="language-bash">bin/spectre_mcp_server -h
+</code></pre>
+<p>The transport is <a href="https://modelcontextprotocol.io/docs/concepts/transports#streamable-http">Streamable HTTP</a> — every call is a JSON-RPC <code>POST</code>,
+optionally upgraded to a Server-Sent Events stream by the server.
+Authentication is configured in-application (see <em>Auth</em> below); there are
+no <code>--username</code> / <code>--password</code> flags.</p>
+<h2 id="endpoint"><a class="header" href="#endpoint">Endpoint</a></h2>
+<p>A single URL — <code>http://&lt;host&gt;:&lt;port&gt;/mcp</code>. There is no per-instance
+sub-route; instance scoping is done by passing <code>instance_id</code> as an
+argument to every per-scan tool. One MCP server, one session per client.</p>
+<p><code>serverInfo</code> advertises <code>{ name: "spectre", version: &lt;SCNR.version&gt; }</code>,
+derived from the running umbrella’s <code>shortname</code> / <code>version</code> methods.
+The brand and version are picked up automatically — there’s nothing to
+configure on the CLI.</p>
+<h2 id="tools"><a class="header" href="#tools">Tools</a></h2>
+<p>The server flattens framework + scan tools into one <code>tools/list</code> response.
+Every tool that returns structured data declares an <code>outputSchema</code>; the
+response carries <em>both</em> <code>content[0].text</code> (JSON-encoded, for clients that
+don’t speak typed outputs) <em>and</em> <code>structuredContent</code> matching the schema
+(for clients that do).</p>
+<h3 id="framework-tools"><a class="header" href="#framework-tools">Framework tools</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Tool</th><th>Required</th><th>Optional</th><th>Returns (<code>structuredContent</code>)</th></tr>
+</thead>
+<tbody>
+<tr><td><code>list_instances</code></td><td>—</td><td>—</td><td><code>{ instances: { &lt;id&gt;: { url } } }</code></td></tr>
+<tr><td><code>spawn_instance</code></td><td>—</td><td><code>options</code>, <code>start=true</code>, <code>live=true</code></td><td><code>{ instance_id, url, live? }</code></td></tr>
+<tr><td><code>kill_instance</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ killed: &lt;id&gt; }</code></td></tr>
+<tr><td><code>list_checks</code></td><td>—</td><td><code>severities[]</code>, <code>tags[]</code></td><td><code>{ checks: [{ shortname, name, description, severity, elements[], tags[], platforms[] }] }</code></td></tr>
+</tbody>
+</table>
+</div>
+<p><code>list_checks</code> is the catalog tool — call it BEFORE <code>spawn_instance</code> to
+discover what’s available and pick the <code>shortname</code>s you want to scope
+into <code>options.checks</code>. Filterable by <code>severities</code> (e.g. just <code>high</code>) or
+<code>tags</code> (e.g. <code>xss</code>, <code>sqli</code>). The response is sorted high-severity-first
+then by name.</p>
+<p><code>spawn_instance.options</code> is forwarded to <code>instance.run(...)</code> — same
+shape as the <a href="#rest">REST API</a> <code>POST /instances</code> body. To
+spawn an <em>Instance</em> without running anything, pass <code>start: false</code>;
+passing <code>options: {}</code> does <strong>not</strong> skip the run.</p>
+<p><code>live</code> is on by default — when the call arrives over an MCP session
+that supports notifications, the server attaches a per-instance
+loopback receiver and the engine pushes every issue / sitemap entry /
+error / status change / final report back to the calling session as
+a brand-derived JSON-RPC notification. The response’s <code>live</code>
+sub-object tells the client which notification method to subscribe
+to (e.g. <code>notifications/spectre/live</code>). See
+<a href="#live-events">Live events</a> for the envelope shape and the
+end-to-end flow. Pass <code>live: false</code> to opt out and poll instead.</p>
+<p>For the full options surface, read the
+<a href="#resources"><code>spectre://options/reference</code></a> resource (covered below) or
+the <a href="#scan-options">REST API options reference</a>.</p>
+<h3 id="per-scan-tools"><a class="header" href="#per-scan-tools">Per-scan tools</a></h3>
+<p>Every per-scan tool requires <code>instance_id</code>. Two delta-arg shapes:</p>
+<ul>
+<li><code>*_seen</code> — array of issue digests already processed; the response
+excludes those.</li>
+<li><code>*_since</code> — integer offset; the response is the tail past that index.</li>
+</ul>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Tool</th><th>Required</th><th>Optional</th><th>Returns</th></tr>
+</thead>
+<tbody>
+<tr><td><code>scan_progress</code></td><td><code>instance_id</code></td><td><code>issues_seen</code>, <code>errors_since</code>, <code>sitemap_since</code>, <code>without_issues</code>, <code>without_errors</code>, <code>without_sitemap</code>, <code>without_statistics</code></td><td><code>{ status, running, seed, statistics?, issues?, errors?, sitemap?, messages }</code></td></tr>
+<tr><td><code>scan_report</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ issues, sitemap, statistics, plugins }</code></td></tr>
+<tr><td><code>scan_sitemap</code></td><td><code>instance_id</code></td><td><code>sitemap_since=0</code></td><td><code>{ sitemap: { &lt;url&gt;: &lt;code&gt; } }</code></td></tr>
+<tr><td><code>scan_issues</code></td><td><code>instance_id</code></td><td><code>issues_seen=[]</code></td><td><code>{ issues: { &lt;digest&gt;: &lt;issue&gt; } }</code></td></tr>
+<tr><td><code>scan_errors</code></td><td><code>instance_id</code></td><td><code>errors_since=0</code></td><td><code>{ errors: [string] }</code></td></tr>
+<tr><td><code>scan_pause</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ status: 'paused' }</code></td></tr>
+<tr><td><code>scan_resume</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ status: 'resumed' }</code></td></tr>
+<tr><td><code>scan_abort</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ status: 'aborted' }</code></td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="issue-digests"><a class="header" href="#issue-digests">Issue digests</a></h3>
+<p>Issue <code>digest</code> values are the <strong>keys</strong> of the returned <code>issues</code> hash
+(NOT a field nested inside the value) — unsigned 32-bit <code>xxh32</code>
+integers, e.g. <code>3162940604</code>. Both <code>scan_progress</code> and <code>scan_issues</code>
+accept the digest array as integers or numeric strings (some JSON-RPC
+clients stringify large numbers); the server coerces. If you ever see
+the same issue stream back unchanged after passing it as <code>issues_seen</code>,
+a stringified-vs-int mismatch is the first thing to check.</p>
+<h2 id="prompts"><a class="header" href="#prompts">Prompts</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Prompt</th><th>Required</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>quick_scan(url)</code></td><td><code>url</code></td><td>Canned operator workflow for the <strong>bounded smoke test</strong> — expands into a 6-step user message that walks the AI through reading the options reference, building <code>options</code> from the quick-scan preset (<code>scope.page_limit: 50</code> baked in), <code>spawn_instance</code>, polling <code>scan_progress</code> every 5 s using deltas, fetching <code>scan_issues</code> when status reaches <code>done</code>, and <code>kill_instance</code>-ing afterwards. Optional args: <code>page_limit</code> (override the default cap), <code>checks</code>, <code>authorized_by</code>, <code>extra_options</code>.</td></tr>
+<tr><td><code>full_scan(url)</code></td><td><code>url</code></td><td>Same shape as <code>quick_scan</code> minus the 50-page cap — drives a complete audit using the full-scan preset. Use when you want a thorough run and accept hours of polling. Optional args: <code>checks</code>, <code>authorized_by</code>, <code>extra_options</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The expanded prompt body references resources by URI so the model has a
+clear pull path for the data — it doesn’t need to memorise option names.</p>
+<h2 id="resources"><a class="header" href="#resources">Resources</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>URI</th><th>Mime</th><th>Contents</th></tr>
+</thead>
+<tbody>
+<tr><td><code>spectre://glossary</code></td><td><code>text/markdown</code></td><td>Domain terms (issue, digest, status, sitemap, statistics, check, scope, audit.elements). Read once before driving a scan.</td></tr>
+<tr><td><code>spectre://options/reference</code></td><td><code>text/markdown</code></td><td>Concrete keys for <code>spawn_instance.options</code> (url, scope, audit, checks, http, browser_cluster, plugins, authorized_by).</td></tr>
+<tr><td><code>spectre://option-presets/quick-scan</code></td><td><code>application/json</code></td><td>JSON template — every audit element, every check, default plugins, <strong><code>scope.page_limit: 50</code></strong> so a real-site smoke test finishes in minutes. Bump / drop the cap (or switch to <code>full-scan</code>) for a longer run.</td></tr>
+<tr><td><code>spectre://option-presets/full-scan</code></td><td><code>application/json</code></td><td>Same shape as <code>quick-scan</code> minus the page cap — uncapped audit. Use when you want a complete run and accept a long wait.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Quick-scan preset:</p>
+<pre><code class="language-json">{
+  "url":     "&lt;TARGET URL&gt;",
+  "checks":  ["*"],
+  "audit":   { "elements": ["links","forms","cookies","headers","ui_inputs","ui_forms","jsons","xmls"] },
+  "scope":   { "page_limit": 50 }
+}
+</code></pre>
+<p>Full-scan preset (same minus <code>scope</code>):</p>
+<pre><code class="language-json">{
+  "url":    "&lt;TARGET URL&gt;",
+  "checks": ["*"],
+  "audit":  { "elements": ["links","forms","cookies","headers","ui_inputs","ui_forms","jsons","xmls"] }
+}
+</code></pre>
+<p>Pulled in-band, this gives an AI client everything it needs to schematise
+<code>spawn_instance.options</code> without leaving the protocol.</p>
+<h2 id="auth"><a class="header" href="#auth">Auth</a></h2>
+<p>Authentication is opt-in and lives on the application class:</p>
+<pre><code class="language-ruby">SCNR::Application.mcp_authenticate_with do |bearer_token|
+    User.find_by(api_token: bearer_token)
+end
+</code></pre>
+<p>When a validator is registered the server requires
+<code>Authorization: Bearer &lt;token&gt;</code> on every request and returns <code>401</code>
+otherwise (RFC 6750 — <code>WWW-Authenticate: Bearer realm="MCP", error=…</code>).
+Without a validator the server accepts unauthenticated traffic — fine for
+a loopback bind, dangerous on a public interface.</p>
+<p>The resolved principal is stashed at <code>env['cuboid.mcp.auth']</code> for any
+downstream middleware that wants to look it up.</p>
+<h2 id="self-discovery-flow"><a class="header" href="#self-discovery-flow">Self-discovery flow</a></h2>
+<p>If you’re an AI seeing this server for the first time, do this once:</p>
+<ol>
+<li><code>initialize</code> → check <code>serverInfo.name</code> (<code>spectre</code>) and <code>version</code>.</li>
+<li><code>resources/list</code> → you’ll see four URIs. <strong>Read all four</strong> — they
+are tiny and answer most of the questions you’d otherwise have to
+ask. The glossary in particular grounds the field names you’ll see
+in <code>scan_progress</code> / <code>scan_issues</code> results.</li>
+<li><code>prompts/list</code> → you’ll see <code>quick_scan</code> (capped 50-page smoke test)
+and <code>full_scan</code> (uncapped). If the user’s intent
+matches it (“scan this URL for issues”), use it: <code>prompts/get</code> with
+their URL gives you a full operator script.</li>
+<li><code>tools/list</code> → discover the 12 tools. <code>outputSchema</code> on each tells
+you exactly what <code>structuredContent</code> to expect. <code>list_checks</code> (no
+<code>instance_id</code> required) hands back the full check catalog so you
+can scope <code>spawn_instance.options.checks</code> deliberately instead of
+defaulting to <code>["*"]</code>.</li>
+<li>Open the GET-SSE channel on <code>/mcp</code> (with the same <code>mcp-session-id</code>)
+to receive <a href="#live-events">live events</a>. The default <code>spawn_instance</code>
+call will start streaming on it — you do not need to poll unless
+you opt out of live with <code>live: false</code>.</li>
+</ol>
+<p>After that, drive the scan with no further out-of-band knowledge.</p>
+<h2 id="status-semantics"><a class="header" href="#status-semantics">Status semantics</a></h2>
+<p><code>scan_progress.status</code> advances roughly:</p>
+<pre><code>ready ──► preparing ──► scanning ──► auditing ──► cleanup ──► done
+                              │           │
+                              └─► paused ─┘
+                              │
+                              └─► aborted (terminal)
+</code></pre>
+<ul>
+<li><code>ready</code> — the <em>Instance</em> has been spawned but <code>start: true</code> hasn’t yet
+flipped it past <code>instance.run(...)</code>. <strong><code>scan_progress</code> called on a
+<code>:ready</code> instance returns a minimal payload</strong> (status + running +
+seed only — no statistics yet, no issues hash). Don’t trust delta
+arithmetic until status has advanced.</li>
+<li><code>preparing</code> — engine is loading checks/plugins, opening the seed URL,
+and warming the browser cluster. No issues yet, but the sitemap may
+start populating.</li>
+<li><code>scanning</code> — crawl is in flight; new sitemap entries appear, no
+audits running yet.</li>
+<li><code>auditing</code> — the crawl is winding down and checks are firing against
+discovered inputs. Most issues land here.</li>
+<li><code>paused</code> / <code>aborted</code> — <code>running: false</code>, but only <code>aborted</code> is
+terminal. A paused scan can be resumed with <code>scan_resume</code>.</li>
+<li><code>cleanup</code> — engine is finalising state; close to <code>done</code>.</li>
+<li><code>done</code> — terminal. <code>scan_report</code> is now safe to call;
+<code>running: false</code>.</li>
+</ul>
+<p><strong>Treat anything other than <code>done</code> / <code>aborted</code> as still in flight.</strong></p>
+<h2 id="live-events"><a class="header" href="#live-events">Live events</a></h2>
+<p>The canonical way to track a scan is the live channel — <code>spawn_instance</code>
+attaches it by default. Every interesting state change inside the
+engine is pushed to the calling MCP session as a brand-derived
+JSON-RPC notification (<code>notifications/spectre/live</code> for Spectre);
+your client subscribes once on the SSE half of the Streamable HTTP
+transport and receives them as they happen, with no polling.</p>
+<h3 id="subscribing"><a class="header" href="#subscribing">Subscribing</a></h3>
+<p>Streamable HTTP is one URL with two halves: <code>POST /mcp</code> for
+request/response and <code>GET /mcp</code> (with <code>Accept: text/event-stream</code>)
+for server-initiated notifications. Open the GET once after
+<code>initialize</code>, before any <code>spawn_instance</code>, and keep it open for the
+life of the scan. Use the <strong>same</strong> <code>mcp-session-id</code> you got from
+<code>initialize</code> on both halves — that’s how the server routes the
+notifications back to the right client.</p>
+<p>The exact notification method to listen for is
+brand-derived; <code>spawn_instance</code>’s response includes
+<code>live.notification_method</code> so the client doesn’t have to hard-code
+it. Bare-cuboid builds emit <code>notifications/cuboid/live</code>.</p>
+<h3 id="envelope-shape"><a class="header" href="#envelope-shape">Envelope shape</a></h3>
+<p>Each notification’s <code>params</code> is a single envelope:</p>
+<pre><code class="language-jsonc">{
+  "jsonrpc": "2.0",
+  "method":  "notifications/spectre/live",
+  "params": {
+    "type":        "issue",            // see type enum below
+    "payload":     { … },              // type-specific body, see below
+    "timestamp":   "2026-05-05T10:48:01.715Z",
+    "status":      "auditing",         // current scan status at emit time
+    "running":     true,
+    "statistics":  { … },              // SCNR::Engine::Data.statistics snapshot
+    "metadata":    { … },              // caller-supplied JSON object, if any (see below)
+    "instance_id": "f8cd1a0a…"         // stamped on every event so a single
+                                       // session can fan in multiple scans
+  }
+}
+</code></pre>
+<p><code>type</code> is one of:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th><code>type</code></th><th><code>payload</code> shape</th><th>when</th></tr>
+</thead>
+<tbody>
+<tr><td><code>status</code></td><td>string — see status payload sequence below</td><td>every status transition + the synthetic <code>started</code> / <code>exited</code> bookends</td></tr>
+<tr><td><code>sitemap_entry</code></td><td><code>{ url: string, code: integer }</code></td><td>every newly-crawled URL</td></tr>
+<tr><td><code>issue</code></td><td>full issue Hash (<code>name</code>, <code>severity</code>, <code>vector</code>, <code>proof</code>, <code>digest</code>, …)</td><td>every new finding (post-deduplication)</td></tr>
+<tr><td><code>error</code></td><td>string — one or more engine error lines, joined with newlines</td><td>rescued exceptions, coalesced over a 200 ms quiet window so a single backtrace becomes one event instead of 30+</td></tr>
+<tr><td><code>report</code></td><td>full final report Hash (issues + sitemap + statistics + plugins)</td><td>once during <code>cleanup</code>, before the engine subprocess exits</td></tr>
+</tbody>
+</table>
+</div>
+<h4 id="status-payload-sequence"><a class="header" href="#status-payload-sequence">Status payload sequence</a></h4>
+<p>A typical run emits the following <code>status</code> payloads, in order:</p>
+<pre><code>started      ← synthetic — fired the moment the live plugin attaches,
+                before the engine starts crawling. Useful as an "alive"
+                signal: if the client never sees this, the spawn never
+                got past plugin load.
+preparing    ← engine loading checks/plugins, opening the seed URL
+scanning     ← crawl in flight
+auditing     ← payload exchange against discovered inputs
+cleanup      ← engine finalising state; this is when `report` fires
+done         ← terminal lifecycle status (or `aborted`)
+exited       ← synthetic — fired from the live plugin's at_exit hook
+                when the engine subprocess actually exits.
+</code></pre>
+<p><strong><code>exited</code> is not automatic at <code>done</code>.</strong> The engine subprocess stays
+alive after <code>done</code> so subsequent <code>scan_report</code> calls keep working. It
+only exits when the client calls <code>kill_instance</code> (or the host
+terminates the process). Even then, the hook only fires on a graceful
+unwind — a hard kill (SIGKILL, host crash, OOM) bypasses Ruby’s
+at_exit chain entirely, and no <code>exited</code> will ever land. Treat <code>done</code>
+as “scan finished, results are stable” and <code>exited</code> as a best-effort
+“engine subprocess is gone too.” Don’t block client teardown on
+<code>exited</code> arriving.</p>
+<p><code>paused</code> and <code>resumed</code> can appear between <code>scanning</code>/<code>auditing</code> and
+<code>cleanup</code> if the operator hits <code>scan_pause</code> / <code>scan_resume</code>.</p>
+<p><code>statistics</code> is the live counter snapshot at the moment the event
+fired — issue totals by severity, page-queue depth, browser-pool
+status, etc. Receivers can keep a running dashboard without ever
+calling <code>scan_progress</code>.</p>
+<h3 id="tagging-events-with-caller-metadata"><a class="header" href="#tagging-events-with-caller-metadata">Tagging events with caller metadata</a></h3>
+<p><code>spawn_instance</code> may include <code>plugins.live.metadata</code> (a JSON string).
+At scan-start the plugin parses it once; every envelope thereafter
+carries the decoded value verbatim under <code>metadata</code>. Use this to
+correlate when one receiver fans in events from many concurrent
+scans — e.g. <code>metadata = "{\"scan_id\":\"abc\",\"env\":\"staging\"}"</code>.
+Invalid JSON in <code>metadata</code> aborts the scan at validation time
+(<code>Component::Options::Error::Invalid</code>) — typos fail fast.</p>
+<h3 id="wire-format"><a class="header" href="#wire-format">Wire format</a></h3>
+<p>The live envelope is encoded in <code>messagepack</code> by default —
+significantly smaller than JSON for the report payload (which
+carries the full sitemap and issue set). The MCP server decodes it
+internally and re-emits it as a normal JSON-RPC notification, so
+clients see plain JSON. The format is opaque to clients.</p>
+<h3 id="when-to-opt-out"><a class="header" href="#when-to-opt-out">When to opt out</a></h3>
+<p>Pass <code>live: false</code> to <code>spawn_instance</code> if:</p>
+<ul>
+<li>You’re driving from a stateless / non-MCP integration (no SSE
+channel to push to).</li>
+<li>You want a simpler client implementation that just polls.</li>
+<li>You’re running under Apex — <code>live</code> is rejected at the application
+layer (Apex’s sink-trace recon would flood the channel).</li>
+</ul>
+<p>In any of those cases the <a href="#polling-cadence">polling cadence</a>
+section below is still valid.</p>
+<h2 id="polling-cadence"><a class="header" href="#polling-cadence">Polling cadence</a></h2>
+<p>Polling via <code>scan_progress</code> is the fallback when <code>live: false</code> (or
+under Apex). 5 seconds is the default cadence the <code>quick_scan</code>
+prompt suggests, and it’s a sensible floor:</p>
+<ul>
+<li>Faster than ~2 s burns context tokens for almost no new state.</li>
+<li><code>scan_progress</code> with <code>without_statistics: true</code> is cheap; the
+<code>statistics</code> block dwarfs the rest of the payload.</li>
+<li>Use <code>errors_since</code> / <code>sitemap_since</code> / <code>issues_seen</code> from the second
+poll onwards — the engine returns only deltas, keeping each response
+small.</li>
+<li>For very long scans (hours), 30 s is fine.</li>
+</ul>
+<h3 id="delta-arg-shapes--when-to-use-which"><a class="header" href="#delta-arg-shapes--when-to-use-which">Delta-arg shapes — when to use which</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Shape</th><th>Why</th></tr>
+</thead>
+<tbody>
+<tr><td><code>issues_seen</code></td><td>array of digests (int / string)</td><td>Issues are content-addressed; offsets aren’t stable across deduplication.</td></tr>
+<tr><td><code>errors_since</code></td><td>integer offset</td><td>Engine errors are an append-only log.</td></tr>
+<tr><td><code>sitemap_since</code></td><td>integer offset</td><td>Sitemap is discovery-ordered, append-only.</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>scan_progress</code> accepts all three at once — gives you exactly the right
+delta for each block.</p>
+<h2 id="instance-lifetime"><a class="header" href="#instance-lifetime">Instance lifetime</a></h2>
+<p>Every <code>spawn_instance</code> forks a daemonised Spectre Scan engine subprocess on the
+host (or, if a Cuboid Agent is configured, allocates one over the grid).
+The <code>instance_id</code> is the engine’s RPC token. Things to know:</p>
+<ul>
+<li>The instance survives a client disconnect. If you forget to call
+<code>kill_instance</code>, the process keeps running until something kills it
+(host shutdown, OOM, manual signal). Always wire a <code>kill_instance</code> in
+your error path.</li>
+<li>The instance does <strong>not</strong> survive an MCP-server restart cleanly. The
+daemonised engine keeps running but the MCP server’s in-memory
+<code>@@instances</code> map is empty after a restart, so you can’t
+<code>kill_instance</code> it through MCP any more (you’d need REST or a
+process-level kill). <strong>Don’t restart the MCP server while scans are
+mid-flight.</strong></li>
+<li>Each instance reserves about 2 GB RAM and 4 GB disk by default. On a
+laptop, parallel scans are bounded by RAM; the host won’t proactively
+refuse a third spawn if the second one is still warming up.</li>
+<li><code>start: false</code> is rare in practice. It registers an idle instance that
+sits there waiting for a <code>run</code>, and the only way to <code>run</code> is via
+REST/RPC — MCP’s <code>spawn_instance</code> doesn’t have a separate “start now”
+tool. Use it when something else is going to drive the run.</li>
+</ul>
+<h2 id="error-idiom"><a class="header" href="#error-idiom">Error idiom</a></h2>
+<p>Engine exceptions don’t crash the MCP server — <code>MCPProxy.instrumented_call</code>
+wraps every body with <code>rescue =&gt; e</code>. The wire response is:</p>
+<pre><code class="language-jsonc">{
+  "result": {
+    "isError": true,
+    "content": [
+      { "type": "text", "text": "error: SCNR::Engine::Options::Error: …" }
+    ]
+  }
+}
+</code></pre>
+<p>Common shapes:</p>
+<ul>
+<li><code>error: ArgumentError: Invalid options!</code> — <code>instance.run(options)</code>
+rejected the shape. Read <code>spectre://options/reference</code> and try again.</li>
+<li><code>error: Toq::Exceptions::RemoteException: …</code> — the inner RPC client to
+the engine subprocess raised. Usually means the engine itself is in a
+bad state. Try <code>scan_errors</code> for clues; if that’s empty,
+<code>kill_instance</code> and respawn.</li>
+<li><code>error: JSON::GeneratorError: "\xNN" from ASCII-8BIT to UTF-8</code> — the
+engine produced binary bytes that aren’t valid UTF-8 (a response body,
+HTTP header, etc.). Affects <code>scan_report</code> more than the streaming
+tools. Skip the report; <code>scan_progress</code> + <code>scan_issues</code> will still
+work.</li>
+<li><code>unknown instance: …</code> — the <code>instance_id</code> you passed isn’t in the
+server’s local map. Either the MCP server was restarted (which clears
+<code>@@instances</code>), or the id is stale. Re-<code>spawn_instance</code>.</li>
+</ul>
+<p>Validation errors (missing required arg, type mismatch) come back
+through the JSON-RPC error envelope, not as a tool error:</p>
+<pre><code class="language-json">{ "error": { "code": -32602, "message": "Missing required arguments: instance_id" } }
+</code></pre>
+<h2 id="options-trivia"><a class="header" href="#options-trivia">Options trivia</a></h2>
+<ul>
+<li><code>checks: "*"</code> (a single string) is <strong>not</strong> equivalent to
+<code>checks: ["*"]</code> (an array containing the wildcard). The string form
+won’t expand. The preset and the option reference both use the array
+form.</li>
+<li><code>plugins: ["defaults/*"]</code> loads every plugin under the <code>defaults</code>
+directory. Empty array (or omitted key) loads none.</li>
+<li><code>audit.elements</code> defaults to all kinds when the key is omitted, which
+is what the CLI does. Pass an explicit list to restrict — e.g.
+<code>["links", "forms"]</code> skips cookies, headers, JSON/XML bodies, etc.</li>
+<li><code>scope.page_limit</code> is baked into the quick-scan preset at <strong>50</strong> — a
+real-site smoke test that finishes in minutes. Override the
+<code>page_limit</code> prompt arg (or the JSON directly) for a smaller / larger
+cap; switch to the <code>full-scan</code> preset (or the <code>full_scan</code> prompt) for
+an uncapped audit. Sensible explicit values: 30 (smaller smoke test),
+200 (representative).</li>
+<li><code>authorized_by</code> — set this to the operator’s email; it shows up in
+the engine’s outbound HTTP <code>From</code> header so target-site admins can
+identify the scan. Not required, but polite on third-party targets.</li>
+</ul>
+<h2 id="conventions-baked-into-the-descriptions"><a class="header" href="#conventions-baked-into-the-descriptions">Conventions baked into the descriptions</a></h2>
+<p>The tool / prompt / resource descriptions are deliberately self-grounding:</p>
+<ul>
+<li>Per-property descriptions on every tool argument (no buried-in-text
+args).</li>
+<li>Cross-references use namespaced names (<code>scan_resume</code>, not <code>resume</code>)
+so the AI can call them verbatim.</li>
+<li>Preconditions are stated where they exist (<code>scan_pause</code> “the scan
+must currently be running”, <code>scan_resume</code> “must have been paused via
+<code>scan_pause</code>”). Calling out of order returns an MCP tool error rather
+than a routing failure.</li>
+<li>Domain terms (sink, mutation, action, vector, digest) are defined in
+<code>spectre://glossary</code> and cross-referenced from the relevant
+<code>outputSchema</code> property descriptions, so a model parsing
+<code>structuredContent</code> can resolve any unknown field name back to the
+glossary in one hop.</li>
+</ul>
+<h2 id="things-the-protocol-doesnt-expose-yet"><a class="header" href="#things-the-protocol-doesnt-expose-yet">Things the protocol doesn’t expose yet</a></h2>
+<p>For honesty — places where you’d still need out-of-band knowledge:</p>
+<ul>
+<li><strong>Structured error codes.</strong> Errors come back as text. If you want to
+branch on “bad option key” vs “engine crashed” vs “auth failed”,
+you’re parsing the text.</li>
+<li><strong>Plugin / check catalogue.</strong> There’s no <code>list_checks</code> tool; if a
+user asks “which checks would run for this scan”, you’d have to know
+the bundled set out of band, or fall back to running with
+<code>checks: ["*"]</code> and reading <code>scan_report</code>’s <code>plugins</code> block
+afterwards.</li>
+</ul>
+<p>Each of those is on the roadmap. Until they land, the resources +
+prompt expansion are the supported way to ground a model.</p>
+<h2 id="connecting-an-mcp-client"><a class="header" href="#connecting-an-mcp-client">Connecting an MCP client</a></h2>
+<p>Most clients accept a Streamable HTTP server entry verbatim:</p>
+<pre><code class="language-jsonc">{
+  "mcpServers": {
+    "spectre": {
+      "url": "http://127.0.0.1:7331/mcp"
+    }
+  }
+}
+</code></pre>
+<p>That’s all. After <code>initialize</code>, the client sees:</p>
+<ul>
+<li>12 tools (4 framework + 8 per-scan), each with input + output schema.</li>
+<li>2 prompts (<code>quick_scan</code>, <code>full_scan</code>).</li>
+<li>4 resources.</li>
+</ul>
+<p>If your client only speaks stdio (older Claude Desktop builds), use any
+community stdio↔HTTP MCP bridge in front. Cursor, Claude Code, and
+Continue speak Streamable HTTP natively.</p>
+<h2 id="end-to-end-example--curl-live"><a class="header" href="#end-to-end-example--curl-live">End-to-end example — curl (live)</a></h2>
+<p>Initialize, capture the session id, acknowledge:</p>
+<pre><code class="language-bash">curl -i -X POST http://127.0.0.1:7331/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  --data '{
+    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+    "params": {
+      "protocolVersion": "2025-06-18",
+      "capabilities":    {},
+      "clientInfo":      { "name": "curl", "version": "0" }
+    }
+  }'
+# → response header: Mcp-Session-Id: &lt;SID&gt;
+
+curl -X POST http://127.0.0.1:7331/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -H "Mcp-Session-Id: $SID" \
+  --data '{ "jsonrpc": "2.0", "method": "notifications/initialized" }'
+</code></pre>
+<p>Open the SSE channel for live events — keep this connection open
+for the life of the scan. Run it in another terminal (or
+backgrounded) so the next POSTs can fire while it’s tailing:</p>
+<pre><code class="language-bash">curl -sS -N -X GET http://127.0.0.1:7331/mcp \
+  -H 'Accept: text/event-stream' \
+  -H "Mcp-Session-Id: $SID"
+# stream of `data: { "jsonrpc": "2.0", "method": "notifications/spectre/live", … }`
+</code></pre>
+<p>Spawn a scan against <code>http://testfire.net/</code> using the quick-scan
+defaults — <code>live: true</code> is the default so the engine starts
+streaming events to the SSE channel above immediately:</p>
+<pre><code class="language-bash">curl -X POST http://127.0.0.1:7331/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -H "Mcp-Session-Id: $SID" \
+  --data '{
+    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+    "params": {
+      "name": "spawn_instance",
+      "arguments": {
+        "options": {
+          "url":     "http://testfire.net/",
+          "checks":  ["*"]
+        }
+      }
+    }
+  }'
+# → result.structuredContent:
+#   { "instance_id": "&lt;IID&gt;",
+#     "url":         "127.0.0.1:&lt;engine-port&gt;",
+#     "live":        { "notification_method": "notifications/spectre/live" } }
+</code></pre>
+<p>The SSE stream now emits one envelope per event — <code>status</code>
+transitions, every newly-crawled <code>sitemap_entry</code>, every <code>issue</code>,
+and a final <code>report</code> when status reaches <code>done</code>.</p>
+<p>Tear down once the <code>report</code> event has landed:</p>
+<pre><code class="language-bash">curl -X POST http://127.0.0.1:7331/mcp ... \
+  --data '{ "jsonrpc": "2.0", "id": 5, "method": "tools/call",
+            "params": { "name": "kill_instance",
+                        "arguments": { "instance_id": "'$IID'" } } }'
+</code></pre>
+<h3 id="polling-fallback"><a class="header" href="#polling-fallback">Polling fallback</a></h3>
+<p>If you’d rather poll, pass <code>"live": false</code> on <code>spawn_instance</code> and
+loop with <code>scan_progress</code> / <code>scan_issues</code>:</p>
+<pre><code class="language-bash"># spawn with live disabled
+curl -X POST http://127.0.0.1:7331/mcp ... \
+  --data '{ "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+            "params": { "name": "spawn_instance",
+                        "arguments": {
+                          "options": { "url": "http://testfire.net/", "checks": ["*"] },
+                          "live":    false
+                        } } }'
+
+# poll, fetching deltas only after the first call
+curl -X POST http://127.0.0.1:7331/mcp ... \
+  --data '{ "jsonrpc": "2.0", "id": 3, "method": "tools/call",
+            "params": { "name": "scan_progress",
+                        "arguments": {
+                          "instance_id":        "'$IID'",
+                          "issues_seen":        [3162940604, 1457298731],
+                          "errors_since":       12,
+                          "sitemap_since":      37,
+                          "without_statistics": true
+                        } } }'
+</code></pre>
+<p>The same loops expressed as a <code>quick_scan</code> prompt expansion are one
+<code>prompts/get</code> call away.</p>
+<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="web-ui"><a class="header" href="#web-ui">Web UI</a></h1>
 <p>The WebUI allows you to easily run, manage and schedule scans and their results via an intuitive web interface.</p>
 <h2 id="boot-up"><a class="header" href="#boot-up">Boot-up</a></h2>
@@ -3402,15 +3967,15 @@ JSON, XML, plain-text, AFR archive).</p>
 <h1 id="run-air-gapped"><a class="header" href="#run-air-gapped">Run air-gapped</a></h1>
 <p>In order to run Spectre Scan in an air-gapped environment you need to:</p>
 <ul>
-<li>Place the license file at: <code>~/.scnr/license.key</code>
+<li>Place the encrypted license file as <code>license</code> inside <code>~/.spectre/</code> (or <code>$SPECTRE_HOME/</code> if you’ve overridden the home dir).
 <ul>
-<li>Either by copying it over from a previous activation on an Internet-enabled machine, or;</li>
-<li>by <a href="https://license.ecsypno.com/scnr">activating on-line</a>.</li>
+<li>Either by copying it over from a previous activation on an Internet-enabled machine — copy <code>~/.spectre/license</code> (and, if present, the plaintext <code>~/.spectre/license.key</code> next to it), or;</li>
+<li>by <a href="https://license.ecsypno.com/spectre">activating on-line</a>.</li>
 </ul>
 </li>
 <li>Run an instance of <code>bin/spectre_check_server</code> in your local network – Provides functionality needed for SSRF types of checks.
 <ul>
-<li>Set the <code>SCNR_CHECK_SERVER</code> environment variable to the check server URL – ex. <code>http://10.1.1.1:9292</code>.</li>
+<li>Set the <code>SPECTRE_CHECK_SERVER</code> environment variable to the check server URL – ex. <code>http://10.1.1.1:9292</code>.</li>
 </ul>
 </li>
 </ul>
@@ -3427,9 +3992,9 @@ JSON, XML, plain-text, AFR archive).</p>
 <p>Both of these files can be handled by the CLI <code>scnr_reporter</code> utility in order
 to convert them to a multitude of formats or print the results to <code>STDOUT</code>.</p>
 <p>For example, to generate an HTML report:</p>
-<p><code>bin/spectre_reporter --report=html:outfile=my_report.html.zip /home/user/.scnr/reports/report.ser</code></p>
+<p><code>bin/spectre_reporter --report=html:outfile=my_report.html.zip /home/user/.spectre/reports/report.ser</code></p>
 <p>Or, to just print the report to STDOUT:</p>
-<p><code>bin/spectre_reporter --report=stdout /home/user/.scnr/reports/report.ser</code></p>
+<p><code>bin/spectre_reporter --report=stdout /home/user/.spectre/reports/report.ser</code></p>
 <p>At the time of writing, <code>bin/spectre_reporter --reporters-list</code> yields:</p>
 <pre><code> [~] Available reports:
 

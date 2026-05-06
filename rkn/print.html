@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-ba3eca74.js";
+            window.path_to_searchindex_js = "searchindex-f82e2683.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-09ed0dd2.js"></script>
+        <script src="toc-dc061d7d.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -211,6 +211,7 @@ and I/O characteristics of modern web applications and web APIs.</p>
 at the time of writing are:</p>
 <ol>
 <li><code>apex</code> – Direct scanning utility.</li>
+<li><code>apex_mcp_server</code> – Starts an <a href="#mcp">MCP</a> server daemon.</li>
 <li><code>apex_shell</code> – Starts a Bash shell under the package environment.</li>
 <li><code>apex_system_info</code> – Presents system information about the host.</li>
 </ol>
@@ -218,6 +219,474 @@ at the time of writing are:</p>
 <p>To start a scan and save the report as JSON:</p>
 <pre><code>bin/apex https://ginandjuice.shop/ --report-save-path=report.json
 </code></pre>
+<h2 id="sink-filter"><a class="header" href="#sink-filter">Sink filter</a></h2>
+<p>Apex traces five kinds of <a href="#resources">sink</a> — <code>active</code>,
+<code>body</code>, <code>header_name</code>, <code>header_value</code>, and <code>blind</code>. The CLI logs the
+first four by default and skips <code>blind</code> (input reaches a sink with
+no observable response signal — useful for targeted recon, noisy as
+a default). Hits at filtered-out sinks are skipped at trace time
+and never enter the report.</p>
+<p>Override with <code>--sink-filter NAME</code> (repeatable, OR-ed):</p>
+<pre><code># Only exec-context findings
+bin/apex https://example.com/ --sink-filter active
+
+# Default four PLUS blind
+bin/apex https://example.com/ \
+    --sink-filter active --sink-filter body \
+    --sink-filter header_name --sink-filter header_value \
+    --sink-filter blind
+</code></pre>
+<p>The first explicit <code>--sink-filter</code> clears the default; subsequent
+ones accumulate. The CLI prints which sinks are loaded at scan start:</p>
+<pre><code> [~] Recording sinks (default — pass `--sink-filter blind` to include blind hits): active, body, header_name, header_value
+</code></pre>
+<p>To run a crawl-only pass (sitemap, no entries), there is no CLI
+flag yet — use the <a href="#web-ui">profile UI</a> or the MCP
+<code>sinks_filter: []</code> shape.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="mcp"><a class="header" href="#mcp">MCP</a></h1>
+<p>Apex Recon ships a <a href="https://modelcontextprotocol.io/">Model Context Protocol</a> server so an AI client
+(Claude Desktop / Code, Cursor, Continue — anything that speaks MCP) can
+drive scans directly: spawn an <em>Instance</em>, watch its progress, fetch
+entries and reports, and tear it down again — over a single HTTP
+endpoint.</p>
+<p>It is the same conceptual surface as the <a href="interfaces/rest-api/index.html">REST API</a>,
+but exposed as MCP <em>tools</em>, <em>prompts</em>, and <em>resources</em>, and described to
+the client via the protocol’s own discovery calls (<code>tools/list</code>,
+<code>prompts/list</code>, <code>resources/list</code>). Whatever the model sees in its
+context is exactly what the surface advertises — the descriptions <em>are</em>
+the docs.</p>
+<p>This page is the canonical reference. It is the only document an AI
+needs to understand and drive the surface end to end; everything else
+in this section either complements it or provides language bindings.</p>
+<h2 id="server"><a class="header" href="#server">Server</a></h2>
+<p>To start the MCP server:</p>
+<pre><code class="language-bash">bin/apex_mcp_server
+</code></pre>
+<p>To see CLI options:</p>
+<pre><code class="language-bash">bin/apex_mcp_server -h
+</code></pre>
+<p>The transport is <a href="https://modelcontextprotocol.io/docs/concepts/transports#streamable-http">Streamable HTTP</a> — every call is a JSON-RPC
+<code>POST</code>, optionally upgraded to a Server-Sent Events stream by the
+server. Authentication is configured in-application (see <em>Auth</em> below);
+there are no <code>--username</code> / <code>--password</code> flags.</p>
+<h2 id="endpoint"><a class="header" href="#endpoint">Endpoint</a></h2>
+<p>A single URL — <code>http://&lt;host&gt;:&lt;port&gt;/mcp</code>. There is no per-instance
+sub-route; instance scoping is done by passing <code>instance_id</code> as an
+argument to every per-scan tool. One MCP server, one session per client.</p>
+<p><code>serverInfo</code> advertises <code>{ name: "apex", version: &lt;RKN.version&gt; }</code>,
+derived from the running umbrella’s <code>shortname</code> / <code>version</code> methods.
+The brand and version are picked up automatically — there’s nothing to
+configure on the CLI.</p>
+<h2 id="tools"><a class="header" href="#tools">Tools</a></h2>
+<p>The server flattens framework + scan tools into one <code>tools/list</code>
+response. Every tool that returns structured data declares an
+<code>outputSchema</code>; the response carries <em>both</em> <code>content[0].text</code>
+(JSON-encoded, for clients that don’t speak typed outputs) <em>and</em>
+<code>structuredContent</code> matching the schema (for clients that do).</p>
+<h3 id="framework-tools"><a class="header" href="#framework-tools">Framework tools</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Tool</th><th>Required</th><th>Optional</th><th>Returns (<code>structuredContent</code>)</th></tr>
+</thead>
+<tbody>
+<tr><td><code>list_instances</code></td><td>—</td><td>—</td><td><code>{ instances: { &lt;id&gt;: { url } } }</code></td></tr>
+<tr><td><code>spawn_instance</code></td><td>—</td><td><code>options</code>, <code>start=true</code></td><td><code>{ instance_id, url }</code></td></tr>
+<tr><td><code>kill_instance</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ killed: &lt;id&gt; }</code></td></tr>
+</tbody>
+</table>
+</div>
+<p><code>spawn_instance.options</code> is forwarded to <code>instance.run(...)</code> — same
+shape as the <a href="interfaces/rest-api/index.html">REST API</a> <code>POST /instances</code> body.
+To spawn an <em>Instance</em> without running anything, pass <code>start: false</code>;
+passing <code>options: {}</code> does <strong>not</strong> skip the run.</p>
+<p>For the full options surface, read the
+<a href="#resources"><code>apex://options/reference</code></a> resource (covered below) or
+the <a href="interfaces/rest-api/index.html#scan-options">REST API options reference</a>.</p>
+<h3 id="per-scan-tools"><a class="header" href="#per-scan-tools">Per-scan tools</a></h3>
+<p>Every per-scan tool requires <code>instance_id</code>. Two delta-arg shapes:</p>
+<ul>
+<li><code>*_seen</code> — array of entry digests already processed; the response
+excludes those.</li>
+<li><code>*_since</code> — integer offset; the response is the tail past that index.</li>
+</ul>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Tool</th><th>Required</th><th>Optional</th><th>Returns</th></tr>
+</thead>
+<tbody>
+<tr><td><code>scan_progress</code></td><td><code>instance_id</code></td><td><code>entries_seen</code>, <code>errors_since</code>, <code>sitemap_since</code>, <code>without_entries</code>, <code>without_errors</code>, <code>without_sitemap</code>, <code>without_statistics</code></td><td><code>{ status, running, seed, statistics?, entries?, errors?, sitemap?, messages }</code></td></tr>
+<tr><td><code>scan_report</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ entries, sitemap, statistics }</code></td></tr>
+<tr><td><code>scan_sitemap</code></td><td><code>instance_id</code></td><td><code>sitemap_since=0</code></td><td><code>{ sitemap: { &lt;url&gt;: &lt;code&gt; } }</code></td></tr>
+<tr><td><code>scan_entries</code></td><td><code>instance_id</code></td><td><code>entries_seen=[]</code></td><td><code>{ entries: { &lt;digest&gt;: &lt;entry&gt; } }</code></td></tr>
+<tr><td><code>scan_errors</code></td><td><code>instance_id</code></td><td><code>errors_since=0</code></td><td><code>{ errors: [string] }</code></td></tr>
+<tr><td><code>scan_pause</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ status: 'paused' }</code></td></tr>
+<tr><td><code>scan_resume</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ status: 'resumed' }</code></td></tr>
+<tr><td><code>scan_abort</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ status: 'aborted' }</code></td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="entry-digests"><a class="header" href="#entry-digests">Entry digests</a></h3>
+<p>Entry <code>digest</code> values are the <strong>keys</strong> of the returned <code>entries</code> hash
+(NOT a field nested inside the value) — 32-bit integers. Both
+<code>scan_progress</code> and <code>scan_entries</code> accept the digest array as integers
+or numeric strings (some JSON-RPC clients stringify large numbers); the
+server coerces. If you ever see the same entry stream back unchanged
+after passing it as <code>entries_seen</code>, a stringified-vs-int mismatch is
+the first thing to check.</p>
+<h2 id="prompts"><a class="header" href="#prompts">Prompts</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Prompt</th><th>Required</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>quick_scan(url)</code></td><td><code>url</code></td><td>Canned operator workflow for the <strong>bounded smoke test</strong> — expands into a 6-step user message that walks the AI through reading the options reference, building <code>options</code> from the quick-scan preset (<code>scope.page_limit: 50</code> baked in), <code>spawn_instance</code>, polling <code>scan_progress</code> every 5 s using deltas, fetching <code>scan_entries</code> when status reaches <code>done</code>, and <code>kill_instance</code>-ing afterwards. Optional args: <code>page_limit</code> (override the cap), <code>authorized_by</code>, <code>extra_options</code>.</td></tr>
+<tr><td><code>full_scan(url)</code></td><td><code>url</code></td><td>Same shape as <code>quick_scan</code> minus the 50-page cap — drives a complete recon using the full-scan preset. Use when you want a thorough run and accept hours of polling. Optional args: <code>authorized_by</code>, <code>extra_options</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The expanded prompt body references resources by URI so the model has
+a clear pull path for the data — it doesn’t need to memorise option
+names.</p>
+<h2 id="resources"><a class="header" href="#resources">Resources</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>URI</th><th>Mime</th><th>Contents</th></tr>
+</thead>
+<tbody>
+<tr><td><code>apex://glossary</code></td><td><code>text/markdown</code></td><td>Domain terms (entry, digest, sink, mutation, action, platforms, status, sitemap, statistics). Read once before driving a scan.</td></tr>
+<tr><td><code>apex://options/reference</code></td><td><code>text/markdown</code></td><td>Concrete keys for <code>spawn_instance.options</code> (url, scope, audit, http, browser_cluster, plugins, authorized_by, sinks_filter). Apex auto-loads its sink-trace checks — no <code>checks</code> key.</td></tr>
+<tr><td><code>apex://option-presets/quick-scan</code></td><td><code>application/json</code></td><td>JSON template — every audit element traced, default plugins, the four-kind <code>sinks_filter</code> default (every sink except <code>blind</code>), <strong><code>scope.page_limit: 50</code></strong> so a real-site smoke test finishes in minutes. Bump / drop the cap (or switch to <code>full-scan</code>) for a longer recon.</td></tr>
+<tr><td><code>apex://option-presets/full-scan</code></td><td><code>application/json</code></td><td>Same shape as <code>quick-scan</code> minus the page cap — uncapped recon. Use when you want a complete run and accept a long wait.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Quick-scan preset:</p>
+<pre><code class="language-json">{
+  "url":          "&lt;TARGET URL&gt;",
+  "audit":        { "elements": ["links","forms","cookies","headers","ui_inputs","ui_forms","jsons","xmls"] },
+  "sinks_filter": ["active","body","header_name","header_value"],
+  "scope":        { "page_limit": 50 }
+}
+</code></pre>
+<p>Full-scan preset (same minus <code>scope</code>):</p>
+<pre><code class="language-json">{
+  "url":          "&lt;TARGET URL&gt;",
+  "audit":        { "elements": ["links","forms","cookies","headers","ui_inputs","ui_forms","jsons","xmls"] },
+  "sinks_filter": ["active","body","header_name","header_value"]
+}
+</code></pre>
+<p>Pulled in-band, this gives an AI client everything it needs to
+schematise <code>spawn_instance.options</code> without leaving the protocol.</p>
+<h2 id="auth"><a class="header" href="#auth">Auth</a></h2>
+<p>Authentication is opt-in and lives on the application class:</p>
+<pre><code class="language-ruby">RKN::Application.mcp_authenticate_with do |bearer_token|
+    User.find_by(api_token: bearer_token)
+end
+</code></pre>
+<p>When a validator is registered the server requires
+<code>Authorization: Bearer &lt;token&gt;</code> on every request and returns <code>401</code>
+otherwise (RFC 6750 — <code>WWW-Authenticate: Bearer realm="MCP", error=…</code>).
+Without a validator the server accepts unauthenticated traffic — fine
+for a loopback bind, dangerous on a public interface.</p>
+<p>The resolved principal is stashed at <code>env['cuboid.mcp.auth']</code> for any
+downstream middleware that wants to look it up.</p>
+<h2 id="self-discovery-flow"><a class="header" href="#self-discovery-flow">Self-discovery flow</a></h2>
+<p>If you’re an AI seeing this server for the first time, do this once:</p>
+<ol>
+<li><code>initialize</code> → check <code>serverInfo.name</code> (<code>apex</code>) and <code>version</code>.</li>
+<li><code>resources/list</code> → you’ll see four URIs. <strong>Read all four</strong> — they
+are tiny and answer most of the questions you’d otherwise have to
+ask. The glossary in particular grounds the field names you’ll see
+in <code>scan_progress</code> / <code>scan_entries</code> results (sink, mutation, action,
+platforms).</li>
+<li><code>prompts/list</code> → you’ll see <code>quick_scan</code> (capped 50-page smoke
+test) and <code>full_scan</code> (uncapped). If the user’s intent matches one
+(“recon this URL for active inputs”), use it: <code>prompts/get</code> with
+their URL gives you a full operator script.</li>
+<li><code>tools/list</code> → discover the 11 tools. <code>outputSchema</code> on each tells
+you exactly what <code>structuredContent</code> to expect.</li>
+</ol>
+<p>After that, drive the scan with no further out-of-band knowledge.</p>
+<h2 id="status-semantics"><a class="header" href="#status-semantics">Status semantics</a></h2>
+<p><code>scan_progress.status</code> advances roughly:</p>
+<pre><code>ready ──► preparing ──► scanning ──► auditing ──► cleanup ──► done
+                              │           │
+                              └─► paused ─┘
+                              │
+                              └─► aborted (terminal)
+</code></pre>
+<ul>
+<li><code>ready</code> — the <em>Instance</em> has been spawned but <code>start: true</code> hasn’t yet
+flipped it past <code>instance.run(...)</code>. <strong><code>scan_progress</code> called on a
+<code>:ready</code> instance returns a minimal payload</strong> (status + running +
+seed only — no statistics yet, no entries hash). Don’t trust delta
+arithmetic until status has advanced.</li>
+<li><code>preparing</code> — engine is loading checks/plugins, opening the seed URL,
+and warming the browser cluster. No entries yet, but the sitemap may
+start populating.</li>
+<li><code>scanning</code> — crawl is in flight; new sitemap entries appear, no
+audits running yet.</li>
+<li><code>auditing</code> — the crawl is winding down and sink-tracing is firing
+against discovered inputs. Most entries land here.</li>
+<li><code>paused</code> / <code>aborted</code> — <code>running: false</code>, but only <code>aborted</code> is
+terminal. A paused scan can be resumed with <code>scan_resume</code>.</li>
+<li><code>cleanup</code> — engine is finalising state; close to <code>done</code>.</li>
+<li><code>done</code> — terminal. <code>scan_report</code> is now safe to call;
+<code>running: false</code>.</li>
+</ul>
+<p><strong>Treat anything other than <code>done</code> / <code>aborted</code> as still in flight.</strong></p>
+<h2 id="polling-cadence"><a class="header" href="#polling-cadence">Polling cadence</a></h2>
+<p>5 seconds is the default cadence the <code>quick_scan</code> prompt suggests, and
+it’s a sensible floor:</p>
+<ul>
+<li>Faster than ~2 s burns context tokens for almost no new state.</li>
+<li><code>scan_progress</code> with <code>without_statistics: true</code> is cheap; the
+<code>statistics</code> block dwarfs the rest of the payload.</li>
+<li>Use <code>errors_since</code> / <code>sitemap_since</code> / <code>entries_seen</code> from the second
+poll onwards — the engine returns only deltas, keeping each response
+small.</li>
+<li>For very long scans (hours), 30 s is fine.</li>
+</ul>
+<h3 id="delta-arg-shapes--when-to-use-which"><a class="header" href="#delta-arg-shapes--when-to-use-which">Delta-arg shapes — when to use which</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Shape</th><th>Why</th></tr>
+</thead>
+<tbody>
+<tr><td><code>entries_seen</code></td><td>array of digests (int / string)</td><td>Entries are content-addressed; offsets aren’t stable across deduplication.</td></tr>
+<tr><td><code>errors_since</code></td><td>integer offset</td><td>Engine errors are an append-only log.</td></tr>
+<tr><td><code>sitemap_since</code></td><td>integer offset</td><td>Sitemap is discovery-ordered, append-only.</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>scan_progress</code> accepts all three at once — gives you exactly the
+right delta for each block.</p>
+<h2 id="instance-lifetime"><a class="header" href="#instance-lifetime">Instance lifetime</a></h2>
+<p>Every <code>spawn_instance</code> forks a daemonised SCNR engine subprocess (Apex
+runs on the same engine as Spectre, configured for sink-trace recon).
+The <code>instance_id</code> is the engine’s RPC token. Things to know:</p>
+<ul>
+<li>The instance survives a client disconnect. If you forget to call
+<code>kill_instance</code>, the process keeps running until something kills it
+(host shutdown, OOM, manual signal). Always wire a <code>kill_instance</code>
+in your error path.</li>
+<li>The instance does <strong>not</strong> survive an MCP-server restart cleanly. The
+daemonised engine keeps running but the MCP server’s in-memory
+<code>@@instances</code> map is empty after a restart, so you can’t
+<code>kill_instance</code> it through MCP any more (you’d need REST or a
+process-level kill). <strong>Don’t restart the MCP server while scans are
+mid-flight.</strong></li>
+<li>Each instance reserves about 2 GB RAM and 4 GB disk by default. On a
+laptop, parallel scans are bounded by RAM; the host won’t proactively
+refuse a third spawn if the second one is still warming up.</li>
+<li><code>start: false</code> is rare in practice. It registers an idle instance
+that sits there waiting for a <code>run</code>, and the only way to <code>run</code> is
+via REST/RPC — MCP’s <code>spawn_instance</code> doesn’t have a separate “start
+now” tool. Use it when something else is going to drive the run.</li>
+</ul>
+<h2 id="error-idiom"><a class="header" href="#error-idiom">Error idiom</a></h2>
+<p>Engine exceptions don’t crash the MCP server — <code>MCPProxy.instrumented_call</code>
+wraps every body with <code>rescue =&gt; e</code>. The wire response is:</p>
+<pre><code class="language-jsonc">{
+  "result": {
+    "isError": true,
+    "content": [
+      { "type": "text", "text": "error: SCNR::Engine::Options::Error: …" }
+    ]
+  }
+}
+</code></pre>
+<p>Common shapes:</p>
+<ul>
+<li><code>error: ArgumentError: Invalid options!</code> — <code>instance.run(options)</code>
+rejected the shape. Read <code>apex://options/reference</code> and try again.</li>
+<li><code>error: Toq::Exceptions::RemoteException: …</code> — the inner RPC client
+to the engine subprocess raised. Usually means the engine itself is
+in a bad state. Try <code>scan_errors</code> for clues; if that’s empty,
+<code>kill_instance</code> and respawn.</li>
+<li><code>error: JSON::GeneratorError: "\xNN" from ASCII-8BIT to UTF-8</code> — the
+engine produced binary bytes that aren’t valid UTF-8 (a response
+body, HTTP header, etc.). Affects <code>scan_report</code> more than the
+streaming tools. Skip the report; <code>scan_progress</code> + <code>scan_entries</code>
+will still work.</li>
+<li><code>unknown instance: …</code> — the <code>instance_id</code> you passed isn’t in the
+server’s local map. Either the MCP server was restarted (which
+clears <code>@@instances</code>), or the id is stale. Re-<code>spawn_instance</code>.</li>
+</ul>
+<p>Validation errors (missing required arg, type mismatch) come back
+through the JSON-RPC error envelope, not as a tool error:</p>
+<pre><code class="language-json">{ "error": { "code": -32602, "message": "Missing required arguments: instance_id" } }
+</code></pre>
+<h2 id="options-trivia"><a class="header" href="#options-trivia">Options trivia</a></h2>
+<ul>
+<li>Apex auto-loads its two sink-tracing checks (<code>sink_trace_force</code>,
+<code>sink_trace_force_dom</code>) automatically — you do <strong>not</strong> pass <code>checks</code>.
+Don’t try to override; the recon flow depends on these being the
+active set.</li>
+<li><code>plugins: ["defaults/*"]</code> loads every plugin under the <code>defaults</code>
+directory. Empty array (or omitted key) loads none.</li>
+<li><code>audit.elements</code> defaults to all kinds when the key is omitted, which
+is what the CLI does. Pass an explicit list to restrict — e.g.
+<code>["links", "forms"]</code> skips cookies, headers, JSON/XML bodies, etc.</li>
+<li><code>scope.page_limit</code> is baked into the quick-scan preset at <strong>50</strong> — a
+real-site smoke test that finishes in minutes. Override the
+<code>page_limit</code> prompt arg (or the JSON directly) for a smaller / larger
+cap; switch to the <code>full-scan</code> preset (or the <code>full_scan</code> prompt) for
+an uncapped recon. Sensible explicit values: 30 (smaller smoke test),
+200 (representative).</li>
+<li><code>authorized_by</code> — set this to the operator’s email; it shows up in
+the engine’s outbound HTTP <code>From</code> header so target-site admins can
+identify the scan. Not required, but polite on third-party targets.</li>
+<li><code>sinks_filter</code> — record-time whitelist of sink kinds (mirrors the
+CLI’s <code>--sink-filter</code>). Four states:
+<ul>
+<li><strong>omit the key</strong> → MCP server applies the default
+<code>["active", "body", "header_name", "header_value"]</code> (every sink
+kind except <code>blind</code>). Mirrors the <code>apex_scan</code> CLI default.</li>
+<li><code>null</code> → no filter, log every sink kind including <code>blind</code>.</li>
+<li><code>[]</code> (empty array) → log NOTHING. The engine still crawls and
+produces a sitemap; no entries get recorded. Useful for a pure
+discovery pass.</li>
+<li>populated array (e.g. <code>["active"]</code>) → whitelist that subset.
+Hits at filtered-out sinks are skipped at trace time and never
+enter <code>scan_entries</code> / <code>scan_report</code>. See <code>apex://options/reference</code>
+for the on-the-wire description.</li>
+</ul>
+</li>
+</ul>
+<h2 id="conventions-baked-into-the-descriptions"><a class="header" href="#conventions-baked-into-the-descriptions">Conventions baked into the descriptions</a></h2>
+<p>The tool / prompt / resource descriptions are deliberately
+self-grounding:</p>
+<ul>
+<li>Per-property descriptions on every tool argument (no buried-in-text
+args).</li>
+<li>Cross-references use namespaced names (<code>scan_resume</code>, not <code>resume</code>)
+so the AI can call them verbatim.</li>
+<li>Preconditions are stated where they exist (<code>scan_pause</code> “the scan
+must currently be running”, <code>scan_resume</code> “must have been paused via
+<code>scan_pause</code>”). Calling out of order returns an MCP tool error
+rather than a routing failure.</li>
+<li>Domain terms (sink, mutation, action, platforms, digest) are defined
+in <code>apex://glossary</code> and cross-referenced from the relevant
+<code>outputSchema</code> property descriptions, so a model parsing
+<code>structuredContent</code> can resolve any unknown field name back to the
+glossary in one hop.</li>
+</ul>
+<h2 id="things-the-protocol-doesnt-expose-yet"><a class="header" href="#things-the-protocol-doesnt-expose-yet">Things the protocol doesn’t expose yet</a></h2>
+<p>For honesty — places where you’d still need out-of-band knowledge:</p>
+<ul>
+<li><strong>Live progress streaming.</strong> The MCP spec supports
+<code>notifications/progress</code> for long-running operations; this server
+doesn’t emit them yet. You poll.</li>
+<li><strong>Structured error codes.</strong> Errors come back as text. If you want to
+branch on “bad option key” vs “engine crashed” vs “auth failed”,
+you’re parsing the text.</li>
+<li><strong>Plugin / sink catalogue.</strong> There’s no <code>list_plugins</code> /
+<code>list_sinks</code> tool; if a user asks “which sinks does Apex trace”, you
+need out-of-band knowledge or to inspect the engine source.</li>
+</ul>
+<p>Each of those is on the roadmap. Until they land, the resources +
+prompt expansion are the supported way to ground a model.</p>
+<h2 id="connecting-an-mcp-client"><a class="header" href="#connecting-an-mcp-client">Connecting an MCP client</a></h2>
+<p>Most clients accept a Streamable HTTP server entry verbatim:</p>
+<pre><code class="language-jsonc">{
+  "mcpServers": {
+    "apex": {
+      "url": "http://127.0.0.1:7331/mcp"
+    }
+  }
+}
+</code></pre>
+<p>That’s all. After <code>initialize</code>, the client sees:</p>
+<ul>
+<li>11 tools (3 framework + 8 per-scan), each with input + output
+schema.</li>
+<li>2 prompts (<code>quick_scan</code>, <code>full_scan</code>).</li>
+<li>4 resources.</li>
+</ul>
+<p>If your client only speaks stdio (older Claude Desktop builds), use
+any community stdio↔HTTP MCP bridge in front. Cursor, Claude Code,
+and Continue speak Streamable HTTP natively.</p>
+<h2 id="end-to-end-example--curl"><a class="header" href="#end-to-end-example--curl">End-to-end example — curl</a></h2>
+<p>Initialize, capture the session id, acknowledge:</p>
+<pre><code class="language-bash">curl -i -X POST http://127.0.0.1:7331/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  --data '{
+    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+    "params": {
+      "protocolVersion": "2025-06-18",
+      "capabilities":    {},
+      "clientInfo":      { "name": "curl", "version": "0" }
+    }
+  }'
+# → response header: Mcp-Session-Id: &lt;SID&gt;
+
+curl -X POST http://127.0.0.1:7331/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -H "Mcp-Session-Id: $SID" \
+  --data '{ "jsonrpc": "2.0", "method": "notifications/initialized" }'
+</code></pre>
+<p>Spawn a scan against <code>http://testfire.net/</code> using the quick-scan
+defaults:</p>
+<pre><code class="language-bash">curl -X POST http://127.0.0.1:7331/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -H "Mcp-Session-Id: $SID" \
+  --data '{
+    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+    "params": {
+      "name": "spawn_instance",
+      "arguments": {
+        "options": {
+          "url":     "http://testfire.net/",
+          "plugins": ["defaults/*"]
+        },
+        "start": true
+      }
+    }
+  }'
+# → result.structuredContent: { instance_id, url }
+</code></pre>
+<p>Poll progress, fetching deltas only after the first call:</p>
+<pre><code class="language-bash">curl -X POST http://127.0.0.1:7331/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -H "Mcp-Session-Id: $SID" \
+  --data '{
+    "jsonrpc": "2.0", "id": 3, "method": "tools/call",
+    "params": {
+      "name": "scan_progress",
+      "arguments": {
+        "instance_id":         "'$IID'",
+        "entries_seen":        [3162940604, 1457298731],
+        "errors_since":        12,
+        "sitemap_since":       37,
+        "without_statistics":  true
+      }
+    }
+  }'
+</code></pre>
+<p>Fetch entries and tear down:</p>
+<pre><code class="language-bash">curl -X POST http://127.0.0.1:7331/mcp ... \
+  --data '{ "jsonrpc": "2.0", "id": 4, "method": "tools/call",
+            "params": { "name": "scan_entries",
+                        "arguments": { "instance_id": "'$IID'" } } }'
+
+curl -X POST http://127.0.0.1:7331/mcp ... \
+  --data '{ "jsonrpc": "2.0", "id": 5, "method": "tools/call",
+            "params": { "name": "kill_instance",
+                        "arguments": { "instance_id": "'$IID'" } } }'
+</code></pre>
+<p>The same loop expressed as a <code>quick_scan</code> prompt expansion is one
+<code>prompts/get</code> call away.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="web-ui"><a class="header" href="#web-ui">Web UI</a></h1>
 <p>The WebUI allows you to easily run, manage and schedule scans and their results via an intuitive web interface.</p>
@@ -399,10 +868,10 @@ snapshot at the moment of capture.</p>
 <h1 id="run-air-gapped"><a class="header" href="#run-air-gapped">Run air-gapped</a></h1>
 <p>In order to run Apex Recon in an air-gapped environment you need to:</p>
 <ul>
-<li>Place the license file at: <code>~/.rkn/license.key</code>
+<li>Place the encrypted license file as <code>license</code> inside <code>~/.apex/</code> (or <code>$APEX_HOME/</code> if you’ve overridden the home dir).
 <ul>
-<li>Either by copying it over from a previous activation on an Internet-enabled machine, or;</li>
-<li>by <a href="https://license.ecsypno.com/rkn">activating on-line</a>.</li>
+<li>Either by copying it over from a previous activation on an Internet-enabled machine — copy <code>~/.apex/license</code> (and, if present, the plaintext <code>~/.apex/license.key</code> next to it), or;</li>
+<li>by <a href="https://license.ecsypno.com/apex">activating on-line</a>.</li>
 </ul>
 </li>
 </ul>
@@ -420,13 +889,14 @@ you can experiment with them to better match your available resources as well.</
 <li><a href="#reduce-ram-consumption-by-avoiding-large-resources">Reduce RAM consumption by avoiding large resources</a></li>
 <li><a href="#dont-follow-redundant-pages">Don’t follow redundant pages</a></li>
 <li><a href="#adjust-the-amount-of-browser-workers">Adjust the amount of browser workers</a></li>
+<li><a href="#narrow-recon-to-specific-sink-kinds">Narrow recon to specific sink kinds</a></li>
 </ol>
 <h2 id="ensure-server-responsiveness"><a class="header" href="#ensure-server-responsiveness">Ensure server responsiveness</a></h2>
-<p>By default, RKN will monitor the response times of the server and throttle
+<p>By default, Apex Recon will monitor the response times of the server and throttle
 itself down if it detects that the server is getting stressed.
 This happens in order to keep the server alive and responsive and maintain a
 stable connection to it.</p>
-<p>However, there are times with weak servers when they die before RKN gets a
+<p>However, there are times with weak servers when they die before Apex Recon gets a
 chance to adjust itself.</p>
 <p>You can bring up the scan statistics on the CLI screen by hitting <code>Enter</code>, in
 which case you’ll see something like:</p>
@@ -445,7 +915,7 @@ which case you’ll see something like:</p>
 <li>Burst average: 0 requests/second</li>
 <li>Throttled max concurrency: 2</li>
 </ul>
-<p>The response times were so high (1.75 seconds) that RKN had to throttle its
+<p>The response times were so high (1.75 seconds) that Apex Recon had to throttle its
 HTTP request concurrency from 10 requests to 2 requests, which would result in a
 drastically increased scan time.</p>
 <p>You can lower the default HTTP concurrency and try again to make sure that the
@@ -456,7 +926,7 @@ server at no point gets a stressful load:</p>
 <p>Most excessive RAM consumption issues are caused by large (or a lot of) HTTP requests,
 which need to be temporarily stored in memory in order for them to later be scheduled
 in a way that achieves optimal network concurrency.</p>
-<p>To cut this short, having a lot of HTTP requests in the queue allows RKN to
+<p>To cut this short, having a lot of HTTP requests in the queue allows Apex Recon to
 be better at performing a lot of them at the same time, and thus makes better
 use of your available bandwidth. So, a large queue means better network performance.</p>
 <p>However, a large queue can lead to some serious RAM consumption, depending on
@@ -466,9 +936,9 @@ decent performance, the default queue size is set to <code>50</code>.
 You can adjust this number to better suit your needs depending on the situation.</p>
 <p>You can adjust the HTTP request queue size via the <code>--http-request-queue-size</code> option.</p>
 <h2 id="reduce-ram-consumption-by-avoiding-large-resources"><a class="header" href="#reduce-ram-consumption-by-avoiding-large-resources">Reduce RAM consumption by avoiding large resources</a></h2>
-<p>RKN performs a large number of analysis operations on each web page.
+<p>Apex Recon performs a large number of analysis operations on each web page.
 This is usually not a problem, except for when dealing with web pages of large sizes.</p>
-<p>If you are in a RAM constrained environment, you can configure RKN to not
+<p>If you are in a RAM constrained environment, you can configure Apex Recon to not
 download and analyze pages which exceed a certain size limit – by default, that
 limit is 500KB.</p>
 <p>You can adjust the maximm allows size of HTTP response via the <code>--http-response-max-size</code> option.</p>
@@ -479,7 +949,7 @@ presenting different data.</p>
 <p>Auditing the first (or first few) of such pages is
 often enough and trying to follow and audit them all can sometimes result in an
 infinite crawl, as can be the case with calendars.</p>
-<p>RKN provides 2 features to help deal with that:</p>
+<p>Apex Recon provides 2 features to help deal with that:</p>
 <ul>
 <li>Redundancy filters: Specify <code>pattern</code> and <code>counter</code> pairs, pages matching the
 <code>pattern</code> will be followed the amount of times specified by the <code>counter</code>.
@@ -495,7 +965,7 @@ limited amount of times.
 </li>
 </ul>
 <h2 id="adjust-the-amount-of-browser-workers"><a class="header" href="#adjust-the-amount-of-browser-workers">Adjust the amount of browser workers</a></h2>
-<p>RKN uses real browsers to support technologies such as HTML5, AJAX and DOM
+<p>Apex Recon uses real browsers to support technologies such as HTML5, AJAX and DOM
 manipulation and perform deep analysis of client-side code.</p>
 <p>Even though browser operations are performed in parallel using a pool of workers,
 the default pool size is modest and operations can be time consuming.</p>
@@ -508,6 +978,40 @@ the amount of CPU cores) and will probably require some experimentation; on aver
 they will also accelerate workload generation.</p>
 <p>You can set this option via <code>--dom-pool-size</code>.
 The default is calculated based on the amount of available CPU cores your system has.</p>
+<h2 id="narrow-recon-to-specific-sink-kinds"><a class="header" href="#narrow-recon-to-specific-sink-kinds">Narrow recon to specific sink kinds</a></h2>
+<p>If you already know which class of finding you care about, restrict
+sink-tracing to that subset. Hits at filtered-out sinks are skipped
+at trace time, so they don’t pay the trace cost and they don’t
+bloat the report.</p>
+<p>The five sink kinds are:</p>
+<ul>
+<li><code>active</code> — input reaches an exec-context sink (eval / Runtime.exec
+/ SQL execute / innerHTML / DOM event handler). Highest leverage.</li>
+<li><code>body</code> — value reflected verbatim into the response body
+(XSS / HTML-injection-shaped surfaces).</li>
+<li><code>header_name</code> — value reflected into a response header NAME.</li>
+<li><code>header_value</code> — value reflected into a response header VALUE.</li>
+<li><code>blind</code> — input reaches a sink with no observable response signal
+(timing / out-of-band only).</li>
+</ul>
+<p>The CLI defaults to the first four and skips <code>blind</code> because blind
+hits are noise on most chatty targets. Override with
+<code>--sink-filter NAME</code> (repeatable):</p>
+<pre><code># Only exec-context findings — fastest narrowing for triage runs
+bin/apex https://example.com/ --sink-filter active
+
+# Add `blind` back to the default set
+bin/apex https://example.com/ \
+    --sink-filter active --sink-filter body \
+    --sink-filter header_name --sink-filter header_value \
+    --sink-filter blind
+</code></pre>
+<p>The first explicit <code>--sink-filter</code> flag clears the default;
+subsequent flags accumulate. From an MCP client, pass the same
+list as <code>options.sinks_filter</code> (omit the key to inherit the
+four-kind default; pass <code>[]</code> for a crawl-only run that produces
+just a sitemap). The web profile UI exposes the same toggles per
+profile.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="copyright"><a class="header" href="#copyright">Copyright</a></h1>
 <p>Copyright 2024 <a href="https://ecsypno.com">Ecsypno</a>.</p>

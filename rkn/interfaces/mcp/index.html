@@ -1,0 +1,677 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>MCP - Apex Recon</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-2459343d.css">
+        <link rel="stylesheet" href="../../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex-f82e2683.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-dc061d7d.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Apex Recon</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="mcp"><a class="header" href="#mcp">MCP</a></h1>
+<p>Apex Recon ships a <a href="https://modelcontextprotocol.io/">Model Context Protocol</a> server so an AI client
+(Claude Desktop / Code, Cursor, Continue — anything that speaks MCP) can
+drive scans directly: spawn an <em>Instance</em>, watch its progress, fetch
+entries and reports, and tear it down again — over a single HTTP
+endpoint.</p>
+<p>It is the same conceptual surface as the <a href="../rest-api/index.html">REST API</a>,
+but exposed as MCP <em>tools</em>, <em>prompts</em>, and <em>resources</em>, and described to
+the client via the protocol’s own discovery calls (<code>tools/list</code>,
+<code>prompts/list</code>, <code>resources/list</code>). Whatever the model sees in its
+context is exactly what the surface advertises — the descriptions <em>are</em>
+the docs.</p>
+<p>This page is the canonical reference. It is the only document an AI
+needs to understand and drive the surface end to end; everything else
+in this section either complements it or provides language bindings.</p>
+<h2 id="server"><a class="header" href="#server">Server</a></h2>
+<p>To start the MCP server:</p>
+<pre><code class="language-bash">bin/apex_mcp_server
+</code></pre>
+<p>To see CLI options:</p>
+<pre><code class="language-bash">bin/apex_mcp_server -h
+</code></pre>
+<p>The transport is <a href="https://modelcontextprotocol.io/docs/concepts/transports#streamable-http">Streamable HTTP</a> — every call is a JSON-RPC
+<code>POST</code>, optionally upgraded to a Server-Sent Events stream by the
+server. Authentication is configured in-application (see <em>Auth</em> below);
+there are no <code>--username</code> / <code>--password</code> flags.</p>
+<h2 id="endpoint"><a class="header" href="#endpoint">Endpoint</a></h2>
+<p>A single URL — <code>http://&lt;host&gt;:&lt;port&gt;/mcp</code>. There is no per-instance
+sub-route; instance scoping is done by passing <code>instance_id</code> as an
+argument to every per-scan tool. One MCP server, one session per client.</p>
+<p><code>serverInfo</code> advertises <code>{ name: "apex", version: &lt;RKN.version&gt; }</code>,
+derived from the running umbrella’s <code>shortname</code> / <code>version</code> methods.
+The brand and version are picked up automatically — there’s nothing to
+configure on the CLI.</p>
+<h2 id="tools"><a class="header" href="#tools">Tools</a></h2>
+<p>The server flattens framework + scan tools into one <code>tools/list</code>
+response. Every tool that returns structured data declares an
+<code>outputSchema</code>; the response carries <em>both</em> <code>content[0].text</code>
+(JSON-encoded, for clients that don’t speak typed outputs) <em>and</em>
+<code>structuredContent</code> matching the schema (for clients that do).</p>
+<h3 id="framework-tools"><a class="header" href="#framework-tools">Framework tools</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Tool</th><th>Required</th><th>Optional</th><th>Returns (<code>structuredContent</code>)</th></tr>
+</thead>
+<tbody>
+<tr><td><code>list_instances</code></td><td>—</td><td>—</td><td><code>{ instances: { &lt;id&gt;: { url } } }</code></td></tr>
+<tr><td><code>spawn_instance</code></td><td>—</td><td><code>options</code>, <code>start=true</code></td><td><code>{ instance_id, url }</code></td></tr>
+<tr><td><code>kill_instance</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ killed: &lt;id&gt; }</code></td></tr>
+</tbody>
+</table>
+</div>
+<p><code>spawn_instance.options</code> is forwarded to <code>instance.run(...)</code> — same
+shape as the <a href="../rest-api/index.html">REST API</a> <code>POST /instances</code> body.
+To spawn an <em>Instance</em> without running anything, pass <code>start: false</code>;
+passing <code>options: {}</code> does <strong>not</strong> skip the run.</p>
+<p>For the full options surface, read the
+<a href="#resources"><code>apex://options/reference</code></a> resource (covered below) or
+the <a href="../rest-api/index.html#scan-options">REST API options reference</a>.</p>
+<h3 id="per-scan-tools"><a class="header" href="#per-scan-tools">Per-scan tools</a></h3>
+<p>Every per-scan tool requires <code>instance_id</code>. Two delta-arg shapes:</p>
+<ul>
+<li><code>*_seen</code> — array of entry digests already processed; the response
+excludes those.</li>
+<li><code>*_since</code> — integer offset; the response is the tail past that index.</li>
+</ul>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Tool</th><th>Required</th><th>Optional</th><th>Returns</th></tr>
+</thead>
+<tbody>
+<tr><td><code>scan_progress</code></td><td><code>instance_id</code></td><td><code>entries_seen</code>, <code>errors_since</code>, <code>sitemap_since</code>, <code>without_entries</code>, <code>without_errors</code>, <code>without_sitemap</code>, <code>without_statistics</code></td><td><code>{ status, running, seed, statistics?, entries?, errors?, sitemap?, messages }</code></td></tr>
+<tr><td><code>scan_report</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ entries, sitemap, statistics }</code></td></tr>
+<tr><td><code>scan_sitemap</code></td><td><code>instance_id</code></td><td><code>sitemap_since=0</code></td><td><code>{ sitemap: { &lt;url&gt;: &lt;code&gt; } }</code></td></tr>
+<tr><td><code>scan_entries</code></td><td><code>instance_id</code></td><td><code>entries_seen=[]</code></td><td><code>{ entries: { &lt;digest&gt;: &lt;entry&gt; } }</code></td></tr>
+<tr><td><code>scan_errors</code></td><td><code>instance_id</code></td><td><code>errors_since=0</code></td><td><code>{ errors: [string] }</code></td></tr>
+<tr><td><code>scan_pause</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ status: 'paused' }</code></td></tr>
+<tr><td><code>scan_resume</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ status: 'resumed' }</code></td></tr>
+<tr><td><code>scan_abort</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ status: 'aborted' }</code></td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="entry-digests"><a class="header" href="#entry-digests">Entry digests</a></h3>
+<p>Entry <code>digest</code> values are the <strong>keys</strong> of the returned <code>entries</code> hash
+(NOT a field nested inside the value) — 32-bit integers. Both
+<code>scan_progress</code> and <code>scan_entries</code> accept the digest array as integers
+or numeric strings (some JSON-RPC clients stringify large numbers); the
+server coerces. If you ever see the same entry stream back unchanged
+after passing it as <code>entries_seen</code>, a stringified-vs-int mismatch is
+the first thing to check.</p>
+<h2 id="prompts"><a class="header" href="#prompts">Prompts</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Prompt</th><th>Required</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>quick_scan(url)</code></td><td><code>url</code></td><td>Canned operator workflow for the <strong>bounded smoke test</strong> — expands into a 6-step user message that walks the AI through reading the options reference, building <code>options</code> from the quick-scan preset (<code>scope.page_limit: 50</code> baked in), <code>spawn_instance</code>, polling <code>scan_progress</code> every 5 s using deltas, fetching <code>scan_entries</code> when status reaches <code>done</code>, and <code>kill_instance</code>-ing afterwards. Optional args: <code>page_limit</code> (override the cap), <code>authorized_by</code>, <code>extra_options</code>.</td></tr>
+<tr><td><code>full_scan(url)</code></td><td><code>url</code></td><td>Same shape as <code>quick_scan</code> minus the 50-page cap — drives a complete recon using the full-scan preset. Use when you want a thorough run and accept hours of polling. Optional args: <code>authorized_by</code>, <code>extra_options</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The expanded prompt body references resources by URI so the model has
+a clear pull path for the data — it doesn’t need to memorise option
+names.</p>
+<h2 id="resources"><a class="header" href="#resources">Resources</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>URI</th><th>Mime</th><th>Contents</th></tr>
+</thead>
+<tbody>
+<tr><td><code>apex://glossary</code></td><td><code>text/markdown</code></td><td>Domain terms (entry, digest, sink, mutation, action, platforms, status, sitemap, statistics). Read once before driving a scan.</td></tr>
+<tr><td><code>apex://options/reference</code></td><td><code>text/markdown</code></td><td>Concrete keys for <code>spawn_instance.options</code> (url, scope, audit, http, browser_cluster, plugins, authorized_by, sinks_filter). Apex auto-loads its sink-trace checks — no <code>checks</code> key.</td></tr>
+<tr><td><code>apex://option-presets/quick-scan</code></td><td><code>application/json</code></td><td>JSON template — every audit element traced, default plugins, the four-kind <code>sinks_filter</code> default (every sink except <code>blind</code>), <strong><code>scope.page_limit: 50</code></strong> so a real-site smoke test finishes in minutes. Bump / drop the cap (or switch to <code>full-scan</code>) for a longer recon.</td></tr>
+<tr><td><code>apex://option-presets/full-scan</code></td><td><code>application/json</code></td><td>Same shape as <code>quick-scan</code> minus the page cap — uncapped recon. Use when you want a complete run and accept a long wait.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Quick-scan preset:</p>
+<pre><code class="language-json">{
+  "url":          "&lt;TARGET URL&gt;",
+  "audit":        { "elements": ["links","forms","cookies","headers","ui_inputs","ui_forms","jsons","xmls"] },
+  "sinks_filter": ["active","body","header_name","header_value"],
+  "scope":        { "page_limit": 50 }
+}
+</code></pre>
+<p>Full-scan preset (same minus <code>scope</code>):</p>
+<pre><code class="language-json">{
+  "url":          "&lt;TARGET URL&gt;",
+  "audit":        { "elements": ["links","forms","cookies","headers","ui_inputs","ui_forms","jsons","xmls"] },
+  "sinks_filter": ["active","body","header_name","header_value"]
+}
+</code></pre>
+<p>Pulled in-band, this gives an AI client everything it needs to
+schematise <code>spawn_instance.options</code> without leaving the protocol.</p>
+<h2 id="auth"><a class="header" href="#auth">Auth</a></h2>
+<p>Authentication is opt-in and lives on the application class:</p>
+<pre><code class="language-ruby">RKN::Application.mcp_authenticate_with do |bearer_token|
+    User.find_by(api_token: bearer_token)
+end
+</code></pre>
+<p>When a validator is registered the server requires
+<code>Authorization: Bearer &lt;token&gt;</code> on every request and returns <code>401</code>
+otherwise (RFC 6750 — <code>WWW-Authenticate: Bearer realm="MCP", error=…</code>).
+Without a validator the server accepts unauthenticated traffic — fine
+for a loopback bind, dangerous on a public interface.</p>
+<p>The resolved principal is stashed at <code>env['cuboid.mcp.auth']</code> for any
+downstream middleware that wants to look it up.</p>
+<h2 id="self-discovery-flow"><a class="header" href="#self-discovery-flow">Self-discovery flow</a></h2>
+<p>If you’re an AI seeing this server for the first time, do this once:</p>
+<ol>
+<li><code>initialize</code> → check <code>serverInfo.name</code> (<code>apex</code>) and <code>version</code>.</li>
+<li><code>resources/list</code> → you’ll see four URIs. <strong>Read all four</strong> — they
+are tiny and answer most of the questions you’d otherwise have to
+ask. The glossary in particular grounds the field names you’ll see
+in <code>scan_progress</code> / <code>scan_entries</code> results (sink, mutation, action,
+platforms).</li>
+<li><code>prompts/list</code> → you’ll see <code>quick_scan</code> (capped 50-page smoke
+test) and <code>full_scan</code> (uncapped). If the user’s intent matches one
+(“recon this URL for active inputs”), use it: <code>prompts/get</code> with
+their URL gives you a full operator script.</li>
+<li><code>tools/list</code> → discover the 11 tools. <code>outputSchema</code> on each tells
+you exactly what <code>structuredContent</code> to expect.</li>
+</ol>
+<p>After that, drive the scan with no further out-of-band knowledge.</p>
+<h2 id="status-semantics"><a class="header" href="#status-semantics">Status semantics</a></h2>
+<p><code>scan_progress.status</code> advances roughly:</p>
+<pre><code>ready ──► preparing ──► scanning ──► auditing ──► cleanup ──► done
+                              │           │
+                              └─► paused ─┘
+                              │
+                              └─► aborted (terminal)
+</code></pre>
+<ul>
+<li><code>ready</code> — the <em>Instance</em> has been spawned but <code>start: true</code> hasn’t yet
+flipped it past <code>instance.run(...)</code>. <strong><code>scan_progress</code> called on a
+<code>:ready</code> instance returns a minimal payload</strong> (status + running +
+seed only — no statistics yet, no entries hash). Don’t trust delta
+arithmetic until status has advanced.</li>
+<li><code>preparing</code> — engine is loading checks/plugins, opening the seed URL,
+and warming the browser cluster. No entries yet, but the sitemap may
+start populating.</li>
+<li><code>scanning</code> — crawl is in flight; new sitemap entries appear, no
+audits running yet.</li>
+<li><code>auditing</code> — the crawl is winding down and sink-tracing is firing
+against discovered inputs. Most entries land here.</li>
+<li><code>paused</code> / <code>aborted</code> — <code>running: false</code>, but only <code>aborted</code> is
+terminal. A paused scan can be resumed with <code>scan_resume</code>.</li>
+<li><code>cleanup</code> — engine is finalising state; close to <code>done</code>.</li>
+<li><code>done</code> — terminal. <code>scan_report</code> is now safe to call;
+<code>running: false</code>.</li>
+</ul>
+<p><strong>Treat anything other than <code>done</code> / <code>aborted</code> as still in flight.</strong></p>
+<h2 id="polling-cadence"><a class="header" href="#polling-cadence">Polling cadence</a></h2>
+<p>5 seconds is the default cadence the <code>quick_scan</code> prompt suggests, and
+it’s a sensible floor:</p>
+<ul>
+<li>Faster than ~2 s burns context tokens for almost no new state.</li>
+<li><code>scan_progress</code> with <code>without_statistics: true</code> is cheap; the
+<code>statistics</code> block dwarfs the rest of the payload.</li>
+<li>Use <code>errors_since</code> / <code>sitemap_since</code> / <code>entries_seen</code> from the second
+poll onwards — the engine returns only deltas, keeping each response
+small.</li>
+<li>For very long scans (hours), 30 s is fine.</li>
+</ul>
+<h3 id="delta-arg-shapes--when-to-use-which"><a class="header" href="#delta-arg-shapes--when-to-use-which">Delta-arg shapes — when to use which</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Shape</th><th>Why</th></tr>
+</thead>
+<tbody>
+<tr><td><code>entries_seen</code></td><td>array of digests (int / string)</td><td>Entries are content-addressed; offsets aren’t stable across deduplication.</td></tr>
+<tr><td><code>errors_since</code></td><td>integer offset</td><td>Engine errors are an append-only log.</td></tr>
+<tr><td><code>sitemap_since</code></td><td>integer offset</td><td>Sitemap is discovery-ordered, append-only.</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>scan_progress</code> accepts all three at once — gives you exactly the
+right delta for each block.</p>
+<h2 id="instance-lifetime"><a class="header" href="#instance-lifetime">Instance lifetime</a></h2>
+<p>Every <code>spawn_instance</code> forks a daemonised SCNR engine subprocess (Apex
+runs on the same engine as Spectre, configured for sink-trace recon).
+The <code>instance_id</code> is the engine’s RPC token. Things to know:</p>
+<ul>
+<li>The instance survives a client disconnect. If you forget to call
+<code>kill_instance</code>, the process keeps running until something kills it
+(host shutdown, OOM, manual signal). Always wire a <code>kill_instance</code>
+in your error path.</li>
+<li>The instance does <strong>not</strong> survive an MCP-server restart cleanly. The
+daemonised engine keeps running but the MCP server’s in-memory
+<code>@@instances</code> map is empty after a restart, so you can’t
+<code>kill_instance</code> it through MCP any more (you’d need REST or a
+process-level kill). <strong>Don’t restart the MCP server while scans are
+mid-flight.</strong></li>
+<li>Each instance reserves about 2 GB RAM and 4 GB disk by default. On a
+laptop, parallel scans are bounded by RAM; the host won’t proactively
+refuse a third spawn if the second one is still warming up.</li>
+<li><code>start: false</code> is rare in practice. It registers an idle instance
+that sits there waiting for a <code>run</code>, and the only way to <code>run</code> is
+via REST/RPC — MCP’s <code>spawn_instance</code> doesn’t have a separate “start
+now” tool. Use it when something else is going to drive the run.</li>
+</ul>
+<h2 id="error-idiom"><a class="header" href="#error-idiom">Error idiom</a></h2>
+<p>Engine exceptions don’t crash the MCP server — <code>MCPProxy.instrumented_call</code>
+wraps every body with <code>rescue =&gt; e</code>. The wire response is:</p>
+<pre><code class="language-jsonc">{
+  "result": {
+    "isError": true,
+    "content": [
+      { "type": "text", "text": "error: SCNR::Engine::Options::Error: …" }
+    ]
+  }
+}
+</code></pre>
+<p>Common shapes:</p>
+<ul>
+<li><code>error: ArgumentError: Invalid options!</code> — <code>instance.run(options)</code>
+rejected the shape. Read <code>apex://options/reference</code> and try again.</li>
+<li><code>error: Toq::Exceptions::RemoteException: …</code> — the inner RPC client
+to the engine subprocess raised. Usually means the engine itself is
+in a bad state. Try <code>scan_errors</code> for clues; if that’s empty,
+<code>kill_instance</code> and respawn.</li>
+<li><code>error: JSON::GeneratorError: "\xNN" from ASCII-8BIT to UTF-8</code> — the
+engine produced binary bytes that aren’t valid UTF-8 (a response
+body, HTTP header, etc.). Affects <code>scan_report</code> more than the
+streaming tools. Skip the report; <code>scan_progress</code> + <code>scan_entries</code>
+will still work.</li>
+<li><code>unknown instance: …</code> — the <code>instance_id</code> you passed isn’t in the
+server’s local map. Either the MCP server was restarted (which
+clears <code>@@instances</code>), or the id is stale. Re-<code>spawn_instance</code>.</li>
+</ul>
+<p>Validation errors (missing required arg, type mismatch) come back
+through the JSON-RPC error envelope, not as a tool error:</p>
+<pre><code class="language-json">{ "error": { "code": -32602, "message": "Missing required arguments: instance_id" } }
+</code></pre>
+<h2 id="options-trivia"><a class="header" href="#options-trivia">Options trivia</a></h2>
+<ul>
+<li>Apex auto-loads its two sink-tracing checks (<code>sink_trace_force</code>,
+<code>sink_trace_force_dom</code>) automatically — you do <strong>not</strong> pass <code>checks</code>.
+Don’t try to override; the recon flow depends on these being the
+active set.</li>
+<li><code>plugins: ["defaults/*"]</code> loads every plugin under the <code>defaults</code>
+directory. Empty array (or omitted key) loads none.</li>
+<li><code>audit.elements</code> defaults to all kinds when the key is omitted, which
+is what the CLI does. Pass an explicit list to restrict — e.g.
+<code>["links", "forms"]</code> skips cookies, headers, JSON/XML bodies, etc.</li>
+<li><code>scope.page_limit</code> is baked into the quick-scan preset at <strong>50</strong> — a
+real-site smoke test that finishes in minutes. Override the
+<code>page_limit</code> prompt arg (or the JSON directly) for a smaller / larger
+cap; switch to the <code>full-scan</code> preset (or the <code>full_scan</code> prompt) for
+an uncapped recon. Sensible explicit values: 30 (smaller smoke test),
+200 (representative).</li>
+<li><code>authorized_by</code> — set this to the operator’s email; it shows up in
+the engine’s outbound HTTP <code>From</code> header so target-site admins can
+identify the scan. Not required, but polite on third-party targets.</li>
+<li><code>sinks_filter</code> — record-time whitelist of sink kinds (mirrors the
+CLI’s <code>--sink-filter</code>). Four states:
+<ul>
+<li><strong>omit the key</strong> → MCP server applies the default
+<code>["active", "body", "header_name", "header_value"]</code> (every sink
+kind except <code>blind</code>). Mirrors the <code>apex_scan</code> CLI default.</li>
+<li><code>null</code> → no filter, log every sink kind including <code>blind</code>.</li>
+<li><code>[]</code> (empty array) → log NOTHING. The engine still crawls and
+produces a sitemap; no entries get recorded. Useful for a pure
+discovery pass.</li>
+<li>populated array (e.g. <code>["active"]</code>) → whitelist that subset.
+Hits at filtered-out sinks are skipped at trace time and never
+enter <code>scan_entries</code> / <code>scan_report</code>. See <code>apex://options/reference</code>
+for the on-the-wire description.</li>
+</ul>
+</li>
+</ul>
+<h2 id="conventions-baked-into-the-descriptions"><a class="header" href="#conventions-baked-into-the-descriptions">Conventions baked into the descriptions</a></h2>
+<p>The tool / prompt / resource descriptions are deliberately
+self-grounding:</p>
+<ul>
+<li>Per-property descriptions on every tool argument (no buried-in-text
+args).</li>
+<li>Cross-references use namespaced names (<code>scan_resume</code>, not <code>resume</code>)
+so the AI can call them verbatim.</li>
+<li>Preconditions are stated where they exist (<code>scan_pause</code> “the scan
+must currently be running”, <code>scan_resume</code> “must have been paused via
+<code>scan_pause</code>”). Calling out of order returns an MCP tool error
+rather than a routing failure.</li>
+<li>Domain terms (sink, mutation, action, platforms, digest) are defined
+in <code>apex://glossary</code> and cross-referenced from the relevant
+<code>outputSchema</code> property descriptions, so a model parsing
+<code>structuredContent</code> can resolve any unknown field name back to the
+glossary in one hop.</li>
+</ul>
+<h2 id="things-the-protocol-doesnt-expose-yet"><a class="header" href="#things-the-protocol-doesnt-expose-yet">Things the protocol doesn’t expose yet</a></h2>
+<p>For honesty — places where you’d still need out-of-band knowledge:</p>
+<ul>
+<li><strong>Live progress streaming.</strong> The MCP spec supports
+<code>notifications/progress</code> for long-running operations; this server
+doesn’t emit them yet. You poll.</li>
+<li><strong>Structured error codes.</strong> Errors come back as text. If you want to
+branch on “bad option key” vs “engine crashed” vs “auth failed”,
+you’re parsing the text.</li>
+<li><strong>Plugin / sink catalogue.</strong> There’s no <code>list_plugins</code> /
+<code>list_sinks</code> tool; if a user asks “which sinks does Apex trace”, you
+need out-of-band knowledge or to inspect the engine source.</li>
+</ul>
+<p>Each of those is on the roadmap. Until they land, the resources +
+prompt expansion are the supported way to ground a model.</p>
+<h2 id="connecting-an-mcp-client"><a class="header" href="#connecting-an-mcp-client">Connecting an MCP client</a></h2>
+<p>Most clients accept a Streamable HTTP server entry verbatim:</p>
+<pre><code class="language-jsonc">{
+  "mcpServers": {
+    "apex": {
+      "url": "http://127.0.0.1:7331/mcp"
+    }
+  }
+}
+</code></pre>
+<p>That’s all. After <code>initialize</code>, the client sees:</p>
+<ul>
+<li>11 tools (3 framework + 8 per-scan), each with input + output
+schema.</li>
+<li>2 prompts (<code>quick_scan</code>, <code>full_scan</code>).</li>
+<li>4 resources.</li>
+</ul>
+<p>If your client only speaks stdio (older Claude Desktop builds), use
+any community stdio↔HTTP MCP bridge in front. Cursor, Claude Code,
+and Continue speak Streamable HTTP natively.</p>
+<h2 id="end-to-end-example--curl"><a class="header" href="#end-to-end-example--curl">End-to-end example — curl</a></h2>
+<p>Initialize, capture the session id, acknowledge:</p>
+<pre><code class="language-bash">curl -i -X POST http://127.0.0.1:7331/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  --data '{
+    "jsonrpc": "2.0", "id": 1, "method": "initialize",
+    "params": {
+      "protocolVersion": "2025-06-18",
+      "capabilities":    {},
+      "clientInfo":      { "name": "curl", "version": "0" }
+    }
+  }'
+# → response header: Mcp-Session-Id: &lt;SID&gt;
+
+curl -X POST http://127.0.0.1:7331/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -H "Mcp-Session-Id: $SID" \
+  --data '{ "jsonrpc": "2.0", "method": "notifications/initialized" }'
+</code></pre>
+<p>Spawn a scan against <code>http://testfire.net/</code> using the quick-scan
+defaults:</p>
+<pre><code class="language-bash">curl -X POST http://127.0.0.1:7331/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -H "Mcp-Session-Id: $SID" \
+  --data '{
+    "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+    "params": {
+      "name": "spawn_instance",
+      "arguments": {
+        "options": {
+          "url":     "http://testfire.net/",
+          "plugins": ["defaults/*"]
+        },
+        "start": true
+      }
+    }
+  }'
+# → result.structuredContent: { instance_id, url }
+</code></pre>
+<p>Poll progress, fetching deltas only after the first call:</p>
+<pre><code class="language-bash">curl -X POST http://127.0.0.1:7331/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -H "Mcp-Session-Id: $SID" \
+  --data '{
+    "jsonrpc": "2.0", "id": 3, "method": "tools/call",
+    "params": {
+      "name": "scan_progress",
+      "arguments": {
+        "instance_id":         "'$IID'",
+        "entries_seen":        [3162940604, 1457298731],
+        "errors_since":        12,
+        "sitemap_since":       37,
+        "without_statistics":  true
+      }
+    }
+  }'
+</code></pre>
+<p>Fetch entries and tear down:</p>
+<pre><code class="language-bash">curl -X POST http://127.0.0.1:7331/mcp ... \
+  --data '{ "jsonrpc": "2.0", "id": 4, "method": "tools/call",
+            "params": { "name": "scan_entries",
+                        "arguments": { "instance_id": "'$IID'" } } }'
+
+curl -X POST http://127.0.0.1:7331/mcp ... \
+  --data '{ "jsonrpc": "2.0", "id": 5, "method": "tools/call",
+            "params": { "name": "kill_instance",
+                        "arguments": { "instance_id": "'$IID'" } } }'
+</code></pre>
+<p>The same loop expressed as a <code>quick_scan</code> prompt expansion is one
+<code>prompts/get</code> call away.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../interfaces/cli.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../../interfaces/web/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../interfaces/cli.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../../interfaces/web/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-c2a407aa.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
