@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-fc09d3b9.js";
+            window.path_to_searchindex_js = "../../searchindex-1289f19e.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-dc061d7d.js"></script>
@@ -307,8 +307,8 @@ names.</p>
 </thead>
 <tbody>
 <tr><td><code>apex://glossary</code></td><td><code>text/markdown</code></td><td>Domain terms (entry, digest, sink, mutation, action, platforms, status, sitemap, statistics). Read once before driving a scan.</td></tr>
-<tr><td><code>apex://options/reference</code></td><td><code>text/markdown</code></td><td>Concrete keys for <code>spawn_instance.options</code> (url, scope, audit, http, browser_cluster, plugins, authorized_by, sinks_filter). Apex auto-loads its sink-trace checks — no <code>checks</code> key.</td></tr>
-<tr><td><code>apex://option-presets/quick-scan</code></td><td><code>application/json</code></td><td>JSON template — every audit element traced, default plugins, the four-kind <code>sinks_filter</code> default (every sink except <code>blind</code>), <strong><code>scope.page_limit: 50</code></strong> so a real-site smoke test finishes in minutes. Bump / drop the cap (or switch to <code>full-scan</code>) for a longer recon.</td></tr>
+<tr><td><code>apex://options/reference</code></td><td><code>text/markdown</code></td><td>Concrete keys for <code>spawn_instance.options</code> (url, scope, audit, http, dom, authorized_by, sinks_filter). Apex auto-loads its sink-trace checks — no <code>checks</code> key.</td></tr>
+<tr><td><code>apex://option-presets/quick-scan</code></td><td><code>application/json</code></td><td>JSON template — every audit element traced, the four-kind <code>sinks_filter</code> default (every sink except <code>blind</code>), <strong><code>scope.page_limit: 50</code></strong> so a real-site smoke test finishes in minutes. Bump / drop the cap (or switch to <code>full-scan</code>) for a longer recon.</td></tr>
 <tr><td><code>apex://option-presets/full-scan</code></td><td><code>application/json</code></td><td>Same shape as <code>quick-scan</code> minus the page cap — uncapped recon. Use when you want a complete run and accept a long wait.</td></tr>
 </tbody>
 </table>
@@ -350,13 +350,12 @@ key. Configure recording scope with <code>sinks_filter</code> (see below).</p>
 single nested JSON object, all groups optional, every leaf
 documented further down. Each top-level key is its own JSON
 object (<code>audit</code>, <code>scope</code>, <code>http</code>, <code>dom</code>, <code>device</code>, <code>input</code>,
-<code>session</code>, <code>timeout</code>); the top-level scalars (<code>url</code>, <code>plugins</code>,
+<code>session</code>, <code>timeout</code>); the top-level scalars (<code>url</code>,
 <code>authorized_by</code>, <code>sinks_filter</code>, <code>no_fingerprinting</code>) sit
 alongside.</p>
 <pre><code class="language-json">{
   "url":           "http://example.com/",
   "sinks_filter":  ["active","body","header_name","header_value"],
-  "plugins":       {},
   "authorized_by": "you@example.com",
   "no_fingerprinting": false,
 
@@ -474,7 +473,6 @@ key called <code>audit.elements</code>.</p>
 <ul>
 <li><a href="#url"><code>url</code></a></li>
 <li><a href="#sinks_filter"><code>sinks_filter</code></a></li>
-<li><a href="#plugins"><code>plugins</code></a></li>
 <li><a href="#authorized_by"><code>authorized_by</code></a></li>
 <li><a href="#no_fingerprinting"><code>no_fingerprinting</code></a></li>
 </ul>
@@ -553,15 +551,6 @@ subset.</li>
 { "sinks_filter": null }                     // include blind
 { "sinks_filter": [] }                       // crawl-only, sitemap pass
 </code></pre>
-<h4 id="plugins"><a class="header" href="#plugins"><code>plugins</code></a></h4>
-<p><em>(object | string[] | string, default: <code>{}</code> — no plugins)</em></p>
-<p>Plugins to load. Three accepted shapes:</p>
-<pre><code class="language-json">{ "plugins": {} }                         // load nothing extra
-{ "plugins": ["defaults/*"] }             // array of names / globs
-{ "plugins": { "live": { "url": "..." } } } // hash with per-plugin options
-</code></pre>
-<p>The application <strong>always</strong> merges its default-plugin set in
-first; this key is purely for extras / overrides.</p>
 <h4 id="authorized_by"><a class="header" href="#authorized_by"><code>authorized_by</code></a></h4>
 <p><em>(string)</em></p>
 <p>E-mail address of the authorising operator. Flows into outbound
@@ -1005,9 +994,9 @@ flipped it past <code>instance.run(...)</code>. <strong><code>scan_progress</cod
 <code>:ready</code> instance returns a minimal payload</strong> (status + running +
 seed only — no statistics yet, no entries hash). Don’t trust delta
 arithmetic until status has advanced.</li>
-<li><code>preparing</code> — engine is loading checks/plugins, opening the seed URL,
-and warming the browser cluster. No entries yet, but the sitemap may
-start populating.</li>
+<li><code>preparing</code> — engine is loading the sink-trace checks, opening the
+seed URL, and warming the browser cluster. No entries yet, but the
+sitemap may start populating.</li>
 <li><code>scanning</code> — crawl is in flight; new sitemap entries appear, no
 audits running yet.</li>
 <li><code>auditing</code> — the crawl is winding down and sink-tracing is firing
@@ -1107,8 +1096,6 @@ through the JSON-RPC error envelope, not as a tool error:</p>
 <code>sink_trace_force_dom</code>) automatically — you do <strong>not</strong> pass <code>checks</code>.
 Don’t try to override; the recon flow depends on these being the
 active set.</li>
-<li><code>plugins: ["defaults/*"]</code> loads every plugin under the <code>defaults</code>
-directory. Empty array (or omitted key) loads none.</li>
 <li><code>audit.elements</code> defaults to all kinds when the key is omitted, which
 is what the CLI does. Pass an explicit list to restrict — e.g.
 <code>["links", "forms"]</code> skips cookies, headers, JSON/XML bodies, etc.</li>
@@ -1165,9 +1152,9 @@ doesn’t emit them yet. You poll.</li>
 <li><strong>Structured error codes.</strong> Errors come back as text. If you want to
 branch on “bad option key” vs “engine crashed” vs “auth failed”,
 you’re parsing the text.</li>
-<li><strong>Plugin / sink catalogue.</strong> There’s no <code>list_plugins</code> /
-<code>list_sinks</code> tool; if a user asks “which sinks does Apex trace”, you
-need out-of-band knowledge or to inspect the engine source.</li>
+<li><strong>Sink catalogue.</strong> There’s no <code>list_sinks</code> tool; if a user asks
+“which sinks does Apex trace”, you need out-of-band knowledge or to
+inspect the engine source.</li>
 </ul>
 <p>Each of those is on the roadmap. Until they land, the resources +
 prompt expansion are the supported way to ground a model.</p>
@@ -1224,8 +1211,7 @@ defaults:</p>
       "name": "spawn_instance",
       "arguments": {
         "options": {
-          "url":     "http://testfire.net/",
-          "plugins": ["defaults/*"]
+          "url": "http://testfire.net/"
         },
         "start": true
       }

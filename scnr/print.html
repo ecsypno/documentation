@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-3257bf6a.js";
+            window.path_to_searchindex_js = "searchindex-2d3f14b4.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-f64bbaef.js"></script>
@@ -3771,7 +3771,7 @@ clear pull path for the data — it doesn’t need to memorise option names.</p>
 </thead>
 <tbody>
 <tr><td><code>spectre://glossary</code></td><td><code>text/markdown</code></td><td>Domain terms (issue, digest, status, sitemap, statistics, check, scope, audit.elements). Read once before driving a scan.</td></tr>
-<tr><td><code>spectre://options/reference</code></td><td><code>text/markdown</code></td><td>Concrete keys for <code>spawn_instance.options</code> (url, scope, audit, checks, http, browser_cluster, plugins, authorized_by).</td></tr>
+<tr><td><code>spectre://options/reference</code></td><td><code>text/markdown</code></td><td>Concrete keys for <code>spawn_instance.options</code> (url, scope, audit, checks, http, dom, plugins, authorized_by).</td></tr>
 <tr><td><code>spectre://option-presets/quick-scan</code></td><td><code>application/json</code></td><td>JSON template — every audit element, every check, default plugins, <strong><code>scope.page_limit: 50</code></strong> so a real-site smoke test finishes in minutes. Bump / drop the cap (or switch to <code>full-scan</code>) for a longer run.</td></tr>
 <tr><td><code>spectre://option-presets/full-scan</code></td><td><code>application/json</code></td><td>Same shape as <code>quick-scan</code> minus the page cap — uncapped audit. Use when you want a complete run and accept a long wait.</td></tr>
 </tbody>
