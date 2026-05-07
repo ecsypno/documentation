@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-975eaa73.js";
+            window.path_to_searchindex_js = "../../searchindex-83491aea.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-dc061d7d.js"></script>
@@ -189,6 +189,26 @@ the docs.</p>
 <p>This page is the canonical reference. It is the only document an AI
 needs to understand and drive the surface end to end; everything else
 in this section either complements it or provides language bindings.</p>
+<h2 id="table-of-contents"><a class="header" href="#table-of-contents">Table of contents</a></h2>
+<ul>
+<li><a href="#server">Server</a></li>
+<li><a href="#endpoint">Endpoint</a></li>
+<li><a href="#tools">Tools</a></li>
+<li><a href="#prompts">Prompts</a></li>
+<li><a href="#resources">Resources</a></li>
+<li><a href="#options-reference">Options reference</a></li>
+<li><a href="#auth">Auth</a></li>
+<li><a href="#self-discovery-flow">Self-discovery flow</a></li>
+<li><a href="#status-semantics">Status semantics</a></li>
+<li><a href="#polling-cadence">Polling cadence</a></li>
+<li><a href="#instance-lifetime">Instance lifetime</a></li>
+<li><a href="#error-idiom">Error idiom</a></li>
+<li><a href="#options-trivia">Options trivia</a></li>
+<li><a href="#conventions-baked-into-the-descriptions">Conventions baked into the descriptions</a></li>
+<li><a href="#things-the-protocol-doesnt-expose-yet">Things the protocol doesn’t expose yet</a></li>
+<li><a href="#connecting-an-mcp-client">Connecting an MCP client</a></li>
+<li><a href="#end-to-end-example--curl">End-to-end example — curl</a></li>
+</ul>
 <h2 id="server"><a class="header" href="#server">Server</a></h2>
 <p>To start the MCP server:</p>
 <pre><code class="language-bash">bin/apex_mcp_server
@@ -204,10 +224,9 @@ there are no <code>--username</code> / <code>--password</code> flags.</p>
 <p>A single URL — <code>http://&lt;host&gt;:&lt;port&gt;/mcp</code>. There is no per-instance
 sub-route; instance scoping is done by passing <code>instance_id</code> as an
 argument to every per-scan tool. One MCP server, one session per client.</p>
-<p><code>serverInfo</code> advertises <code>{ name: "apex", version: &lt;RKN.version&gt; }</code>,
-derived from the running umbrella’s <code>shortname</code> / <code>version</code> methods.
-The brand and version are picked up automatically — there’s nothing to
-configure on the CLI.</p>
+<p><code>serverInfo</code> advertises <code>{ name: "apex", version: "&lt;release&gt;" }</code>,
+matching the running build. The brand and version are picked up
+automatically — there’s nothing to configure on the CLI.</p>
 <h2 id="tools"><a class="header" href="#tools">Tools</a></h2>
 <p>The server flattens framework + scan tools into one <code>tools/list</code>
 response. Every tool that returns structured data declares an
@@ -312,13 +331,644 @@ names.</p>
 </code></pre>
 <p>Pulled in-band, this gives an AI client everything it needs to
 schematise <code>spawn_instance.options</code> without leaving the protocol.</p>
-<h2 id="auth"><a class="header" href="#auth">Auth</a></h2>
-<p>Authentication is opt-in and lives on the application class:</p>
-<pre><code class="language-ruby">RKN::Application.mcp_authenticate_with do |bearer_token|
-    User.find_by(api_token: bearer_token)
-end
+<h2 id="options-reference"><a class="header" href="#options-reference">Options reference</a></h2>
+<blockquote>
+<p>Same content is served at
+<a href="#resources"><code>apex://options/reference</code></a> over MCP — single
+source of truth for both surfaces.</p>
+</blockquote>
+<p>The full option surface accepted by <code>spawn_instance.options</code>
+(over MCP). Hash, all keys optional.</p>
+<p>The bare engine defaults leave every audit element OFF; only
+<code>bin/apex_scan</code> (and the option presets) enable them. If you
+build options from scratch, ship at least <code>url</code> and
+<code>audit.elements</code> (or per-element booleans), or use
+<code>apex://option-presets/quick-scan</code>.</p>
+<p>Apex auto-loads its sink-trace checks — there is no <code>checks</code>
+key. Configure recording scope with <code>sinks_filter</code> (see below).</p>
+<h3 id="wire-shape"><a class="header" href="#wire-shape">Wire shape</a></h3>
+<p>This is what gets sent as <code>spawn_instance.options</code> over MCP — a
+single nested JSON object, all groups optional, every leaf
+documented further down. Each top-level key is its own JSON
+object (<code>audit</code>, <code>scope</code>, <code>http</code>, <code>dom</code>, <code>device</code>, <code>input</code>,
+<code>session</code>, <code>timeout</code>); the top-level scalars (<code>url</code>, <code>plugins</code>,
+<code>authorized_by</code>, <code>sinks_filter</code>, <code>no_fingerprinting</code>) sit
+alongside.</p>
+<pre><code class="language-json">{
+  "url":           "http://example.com/",
+  "sinks_filter":  ["active","body","header_name","header_value"],
+  "plugins":       {},
+  "authorized_by": "you@example.com",
+  "no_fingerprinting": false,
+
+  "audit": {
+    "elements":             ["links","forms","cookies","headers","ui_inputs","ui_forms","jsons","xmls"],
+    "link_templates":       [],
+    "parameter_values":     true,
+    "parameter_names":      false,
+    "with_raw_payloads":    false,
+    "with_extra_parameter": false,
+    "with_both_http_methods": false,
+    "cookies_extensively":  false,
+    "mode":                 "moderate",
+    "exclude_vector_patterns": [],
+    "include_vector_patterns": []
+  },
+
+  "scope": {
+    "page_limit":                  50,
+    "depth_limit":                 10,
+    "directory_depth_limit":       10,
+    "dom_depth_limit":             4,
+    "dom_event_limit":             500,
+    "dom_event_inheritance_limit": 500,
+    "include_subdomains":          false,
+    "https_only":                  false,
+    "include_path_patterns":       [],
+    "exclude_path_patterns":       [],
+    "exclude_content_patterns":    [],
+    "exclude_file_extensions":     ["gif","mp4","pdf","js","css"],
+    "exclude_binaries":            false,
+    "restrict_paths":              [],
+    "extend_paths":                [],
+    "redundant_path_patterns":     {},
+    "auto_redundant_paths":        15,
+    "url_rewrites":                {}
+  },
+
+  "http": {
+    "request_concurrency":     10,
+    "request_queue_size":      50,
+    "request_timeout":         20000,
+    "request_redirect_limit":  5,
+    "response_max_size":       500000,
+    "request_headers":         {},
+    "cookies":                 {},
+    "cookie_jar_filepath":     "/path/to/cookies.txt",
+    "cookie_string":           "name=value; Path=/",
+    "authentication_username": "user",
+    "authentication_password": "pass",
+    "authentication_type":     "auto",
+    "proxy":                   "host:port",
+    "proxy_host":              "host",
+    "proxy_port":              8080,
+    "proxy_username":          "user",
+    "proxy_password":          "pass",
+    "proxy_type":              "auto",
+    "ssl_verify_peer":         false,
+    "ssl_verify_host":         false,
+    "ssl_certificate_filepath":"/path/to/cert.pem",
+    "ssl_certificate_type":    "pem",
+    "ssl_key_filepath":        "/path/to/key.pem",
+    "ssl_key_type":            "pem",
+    "ssl_key_password":        "secret",
+    "ssl_ca_filepath":         "/path/to/ca.pem",
+    "ssl_ca_directory":        "/path/to/ca-dir/",
+    "ssl_version":             "tlsv1_3"
+  },
+
+  "dom": {
+    "engine":              "chrome",
+    "pool_size":           4,
+    "job_timeout":         120,
+    "worker_time_to_live": 1000,
+    "wait_for_timers":     false,
+    "local_storage":       {},
+    "session_storage":     {},
+    "wait_for_elements":   {}
+  },
+
+  "device": {
+    "visible":     false,
+    "width":       1600,
+    "height":      1200,
+    "user_agent":  "...",
+    "pixel_ratio": 1.0,
+    "touch":       false
+  },
+
+  "input": {
+    "values":           {},
+    "default_values":   {},
+    "without_defaults": false,
+    "force":            false
+  },
+
+  "session": {
+    "check_url":     "https://example.com/account",
+    "check_pattern": "Logout"
+  },
+
+  "timeout": {
+    "duration": 3600,
+    "suspend":  false
+  }
+}
 </code></pre>
-<p>When a validator is registered the server requires
+<p>In the per-key sections below, <strong><code>group.key</code> is shorthand for the
+JSON path <code>{ "group": { "key": ... } }</code></strong> — <code>audit.elements</code>
+means the <code>elements</code> field of the <code>audit</code> object, not a literal
+key called <code>audit.elements</code>.</p>
+<h3 id="table-of-contents-1"><a class="header" href="#table-of-contents-1">Table of contents</a></h3>
+<ul>
+<li><a href="#top-level">Top-level</a>
+<ul>
+<li><a href="#url"><code>url</code></a></li>
+<li><a href="#sinks_filter"><code>sinks_filter</code></a></li>
+<li><a href="#plugins"><code>plugins</code></a></li>
+<li><a href="#authorized_by"><code>authorized_by</code></a></li>
+<li><a href="#no_fingerprinting"><code>no_fingerprinting</code></a></li>
+</ul>
+</li>
+<li><a href="#audit"><code>audit</code></a> — what the engine traces
+<ul>
+<li><a href="#auditelements"><code>audit.elements</code></a></li>
+<li><a href="#per-element-toggles">Per-element toggles</a></li>
+<li><a href="#auditlink_templates"><code>audit.link_templates</code></a></li>
+<li><a href="#auditparameter_values"><code>audit.parameter_values</code></a> / <a href="#auditparameter_names"><code>parameter_names</code></a></li>
+<li><a href="#auditwith_raw_payloads"><code>audit.with_raw_payloads</code></a> / <a href="#auditwith_extra_parameter"><code>with_extra_parameter</code></a> / <a href="#auditwith_both_http_methods"><code>with_both_http_methods</code></a></li>
+<li><a href="#auditcookies_extensively"><code>audit.cookies_extensively</code></a></li>
+<li><a href="#auditmode"><code>audit.mode</code></a></li>
+<li><a href="#auditexclude_vector_patterns"><code>audit.exclude_vector_patterns</code></a> / <a href="#auditinclude_vector_patterns"><code>include_vector_patterns</code></a></li>
+</ul>
+</li>
+<li><a href="#scope"><code>scope</code></a> — crawl bounds
+<ul>
+<li><a href="#scopepage_limit"><code>scope.page_limit</code></a></li>
+<li><a href="#scopedepth_limit"><code>scope.depth_limit</code></a> / <a href="#scopedirectory_depth_limit"><code>directory_depth_limit</code></a></li>
+<li><a href="#scopedom_depth_limit"><code>scope.dom_depth_limit</code></a> / <a href="#scopedom_event_limit"><code>dom_event_limit</code></a> / <a href="#scopedom_event_inheritance_limit"><code>dom_event_inheritance_limit</code></a></li>
+<li><a href="#scopeinclude_subdomains"><code>scope.include_subdomains</code></a> / <a href="#scopehttps_only"><code>https_only</code></a></li>
+<li><a href="#scopeinclude_path_patterns"><code>scope.include_path_patterns</code></a> / <a href="#scopeexclude_path_patterns"><code>exclude_path_patterns</code></a> / <a href="#scopeexclude_content_patterns"><code>exclude_content_patterns</code></a></li>
+<li><a href="#scopeexclude_file_extensions"><code>scope.exclude_file_extensions</code></a> / <a href="#scopeexclude_binaries"><code>exclude_binaries</code></a></li>
+<li><a href="#scoperestrict_paths"><code>scope.restrict_paths</code></a> / <a href="#scopeextend_paths"><code>extend_paths</code></a></li>
+<li><a href="#scoperedundant_path_patterns"><code>scope.redundant_path_patterns</code></a> / <a href="#scopeauto_redundant_paths"><code>auto_redundant_paths</code></a></li>
+<li><a href="#scopeurl_rewrites"><code>scope.url_rewrites</code></a></li>
+</ul>
+</li>
+<li><a href="#http"><code>http</code></a> — HTTP client tuning
+<ul>
+<li><a href="#concurrency--queue--timeouts">Concurrency / queue / timeouts</a></li>
+<li><a href="#headers--cookies">Headers / cookies</a></li>
+<li><a href="#http-authentication">HTTP authentication</a></li>
+<li><a href="#proxy">Proxy</a></li>
+<li><a href="#tls--ssl">TLS / SSL</a></li>
+</ul>
+</li>
+<li><a href="#dom"><code>dom</code></a> — browser cluster + DOM crawl</li>
+<li><a href="#device"><code>device</code></a> — viewport / identity</li>
+<li><a href="#input"><code>input</code></a> — auto-fill rules</li>
+<li><a href="#session"><code>session</code></a> — login-session monitoring</li>
+<li><a href="#timeout"><code>timeout</code></a> — wall-clock cap</li>
+</ul>
+<hr>
+<h3 id="top-level"><a class="header" href="#top-level">Top-level</a></h3>
+<h4 id="url"><a class="header" href="#url"><code>url</code></a></h4>
+<p><em>(string, required for a real scan)</em></p>
+<p>The target. Anything reachable over HTTP(S). Required for any
+<code>spawn_instance</code> with <code>start: true</code>; the only spawn path where it
+can be omitted is <code>start: false</code> (an idle instance set up to be
+configured later).</p>
+<pre><code class="language-json">{ "url": "http://example.com/" }
+</code></pre>
+<h4 id="sinks_filter"><a class="header" href="#sinks_filter"><code>sinks_filter</code></a></h4>
+<p><em>(string[] | null, default: server applies a four-kind whitelist)</em></p>
+<p>Apex-level recording whitelist. Only hits at sinks in this list
+end up in <code>@entries</code> / the report; everything else is dropped at
+trace time. Allowed values: <code>active</code>, <code>body</code>, <code>blind</code>,
+<code>header_name</code>, <code>header_value</code>.</p>
+<p>Four states the operator can express:</p>
+<ul>
+<li><strong>omit the key</strong> — MCP server applies the default whitelist
+<code>["active", "body", "header_name", "header_value"]</code> (every
+sink kind <strong>except</strong> <code>blind</code>). Mirrors the <code>apex_scan</code> CLI
+default.</li>
+<li><strong><code>null</code></strong> — no filter, log every sink kind including <code>blind</code>.</li>
+<li><strong><code>[]</code> (empty array)</strong> — log NOTHING. The engine still crawls
+and produces a sitemap; no entries get recorded. Useful when
+the operator wants a discovery pass without the cost of
+sink-trace bookkeeping.</li>
+<li><strong>populated array</strong> (e.g. <code>["active"]</code>) — whitelist that
+subset.</li>
+</ul>
+<pre><code class="language-json">{ "sinks_filter": ["active", "body"] }       // narrow to high-leverage sinks
+{ "sinks_filter": null }                     // include blind
+{ "sinks_filter": [] }                       // crawl-only, sitemap pass
+</code></pre>
+<h4 id="plugins"><a class="header" href="#plugins"><code>plugins</code></a></h4>
+<p><em>(object | string[] | string, default: <code>{}</code> — no plugins)</em></p>
+<p>Plugins to load. Three accepted shapes:</p>
+<pre><code class="language-json">{ "plugins": {} }                         // load nothing extra
+{ "plugins": ["defaults/*"] }             // array of names / globs
+{ "plugins": { "live": { "url": "..." } } } // hash with per-plugin options
+</code></pre>
+<p>The application <strong>always</strong> merges its default-plugin set in
+first; this key is purely for extras / overrides.</p>
+<h4 id="authorized_by"><a class="header" href="#authorized_by"><code>authorized_by</code></a></h4>
+<p><em>(string)</em></p>
+<p>E-mail address of the authorising operator. Flows into outbound
+HTTP requests’ <code>From</code> header so target-site admins can identify
+the scan. Polite on third-party targets.</p>
+<pre><code class="language-json">{ "authorized_by": "ops@example.com" }
+</code></pre>
+<h4 id="no_fingerprinting"><a class="header" href="#no_fingerprinting"><code>no_fingerprinting</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Skip server / client tech fingerprinting. The fingerprint feeds
+<code>platforms</code> on each entry (<code>tomcat,java</code>, <code>php,mysql</code>, etc.);
+turning it off speeds the start-up but loses platform attribution
+on entries.</p>
+<pre><code class="language-json">{ "no_fingerprinting": true }
+</code></pre>
+<hr>
+<h3 id="audit"><a class="header" href="#audit"><code>audit</code></a></h3>
+<p>What the engine traces. All keys nest under the top-level
+<code>"audit"</code> object:</p>
+<pre><code class="language-json">{ "audit": { "elements": ["links","forms"], "parameter_values": true } }
+</code></pre>
+<h4 id="auditelements"><a class="header" href="#auditelements"><code>audit.elements</code></a></h4>
+<p><em>(string[])</em></p>
+<p>Shortcut for the per-element booleans below. Pick from:
+<code>links</code>, <code>forms</code>, <code>cookies</code>, <code>nested_cookies</code>, <code>headers</code>,
+<code>ui_inputs</code>, <code>ui_forms</code>, <code>jsons</code>, <code>xmls</code>. Equivalent to setting
+each named boolean to <code>true</code>.</p>
+<p>The presets ship the standard 8-element list (<code>links</code>, <code>forms</code>,
+<code>cookies</code>, <code>headers</code>, <code>ui_inputs</code>, <code>ui_forms</code>, <code>jsons</code>, <code>xmls</code>).
+<code>nested_cookies</code> is opt-in; <code>link_templates</code> is <strong>not</strong> an
+element — see below.</p>
+<pre><code class="language-json">{ "audit": { "elements": ["links","forms","cookies","headers","ui_inputs","ui_forms","jsons","xmls"] } }
+</code></pre>
+<h4 id="per-element-toggles"><a class="header" href="#per-element-toggles">Per-element toggles</a></h4>
+<p><code>audit.links</code> / <code>audit.forms</code> / <code>audit.cookies</code> /
+<code>audit.headers</code> / <code>audit.jsons</code> / <code>audit.xmls</code> /
+<code>audit.ui_inputs</code> / <code>audit.ui_forms</code> / <code>audit.nested_cookies</code></p>
+<p><em>(boolean)</em></p>
+<p>Equivalent to listing the element name in <code>audit.elements</code>.
+Default on each is unset (<code>nil</code>), which the engine treats as
+off; <code>bin/apex_scan</code> flips them on for the default 8.</p>
+<pre><code class="language-json">{ "audit": { "links": true, "forms": true, "cookies": false } }
+</code></pre>
+<h4 id="auditlink_templates"><a class="header" href="#auditlink_templates"><code>audit.link_templates</code></a></h4>
+<p><em>(regex[], default: <code>[]</code>)</em></p>
+<p>Regex patterns with named captures for extracting input info
+from REST-style paths. Example: <code>(?&lt;id&gt;\d+)</code> against
+<code>/users/42</code> lets the engine treat <code>42</code> as the value of an
+<code>id</code> input. <strong>Not</strong> a boolean toggle — putting <code>link_templates</code>
+in <code>audit.elements</code> is an error.</p>
+<pre><code class="language-json">{ "audit": { "link_templates": ["users/(?&lt;id&gt;\\d+)", "posts/(?&lt;post_id&gt;\\d+)"] } }
+</code></pre>
+<h4 id="auditparameter_values"><a class="header" href="#auditparameter_values"><code>audit.parameter_values</code></a></h4>
+<p><em>(boolean, default: true)</em></p>
+<p>Inject payloads into parameter values. Turning this off limits
+auditing to parameter <em>names</em> (with <code>parameter_names: true</code>) or
+extra-parameter injection — rarely what you want.</p>
+<h4 id="auditparameter_names"><a class="header" href="#auditparameter_names"><code>audit.parameter_names</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Inject payloads into parameter names themselves. Catches
+mass-assignment / unintended-parameter classes of bug. Adds one
+extra mutation per known input.</p>
+<h4 id="auditwith_raw_payloads"><a class="header" href="#auditwith_raw_payloads"><code>audit.with_raw_payloads</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Send payloads in raw form (no HTTP encoding). Useful when you
+suspect the target has a decoder that mangles encoded bytes.</p>
+<h4 id="auditwith_extra_parameter"><a class="header" href="#auditwith_extra_parameter"><code>audit.with_extra_parameter</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Inject an additional, unexpected parameter into each element.
+Catches code paths that read undeclared parameters.</p>
+<h4 id="auditwith_both_http_methods"><a class="header" href="#auditwith_both_http_methods"><code>audit.with_both_http_methods</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Audit each link / form with both <code>GET</code> and <code>POST</code>. <strong>Doubles
+audit time</strong> — only enable when the target’s behaviour is
+known to vary by method.</p>
+<h4 id="auditcookies_extensively"><a class="header" href="#auditcookies_extensively"><code>audit.cookies_extensively</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Submit every link and form along with each cookie permutation.
+<strong>Severely increases scan time</strong> — useful when cookie state
+gates application behaviour.</p>
+<h4 id="auditmode"><a class="header" href="#auditmode"><code>audit.mode</code></a></h4>
+<p><em>(string, default: <code>"moderate"</code>)</em></p>
+<p>Audit aggressiveness. Values: <code>light</code>, <code>moderate</code>, <code>aggressive</code>.
+Higher modes try more payload variants per input.</p>
+<h4 id="auditexclude_vector_patterns"><a class="header" href="#auditexclude_vector_patterns"><code>audit.exclude_vector_patterns</code></a></h4>
+<p><em>(regex[], default: <code>[]</code>)</em></p>
+<p>Skip input vectors whose name matches any pattern. Example:
+<code>["^csrf$", "^_token$"]</code> to leave anti-CSRF tokens alone.</p>
+<h4 id="auditinclude_vector_patterns"><a class="header" href="#auditinclude_vector_patterns"><code>audit.include_vector_patterns</code></a></h4>
+<p><em>(regex[], default: <code>[]</code>)</em></p>
+<p>Inverse of <code>exclude_vector_patterns</code> — only audit vectors whose
+name matches. Empty means “no whitelist.”</p>
+<hr>
+<h3 id="scope"><a class="header" href="#scope"><code>scope</code></a></h3>
+<p>Crawl bounds. All keys nest under <code>"scope"</code>:</p>
+<pre><code class="language-json">{ "scope": { "page_limit": 50, "include_subdomains": false } }
+</code></pre>
+<h4 id="scopepage_limit"><a class="header" href="#scopepage_limit"><code>scope.page_limit</code></a></h4>
+<p><em>(int, default: nil — infinite)</em></p>
+<p>Hard cap on crawled pages. The quick-scan preset sets this to
+<code>50</code>; the full-scan preset omits it.</p>
+<h4 id="scopedepth_limit"><a class="header" href="#scopedepth_limit"><code>scope.depth_limit</code></a></h4>
+<p><em>(int, default: 10)</em></p>
+<p>How deep to follow links from the seed. Counts every hop
+regardless of directory layout.</p>
+<h4 id="scopedirectory_depth_limit"><a class="header" href="#scopedirectory_depth_limit"><code>scope.directory_depth_limit</code></a></h4>
+<p><em>(int, default: 10)</em></p>
+<p>How deep to descend into the URL path tree.</p>
+<h4 id="scopedom_depth_limit"><a class="header" href="#scopedom_depth_limit"><code>scope.dom_depth_limit</code></a></h4>
+<p><em>(int, default: 4)</em></p>
+<p>How deep into the DOM tree of each JavaScript-rendered page.
+<code>0</code> disables browser analysis entirely.</p>
+<h4 id="scopedom_event_limit"><a class="header" href="#scopedom_event_limit"><code>scope.dom_event_limit</code></a></h4>
+<p><em>(int, default: 500)</em></p>
+<p>Max DOM events triggered per DOM depth. Caps crawl time on
+event-heavy SPAs.</p>
+<h4 id="scopedom_event_inheritance_limit"><a class="header" href="#scopedom_event_inheritance_limit"><code>scope.dom_event_inheritance_limit</code></a></h4>
+<p><em>(int, default: 500)</em></p>
+<p>How many descendant elements inherit a parent’s bound events.</p>
+<h4 id="scopeinclude_subdomains"><a class="header" href="#scopeinclude_subdomains"><code>scope.include_subdomains</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Follow links to subdomains of the seed host.</p>
+<h4 id="scopehttps_only"><a class="header" href="#scopehttps_only"><code>scope.https_only</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Refuse plaintext HTTP follow-throughs.</p>
+<h4 id="scopeinclude_path_patterns"><a class="header" href="#scopeinclude_path_patterns"><code>scope.include_path_patterns</code></a></h4>
+<p><em>(regex[], default: <code>[]</code>)</em></p>
+<p>Whitelist patterns for path segments. Empty = include all.</p>
+<h4 id="scopeexclude_path_patterns"><a class="header" href="#scopeexclude_path_patterns"><code>scope.exclude_path_patterns</code></a></h4>
+<p><em>(regex[], default: <code>[]</code>)</em></p>
+<p>Blacklist patterns. Pages whose paths match are skipped.</p>
+<pre><code class="language-json">{ "scope": { "exclude_path_patterns": ["/logout", "/admin/.*"] } }
+</code></pre>
+<h4 id="scopeexclude_content_patterns"><a class="header" href="#scopeexclude_content_patterns"><code>scope.exclude_content_patterns</code></a></h4>
+<p><em>(regex[], default: <code>[]</code>)</em></p>
+<p>Blacklist patterns for <em>response body</em> content. A page whose
+body matches gets dropped from the audit pool — useful for
+“don’t audit /logout” via response-side pattern.</p>
+<h4 id="scopeexclude_file_extensions"><a class="header" href="#scopeexclude_file_extensions"><code>scope.exclude_file_extensions</code></a></h4>
+<p><em>(string[])</em></p>
+<p>Skip URLs ending in these extensions. Defaults to a long list
+of media / archive / executable / asset / document extensions
+(<code>gif</code>, <code>mp4</code>, <code>pdf</code>, <code>js</code>, <code>css</code>, …). Override if you need to
+audit something the default skips (e.g. force-include <code>js</code> for
+DOM analysis).</p>
+<h4 id="scopeexclude_binaries"><a class="header" href="#scopeexclude_binaries"><code>scope.exclude_binaries</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Skip non-text-typed responses. Cheaper than maintaining a
+content-type allowlist; can confuse passive checks that
+pattern-match on bodies.</p>
+<h4 id="scoperestrict_paths"><a class="header" href="#scoperestrict_paths"><code>scope.restrict_paths</code></a></h4>
+<p><em>(string[], default: <code>[]</code>)</em></p>
+<p>Use these paths INSTEAD of crawling. Pre-seeded path discovery
+— the engine audits exactly what’s listed.</p>
+<h4 id="scopeextend_paths"><a class="header" href="#scopeextend_paths"><code>scope.extend_paths</code></a></h4>
+<p><em>(string[], default: <code>[]</code>)</em></p>
+<p>Add to whatever the crawler discovers. Useful for hidden URLs
+that aren’t linked from anywhere.</p>
+<h4 id="scoperedundant_path_patterns"><a class="header" href="#scoperedundant_path_patterns"><code>scope.redundant_path_patterns</code></a></h4>
+<p><em>(object: <code>{regex: int}</code>, default: <code>{}</code>)</em></p>
+<p>Pages matching the regex are crawled at most <code>N</code> times. Stops
+infinite-calendar / infinite-page traps.</p>
+<pre><code class="language-json">{ "scope": { "redundant_path_patterns": { "calendar/\\d+": 1, "events/\\d+": 5 } } }
+</code></pre>
+<h4 id="scopeauto_redundant_paths"><a class="header" href="#scopeauto_redundant_paths"><code>scope.auto_redundant_paths</code></a></h4>
+<p><em>(int, default: 15)</em></p>
+<p>Follow URLs with the same query-parameter-name combination at
+most <code>auto_redundant_paths</code> times. Catches the
+<code>?page=1&amp;offset=10</code>, <code>?page=2&amp;offset=20</code>, … pattern without
+needing explicit <code>redundant_path_patterns</code>.</p>
+<h4 id="scopeurl_rewrites"><a class="header" href="#scopeurl_rewrites"><code>scope.url_rewrites</code></a></h4>
+<p><em>(object: <code>{regex: string}</code>, default: <code>{}</code>)</em></p>
+<p>Rewrite seed-discovered URLs before audit:</p>
+<pre><code class="language-json">{ "scope": { "url_rewrites": { "articles/(\\d+)": "articles.php?id=\\1" } } }
+</code></pre>
+<hr>
+<h3 id="http"><a class="header" href="#http"><code>http</code></a></h3>
+<p>HTTP client tuning. All keys nest under <code>"http"</code>:</p>
+<pre><code class="language-json">{ "http": { "request_concurrency": 5, "request_timeout": 30000 } }
+</code></pre>
+<h4 id="concurrency--queue--timeouts"><a class="header" href="#concurrency--queue--timeouts">Concurrency / queue / timeouts</a></h4>
+<ul>
+<li><strong><code>http.request_concurrency</code></strong> <em>(int, default: 10)</em> — parallel
+requests in flight. The engine throttles down automatically if
+the target’s response time degrades.</li>
+<li><strong><code>http.request_queue_size</code></strong> <em>(int, default: 50)</em> — max
+requests queued client-side. Larger queue = better network
+utilisation, more RAM.</li>
+<li><strong><code>http.request_timeout</code></strong> <em>(int, ms, default: 20000)</em> —
+per-request timeout.</li>
+<li><strong><code>http.request_redirect_limit</code></strong> <em>(int, default: 5)</em> — max
+redirects to follow on each request.</li>
+<li><strong><code>http.response_max_size</code></strong> <em>(int, bytes, default: 500000)</em> —
+don’t download response bodies larger than this. Prevents
+runaway RAM on a target that streams large payloads.</li>
+</ul>
+<h4 id="headers--cookies"><a class="header" href="#headers--cookies">Headers / cookies</a></h4>
+<ul>
+<li>
+<p><strong><code>http.request_headers</code></strong> <em>(object, default: <code>{}</code>)</em> — extra
+headers on every request:</p>
+<pre><code class="language-json">{ "http": { "request_headers": { "X-API-Key": "abc123", "X-Debug": "1" } } }
+</code></pre>
+</li>
+<li>
+<p><strong><code>http.cookies</code></strong> <em>(object, default: <code>{}</code>)</em> — preset cookies:</p>
+<pre><code class="language-json">{ "http": { "cookies": { "session_id": "abc", "auth": "xyz" } } }
+</code></pre>
+</li>
+<li>
+<p><strong><code>http.cookie_jar_filepath</code></strong> <em>(string)</em> — path to a
+Netscape-format cookie jar file.</p>
+</li>
+<li>
+<p><strong><code>http.cookie_string</code></strong> <em>(string)</em> — raw cookie string,
+<code>Set-Cookie</code>-style:</p>
+<pre><code class="language-json">{ "http": { "cookie_string": "my_cookie=my_value; Path=/, other=other; Path=/test" } }
+</code></pre>
+</li>
+</ul>
+<h4 id="http-authentication"><a class="header" href="#http-authentication">HTTP authentication</a></h4>
+<pre><code class="language-json">{ "http": {
+    "authentication_username": "user",
+    "authentication_password": "pass",
+    "authentication_type":     "basic"
+} }
+</code></pre>
+<ul>
+<li><strong><code>http.authentication_username</code></strong> / <strong><code>http.authentication_password</code></strong> <em>(string)</em></li>
+<li><strong><code>http.authentication_type</code></strong> <em>(string, default: <code>"auto"</code>)</em> —
+explicit values: <code>basic</code>, <code>digest</code>, <code>ntlm</code>, <code>negotiate</code>, <code>any</code>,
+<code>anysafe</code>.</li>
+</ul>
+<h4 id="proxy"><a class="header" href="#proxy">Proxy</a></h4>
+<pre><code class="language-json">{ "http": {
+    "proxy":          "proxy.example.com:8080",
+    "proxy_type":     "http",
+    "proxy_username": "user",
+    "proxy_password": "pass"
+} }
+</code></pre>
+<ul>
+<li><strong><code>http.proxy</code></strong> <em>(string, <code>"host:port"</code> shortcut)</em></li>
+<li><strong><code>http.proxy_host</code></strong> / <strong><code>http.proxy_port</code></strong> — split form,
+overrides <code>proxy</code> if set.</li>
+<li><strong><code>http.proxy_username</code></strong> / <strong><code>http.proxy_password</code></strong> <em>(string)</em></li>
+<li><strong><code>http.proxy_type</code></strong> <em>(string, default: <code>"auto"</code>)</em> — <code>http</code>,
+<code>https</code>, <code>socks4</code>, <code>socks4a</code>, <code>socks5</code>, <code>socks5_hostname</code>.</li>
+</ul>
+<h4 id="tls--ssl"><a class="header" href="#tls--ssl">TLS / SSL</a></h4>
+<ul>
+<li><strong><code>http.ssl_verify_peer</code></strong> / <strong><code>http.ssl_verify_host</code></strong>
+<em>(boolean, default: false)</em> — TLS peer / hostname verification.
+Off by default; both <code>true</code> for full chain validation.</li>
+<li><strong><code>http.ssl_certificate_filepath</code></strong> / <strong><code>http.ssl_certificate_type</code></strong>
+/ <strong><code>http.ssl_key_filepath</code></strong> / <strong><code>http.ssl_key_type</code></strong> /
+<strong><code>http.ssl_key_password</code></strong> — client-cert auth. <code>*_type</code>
+values: <code>pem</code>, <code>der</code>, <code>eng</code>.</li>
+<li><strong><code>http.ssl_ca_filepath</code></strong> / <strong><code>http.ssl_ca_directory</code></strong> —
+custom CA bundle / directory for peer verification.</li>
+<li><strong><code>http.ssl_version</code></strong> <em>(string)</em> — pin a TLS version: <code>tlsv1</code>,
+<code>tlsv1_0</code>, <code>tlsv1_1</code>, <code>tlsv1_2</code>, <code>tlsv1_3</code>, <code>sslv2</code>, <code>sslv3</code>.</li>
+</ul>
+<pre><code class="language-json">{ "http": {
+    "ssl_verify_peer":          true,
+    "ssl_verify_host":          true,
+    "ssl_ca_filepath":          "/etc/ssl/cert.pem",
+    "ssl_certificate_filepath": "/path/to/client.pem",
+    "ssl_key_filepath":         "/path/to/client.key",
+    "ssl_version":              "tlsv1_3"
+} }
+</code></pre>
+<hr>
+<h3 id="dom"><a class="header" href="#dom"><code>dom</code></a></h3>
+<p>Browser cluster + DOM crawl. All keys nest under <code>"dom"</code>:</p>
+<pre><code class="language-json">{ "dom": { "pool_size": 4, "job_timeout": 120, "wait_for_timers": true } }
+</code></pre>
+<ul>
+<li>
+<p><strong><code>dom.engine</code></strong> <em>(string, default: <code>"chrome"</code>)</em> — browser
+engine. Chrome is the only supported value.</p>
+</li>
+<li>
+<p><strong><code>dom.pool_size</code></strong> <em>(int, default: <code>min(cpu_count/2, 10) || 1</code>)</em> —
+number of browser workers in the pool. More workers = faster
+DOM crawl on JS-heavy targets, more RAM.</p>
+</li>
+<li>
+<p><strong><code>dom.job_timeout</code></strong> <em>(int, sec, default: 120)</em> — per-page
+browser job ceiling. Pages that don’t settle are dropped from
+DOM-side analysis.</p>
+</li>
+<li>
+<p><strong><code>dom.worker_time_to_live</code></strong> <em>(int, default: 1000)</em> — re-spawn
+each browser after this many jobs. Caps memory leaks in
+long-lived headless instances.</p>
+</li>
+<li>
+<p><strong><code>dom.wait_for_timers</code></strong> <em>(boolean, default: false)</em> — wait
+for the longest <code>setTimeout()</code> on each page before considering
+DOM analysis “done”. Catches lazy-mounted UI.</p>
+</li>
+<li>
+<p><strong><code>dom.local_storage</code></strong> / <strong><code>dom.session_storage</code></strong> <em>(object,
+default: <code>{}</code>)</em> — pre-seed key/value maps:</p>
+<pre><code class="language-json">{ "dom": {
+    "local_storage":   { "user": "abc", "preferred_lang": "en" },
+    "session_storage": { "csrf_token": "xyz" }
+} }
+</code></pre>
+</li>
+<li>
+<p><strong><code>dom.wait_for_elements</code></strong> <em>(object: <code>{regex: css}</code>, default:
+<code>{}</code>)</em> — when navigating to a URL matching the key, wait for
+the CSS selector value to match before continuing:</p>
+<pre><code class="language-json">{ "dom": { "wait_for_elements": {
+    "/dashboard":  "#main-app .ready",
+    "/settings/.*": "#settings-form"
+} } }
+</code></pre>
+</li>
+</ul>
+<hr>
+<h3 id="device"><a class="header" href="#device"><code>device</code></a></h3>
+<p>Browser viewport / identity. All keys nest under <code>"device"</code>:</p>
+<pre><code class="language-json">{ "device": { "width": 375, "height": 812, "touch": true, "pixel_ratio": 3.0 } }
+</code></pre>
+<ul>
+<li><strong><code>device.visible</code></strong> <em>(boolean, default: false)</em> — show the
+browser window (head-ful mode). Massively slower; primarily
+for debugging login flows / interactive traps.</li>
+<li><strong><code>device.width</code></strong> / <strong><code>device.height</code></strong> <em>(int)</em> — viewport
+dimensions in CSS pixels.</li>
+<li><strong><code>device.user_agent</code></strong> <em>(string)</em> — override the User-Agent
+header / JS API.</li>
+<li><strong><code>device.pixel_ratio</code></strong> <em>(float, default: 1.0)</em> — device
+pixel ratio. Bump for high-DPI sniffing (some sites serve
+different markup at <code>2.0</code>).</li>
+<li><strong><code>device.touch</code></strong> <em>(boolean, default: false)</em> — advertise as
+a touch device.</li>
+</ul>
+<hr>
+<h3 id="input"><a class="header" href="#input"><code>input</code></a></h3>
+<p>How inputs are auto-filled by the engine before mutation. All
+keys nest under <code>"input"</code>:</p>
+<pre><code class="language-json">{ "input": { "values": { "email": "scan@example.com" }, "force": true } }
+</code></pre>
+<ul>
+<li>
+<p><strong><code>input.values</code></strong> <em>(object: <code>{regex: string}</code>, default: <code>{}</code>)</em>
+— match an input’s name against the regex key; use the value:</p>
+<pre><code class="language-json">{ "input": { "values": {
+    "email":          "scan@example.com",
+    "first_name":     "Scan",
+    "creditcard|cc":  "4111111111111111"
+} } }
+</code></pre>
+</li>
+<li>
+<p><strong><code>input.default_values</code></strong> <em>(object)</em> — layered under <code>values</code>
+— patterns the engine ships out of the box (<code>first_name</code> →
+“John”, etc.).</p>
+</li>
+<li>
+<p><strong><code>input.without_defaults</code></strong> <em>(boolean, default: false)</em> —
+skip the shipped <code>default_values</code> table; only your <code>values</code>
+get used.</p>
+</li>
+<li>
+<p><strong><code>input.force</code></strong> <em>(boolean, default: false)</em> — fill even
+non-empty inputs (overwrites pre-populated form fields).</p>
+</li>
+</ul>
+<hr>
+<h3 id="session"><a class="header" href="#session"><code>session</code></a></h3>
+<p>Login-session monitoring. The engine periodically checks the
+target is still logged in. All keys nest under <code>"session"</code>:</p>
+<pre><code class="language-json">{ "session": {
+    "check_url":     "https://example.com/account",
+    "check_pattern": "Logout"
+} }
+</code></pre>
+<ul>
+<li><strong><code>session.check_url</code></strong> <em>(string)</em> — URL whose response body
+should match <code>check_pattern</code> while the session is valid.</li>
+<li><strong><code>session.check_pattern</code></strong> <em>(regex)</em> — matched against
+<code>check_url</code>’s body. Mismatch = session expired; the scan halts
+pending re-login.</li>
+</ul>
+<p>Both fields are required to enable session monitoring; setting
+only one is rejected at validation time.</p>
+<hr>
+<h3 id="timeout"><a class="header" href="#timeout"><code>timeout</code></a></h3>
+<p>Wall-clock cap on the run. All keys nest under <code>"timeout"</code>:</p>
+<pre><code class="language-json">{ "timeout": { "duration": 3600, "suspend": true } }
+</code></pre>
+<ul>
+<li><strong><code>timeout.duration</code></strong> <em>(int, sec)</em> — stop the scan after this
+many seconds.</li>
+<li><strong><code>timeout.suspend</code></strong> <em>(boolean, default: false)</em> — when the
+timeout fires, suspend to a snapshot file. Without this the
+run is aborted.</li>
+</ul>
+<h2 id="auth"><a class="header" href="#auth">Auth</a></h2>
+<p>Authentication is opt-in. When an embedder registers a bearer-
+token validator at boot, the server requires
 <code>Authorization: Bearer &lt;token&gt;</code> on every request and returns <code>401</code>
 otherwise (RFC 6750 — <code>WWW-Authenticate: Bearer realm="MCP", error=…</code>).
 Without a validator the server accepts unauthenticated traffic — fine
@@ -427,7 +1077,7 @@ wraps every body with <code>rescue =&gt; e</code>. The wire response is:</p>
   "result": {
     "isError": true,
     "content": [
-      { "type": "text", "text": "error: SCNR::Engine::Options::Error: …" }
+      { "type": "text", "text": "error: &lt;ErrorClass&gt;: &lt;message&gt;" }
     ]
   }
 }

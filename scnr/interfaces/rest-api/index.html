@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-ce203fc0.js";
+            window.path_to_searchindex_js = "../../searchindex-896a14ff.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-f64bbaef.js"></script>
@@ -174,237 +174,157 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="rest"><a class="header" href="#rest">REST</a></h1>
+                        <h1 id="rest-api"><a class="header" href="#rest-api">REST API</a></h1>
+<p>Spectre Scan ships an HTTP/JSON REST surface for spawning, driving,
+and tearing down engine instances; pairing them with a Scheduler;
+and managing an Agent grid. It’s a thin layer on top of the same
+RPC plumbing the CLI and ui-pro use, so anything you can do
+locally you can do over the network.</p>
+<h2 id="table-of-contents"><a class="header" href="#table-of-contents">Table of contents</a></h2>
+<ul>
+<li><a href="#server">Server</a></li>
+<li><a href="#conventions">Conventions</a></li>
+<li><a href="#authentication">Authentication</a></li>
+<li><a href="#endpoints">Endpoints</a>
+<ul>
+<li><a href="#instances">Instances</a></li>
+<li><a href="#per-scan-service-instancesidscan">Per-scan service (<code>/instances/:id/scan/...</code>)</a></li>
+<li><a href="#scheduler">Scheduler</a></li>
+<li><a href="#agent">Agent</a></li>
+<li><a href="#grid">Grid</a></li>
+</ul>
+</li>
+<li><a href="#options-reference">Options reference</a></li>
+<li><a href="#quick-start">Quick start</a></li>
+<li><a href="#client-ruby">Client (Ruby)</a></li>
+<li><a href="#incremental-rescans-via-sessions">Incremental rescans via sessions</a></li>
+<li><a href="#status-semantics">Status semantics</a></li>
+<li><a href="#things-to-know">Things to know</a></li>
+</ul>
 <h2 id="server"><a class="header" href="#server">Server</a></h2>
-<p>To start the REST server:</p>
-<pre><code class="language-bash">bin/spectre_rest_server
+<pre><code class="language-bash">bin/spectre_rest_server          # starts the server (defaults to 127.0.0.1:7331)
+bin/spectre_rest_server -h       # CLI options
 </code></pre>
-<p>To see REST server options:</p>
-<pre><code class="language-bash">bin/spectre_rest_server -h
+<p>Useful flags:</p>
+<ul>
+<li><code>--address HOST</code> / <code>--port N</code> – bind interface and port.</li>
+<li><code>--username USER</code> / <code>--password PASS</code> – enable HTTP Basic auth.</li>
+<li><code>--ssl-ca</code> / <code>--server-ssl-private-key</code> / <code>--server-ssl-certificate</code> –
+TLS termination + (with <code>--ssl-ca</code>) peer-cert verification.</li>
+<li><code>--agent-url HOST:PORT</code> – have the REST server hand instance
+spawning to an <code>Agent</code> (or grid) instead of forking locally.</li>
+<li><code>--scheduler-url HOST:PORT</code> – attach a Scheduler so <code>POST /scheduler</code> works.</li>
+</ul>
+<h2 id="conventions"><a class="header" href="#conventions">Conventions</a></h2>
+<ul>
+<li><strong>Content-Type</strong>: <code>application/json</code> everywhere, except
+<code>GET /instances/:id/report.crf</code> (binary <code>application/octet-stream</code>).</li>
+<li><strong>Session-bound</strong>: the server uses <code>Rack::Session::Pool</code> and
+remembers per-cookie state – <code>GET /instances/:id/scan/progress</code> returns <em>deltas</em> relative to what
+the calling cookie has already seen (issues / sitemap / errors).
+Hold the cookie across calls if you want cumulative output.</li>
+<li><strong>Errors</strong>: <code>{ "error": &lt;Class&gt;, "description": &lt;message&gt;, "backtrace": [&lt;frame&gt;, ...] }</code> with status <code>5xx</code>. <code>404</code> for
+unknown instance / scheduler / agent. <code>503</code> from <code>POST /instances</code> when the host is at max utilisation.</li>
+</ul>
+<h2 id="authentication"><a class="header" href="#authentication">Authentication</a></h2>
+<p>Off by default. Pass <code>--username</code> and <code>--password</code> to enable HTTP
+Basic. With both set, every request must carry an
+<code>Authorization: Basic …</code> header or the server returns:</p>
+<pre><code class="language-http">HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Basic realm="Restricted Area"
 </code></pre>
-<h2 id="api"><a class="header" href="#api">API</a></h2>
-<h3 id="scan"><a class="header" href="#scan">Scan</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Method</th><th>Resource</th><th>Parameters</th><th>Description</th></tr>
-</thead>
-<tbody>
-<tr><td><code>GET</code></td><td><code>/instances/:id/scan/progress</code></td><td></td><td>Get scan progress.</td></tr>
-<tr><td><code>GET</code></td><td><code>/instances/:id/scan/session</code></td><td></td><td>Get scan session of a completed/aborted scan.</td></tr>
-<tr><td><code>GET</code></td><td><code>/instances/:id/scan/report.json</code></td><td></td><td>Get the scan report.</td></tr>
-</tbody>
-</table>
-</div>
+<p>For TLS, see the SSL flags above. CA-signed peer verification is
+on automatically when <code>--ssl-ca</code> is provided.</p>
+<h2 id="endpoints"><a class="header" href="#endpoints">Endpoints</a></h2>
 <h3 id="instances"><a class="header" href="#instances">Instances</a></h3>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Method</th><th>Resource</th><th>Parameters</th><th>Description</th></tr>
+<tr><th>Method</th><th>Path</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>GET</code></td><td><code>/instances</code></td><td></td><td>List all <em>Instances</em>.</td></tr>
-<tr><td><code>POST</code></td><td><code>/instances</code></td><td>Scan options (<code>Hash</code>)</td><td>Create a new <em>Instance</em> with the given scan options.</td></tr>
-<tr><td><code>POST</code></td><td><code>/instances/restore</code></td><td><code>{ 'session': 'path' }</code></td><td>Create a new <em>Instance</em> from a restored <em>Scan</em> session.</td></tr>
-<tr><td><code>GET</code></td><td><code>/instances/:id</code></td><td></td><td>Get progress info for <em>Instance</em>.</td></tr>
-<tr><td><code>PUT</code></td><td><code>/instances/:id/scheduler</code></td><td></td><td>If a <em>Scheduler</em> has been set, put the <em>Instance</em> under its purview.</td></tr>
-<tr><td><code>PUT</code></td><td><code>/instances/:id/pause</code></td><td></td><td>Pause the <em>Instance</em>.</td></tr>
-<tr><td><code>PUT</code></td><td><code>/instances/:id/resume</code></td><td></td><td>Resume the <em>Instance</em>.</td></tr>
-<tr><td><code>PUT</code></td><td><code>/instances/:id/abort</code></td><td></td><td>Abort the <em>Instance</em>.</td></tr>
-<tr><td><code>DELETE</code></td><td><code>/instances/:id</code></td><td></td><td>Abort and shutdown the <em>Instance</em>.</td></tr>
+<tr><td><code>GET</code></td><td><code>/instances</code></td><td>List spawned instances; map of <code>instance_id</code> → metadata.</td></tr>
+<tr><td><code>POST</code></td><td><code>/instances</code></td><td>Spawn a new instance. <strong>Body</strong>: <code>spawn_instance.options</code> – see below.</td></tr>
+<tr><td><code>POST</code></td><td><code>/instances/restore</code></td><td>Spawn a new instance from a saved scan session. <strong>Body</strong>: <code>{ "session": "&lt;path or string&gt;" }</code>.</td></tr>
+<tr><td><code>GET</code></td><td><code>/instances/:id</code></td><td>Progress envelope (<code>status</code>, <code>busy</code>, <code>seed</code>, <code>statistics</code>, <code>messages</code>, <code>errors</code>).</td></tr>
+<tr><td><code>GET</code></td><td><code>/instances/:id/summary</code></td><td>Same as <code>:id</code> minus <code>statistics</code> (cheap to poll).</td></tr>
+<tr><td><code>GET</code></td><td><code>/instances/:id/report.crf</code></td><td>Cuboid native binary report (use the <code>Report</code> Ruby class to parse).</td></tr>
+<tr><td><code>GET</code></td><td><code>/instances/:id/report.json</code></td><td>Same report as JSON.</td></tr>
+<tr><td><code>PUT</code></td><td><code>/instances/:id/scheduler</code></td><td>Hand the running instance over to the configured Scheduler.</td></tr>
+<tr><td><code>PUT</code></td><td><code>/instances/:id/pause</code></td><td>Pause an in-flight scan. Reverse with <code>/resume</code>.</td></tr>
+<tr><td><code>PUT</code></td><td><code>/instances/:id/resume</code></td><td>Resume a paused scan.</td></tr>
+<tr><td><code>DELETE</code></td><td><code>/instances/:id</code></td><td>Abort + shut down the instance. Idempotent.</td></tr>
 </tbody>
 </table>
 </div>
-<h4 id="scan-options"><a class="header" href="#scan-options">Scan options</a></h4>
-<pre><code>{
-  "url": "http://testhtml5.vulnweb.com",
-  "session": {
-  },
-  "audit": {
-    "parameter_values": true,
-    "mode": "moderate",
-    "exclude_vector_patterns": [
-
-    ],
-    "include_vector_patterns": [
-
-    ],
-    "link_templates": [
-
-    ],
-    "links": true,
-    "forms": true,
-    "cookies": true,
-    "headers": true,
-    "ui_inputs": true,
-    "ui_forms": true
-  },
-  "scope": {
-    "directory_depth_limit": 10,
-    "auto_redundant_paths": 15,
-    "redundant_path_patterns": {
-    },
-    "depth_limit": 10,
-    "dom_depth_limit": 4,
-    "dom_event_limit": 500,
-    "dom_event_inheritance_limit": 500,
-    "exclude_file_extensions": [
-      "gif",
-      "bmp",
-      "tif",
-      "tiff",
-      "jpg",
-      "jpeg",
-      "jpe",
-      "pjpeg",
-      "png",
-      "ico",
-      "psd",
-      "xcf",
-      "3dm",
-      "max",
-      "svg",
-      "eps",
-      "drw",
-      "ai",
-      "asf",
-      "rm",
-      "mpg",
-      "mpeg",
-      "mpe",
-      "3gp",
-      "3g2",
-      "avi",
-      "flv",
-      "mov",
-      "mp4",
-      "swf",
-      "vob",
-      "wmv",
-      "aif",
-      "mp3",
-      "mpa",
-      "ra",
-      "wav",
-      "wma",
-      "mid",
-      "m4a",
-      "ogg",
-      "flac",
-      "zip",
-      "zipx",
-      "tar",
-      "gz",
-      "7z",
-      "rar",
-      "bz2",
-      "bin",
-      "cue",
-      "dmg",
-      "iso",
-      "mdf",
-      "vcd",
-      "raw",
-      "exe",
-      "apk",
-      "app",
-      "jar",
-      "pkg",
-      "deb",
-      "rpm",
-      "msi",
-      "ttf",
-      "otf",
-      "woff",
-      "woff2",
-      "fon",
-      "fnt",
-      "css",
-      "js",
-      "pdf",
-      "docx",
-      "xlsx",
-      "pptx",
-      "odt",
-      "odp"
-    ],
-    "exclude_path_patterns": [
-
-    ],
-    "exclude_content_patterns": [
-
-    ],
-    "include_path_patterns": [
-
-    ],
-    "restrict_paths": [
-
-    ],
-    "extend_paths": [
-
-    ],
-    "url_rewrites": {
-    }
-  },
-  "http": {
-    "request_timeout": 20000,
-    "request_redirect_limit": 5,
-    "request_concurrency": 10,
-    "request_queue_size": 50,
-    "request_headers": {
-    },
-    "response_max_size": 500000,
-    "cookies": {
-    },
-    "authentication_type": "auto"
-  },
-  "device": {
-    "visible": false,
-    "width": 1600,
-    "height": 1200,
-    "user_agent": "Mozilla/5.0 (Gecko) SCNR::Engine/v1.0dev",
-    "pixel_ratio": 1.0,
-    "touch": false
-  },
-  "dom": {
-    "engine": "chrome",
-    "local_storage": {
-    },
-    "session_storage": {
-    },
-    "wait_for_elements": {
-    },
-    "pool_size": 10,
-    "job_timeout": 120,
-    "worker_time_to_live": 1000,
-    "wait_for_timers": false
-  },
-  "input": {
-    "values": {
-    }
-  },
-  "checks": [
-
-  ],
-  "platforms": [
-
-  ],
-  "plugins": {
-  },
-  "no_fingerprinting": false,
-  "authorized_by": null
+<h4 id="post-instances-body--recommended-minimum"><a class="header" href="#post-instances-body--recommended-minimum"><code>POST /instances</code> body — recommended minimum</a></h4>
+<pre><code class="language-json">{
+  "url":     "http://example.com/",
+  "checks":  ["*"],
+  "audit":   { "elements": ["links","forms","cookies","headers","ui_inputs","ui_forms","jsons","xmls"] },
+  "scope":   { "page_limit": 50 }
 }
 </code></pre>
-<h3 id="agent"><a class="header" href="#agent">Agent</a></h3>
+<p>Or copy the
+<a href="../mcp/index.html#resources"><code>spectre://option-presets/quick-scan</code></a>
+preset verbatim and substitute the URL. The
+<a href="../mcp/index.html#resources"><code>spectre://option-presets/full-scan</code></a>
+preset is the same minus the <code>scope.page_limit</code> cap. Full
+key-by-key reference is the <a href="#options-reference">Options reference</a>
+below.</p>
+<h3 id="per-scan-service-instancesidscan"><a class="header" href="#per-scan-service-instancesidscan">Per-scan service (<code>/instances/:id/scan/...</code>)</a></h3>
+<p>Spectre-specific scan operations namespaced under each instance.</p>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Method</th><th>Resource</th><th>Parameters</th><th>Description</th></tr>
+<tr><th>Method</th><th>Path</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>GET</code></td><td><code>/agent/url</code></td><td></td><td>Get the configured <em>Agent</em> URL.</td></tr>
-<tr><td><code>PUT</code></td><td><code>/agent/url</code></td><td>URL (<code>String</code>)</td><td>Set the <em>Agent</em> URL.</td></tr>
-<tr><td><code>DELETE</code></td><td><code>/agent/url</code></td><td></td><td>Remove the <em>Agent</em>.</td></tr>
+<tr><td><code>GET</code></td><td><code>/instances/:id/scan/progress</code></td><td>Issues / sitemap / errors <strong>delta</strong> since this cookie’s last poll.</td></tr>
+<tr><td><code>GET</code></td><td><code>/instances/:id/scan/report.json</code></td><td>Final report as JSON (after <code>status: done</code>).</td></tr>
+<tr><td><code>GET</code></td><td><code>/instances/:id/scan/session</code></td><td><code>{ "session": "&lt;path&gt;" }</code> – snapshot for restore.</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>/scan/progress</code> is the workhorse: poll it on a session-cookie-
+holding client and the response shrinks to “what’s new since you
+last asked.” Server-side state is keyed by <code>(cookie, instance_id)</code>, so you can fan-poll multiple instances on one
+cookie.</p>
+<h3 id="scheduler"><a class="header" href="#scheduler">Scheduler</a></h3>
+<p>Available only when the server is started with <code>--scheduler-url HOST:PORT</code>; otherwise the routes return <code>501</code>.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Method</th><th>Path</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>GET</code></td><td><code>/scheduler</code></td><td>Stats + URL.</td></tr>
+<tr><td><code>GET</code></td><td><code>/scheduler/url</code></td><td>The configured Scheduler URL.</td></tr>
+<tr><td><code>PUT</code></td><td><code>/scheduler/url</code></td><td>Set / change it. <strong>Body</strong>: <code>{ "url": "host:port" }</code>.</td></tr>
+<tr><td><code>DELETE</code></td><td><code>/scheduler/url</code></td><td>Detach.</td></tr>
+<tr><td><code>GET</code></td><td><code>/scheduler/running</code></td><td><code>{ &lt;instance_id&gt;: &lt;info&gt;, ... }</code> for in-flight scans.</td></tr>
+<tr><td><code>GET</code></td><td><code>/scheduler/completed</code></td><td>Map of completed scans → report path.</td></tr>
+<tr><td><code>GET</code></td><td><code>/scheduler/failed</code></td><td>Map of failed scans → reason.</td></tr>
+<tr><td><code>GET</code></td><td><code>/scheduler/size</code></td><td>Pending queue length.</td></tr>
+<tr><td><code>DELETE</code></td><td><code>/scheduler</code></td><td>Clear pending queue.</td></tr>
+<tr><td><code>POST</code></td><td><code>/scheduler</code></td><td>Push a scan onto the queue. <strong>Body</strong>: same as <code>POST /instances</code>.</td></tr>
+<tr><td><code>GET</code></td><td><code>/scheduler/:instance</code></td><td>Info for a queued / running instance.</td></tr>
+<tr><td><code>PUT</code></td><td><code>/scheduler/:instance/detach</code></td><td>Take an instance back from the Scheduler’s care.</td></tr>
+<tr><td><code>DELETE</code></td><td><code>/scheduler/:instance</code></td><td>Remove a still-queued instance.</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="agent"><a class="header" href="#agent">Agent</a></h3>
+<p>Available only when the server is started with <code>--agent-url HOST:PORT</code>; otherwise <code>501</code>.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Method</th><th>Path</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code>GET</code></td><td><code>/agent/url</code></td><td>The configured Agent URL.</td></tr>
+<tr><td><code>PUT</code></td><td><code>/agent/url</code></td><td>Set / change. <strong>Body</strong>: <code>{ "url": "host:port" }</code>.</td></tr>
+<tr><td><code>DELETE</code></td><td><code>/agent/url</code></td><td>Detach.</td></tr>
 </tbody>
 </table>
 </div>
@@ -412,207 +332,772 @@
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Method</th><th>Resource</th><th>Parameters</th><th>Description</th></tr>
+<tr><th>Method</th><th>Path</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>GET</code></td><td><code>/grid</code></td><td></td><td>Get <em>Grid</em> info.</td></tr>
-<tr><td><code>GET</code></td><td><code>/grid/:agent</code></td><td></td><td>Get info of <em>Grid</em> member by URL.</td></tr>
-<tr><td><code>DELETE</code></td><td><code>/grid/:agent</code></td><td></td><td>Unplug <em>Agent</em> from the <em>Grid</em> by URL.</td></tr>
+<tr><td><code>GET</code></td><td><code>/grid</code></td><td>Member list + topology of the configured Agent grid.</td></tr>
+<tr><td><code>GET</code></td><td><code>/grid/:agent</code></td><td>Info for a single member by URL.</td></tr>
+<tr><td><code>DELETE</code></td><td><code>/grid/:agent</code></td><td>Unplug a member.</td></tr>
 </tbody>
 </table>
 </div>
-<h3 id="scheduler"><a class="header" href="#scheduler">Scheduler</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Method</th><th>Resource</th><th>Parameters</th><th>Description</th></tr>
-</thead>
-<tbody>
-<tr><td><code>GET</code></td><td><code>/scheduler</code></td><td></td><td>Get <em>Scheduler</em> info.</td></tr>
-<tr><td><code>GET</code></td><td><code>/scheduler/url</code></td><td></td><td>Get <em>Scheduler</em> URL.</td></tr>
-<tr><td><code>PUT</code></td><td><code>/scheduler/url</code></td><td>URL (<code>String</code>)</td><td>Set the <em>Scheduler</em> URL.</td></tr>
-<tr><td><code>DELETE</code></td><td><code>/scheduler/url</code></td><td></td><td>Remove the configured <em>Scheduler</em>.</td></tr>
-<tr><td><code>GET</code></td><td><code>/scheduler/running</code></td><td></td><td>Get running <em>Instances</em>.</td></tr>
-<tr><td><code>GET</code></td><td><code>/scheduler/completed</code></td><td></td><td>Get completed <em>Instances</em>.</td></tr>
-<tr><td><code>GET</code></td><td><code>/scheduler/failed</code></td><td></td><td>Get failed <em>Instances</em>.</td></tr>
-<tr><td><code>GET</code></td><td><code>/scheduler/size</code></td><td></td><td>Get queue size.</td></tr>
-<tr><td><code>DELETE</code></td><td><code>/scheduler/</code></td><td></td><td>Clear <em>Scheduler</em> queue.</td></tr>
-<tr><td><code>POST</code></td><td><code>/scheduler/</code></td><td>Scan options (<code>Hash</code>)</td><td>Push a scan to the <em>Scheduler</em> queue.</td></tr>
-<tr><td><code>GET</code></td><td><code>/scheduler/:instance</code></td><td></td><td>Get <em>Instance</em> info.</td></tr>
-<tr><td><code>PUT</code></td><td><code>/scheduler/:instance/detach</code></td><td></td><td>Detach the given <em>Instance</em> from the <em>Scheduler</em>.</td></tr>
-<tr><td><code>DELETE</code></td><td><code>/scheduler/:instance</code></td><td></td><td>Remove queued <em>Instance</em> job from the <em>Scheduler</em> queue.</td></tr>
-</tbody>
-</table>
-</div>
-<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
-<h3 id="starting-the-rest-server"><a class="header" href="#starting-the-rest-server">Starting the REST server</a></h3>
-<p>Start the server by issuing the following command:</p>
-<p><code>bin/spectre_rest_server</code></p>
-<h3 id="client"><a class="header" href="#client">Client</a></h3>
-<pre><code class="language-ruby">#!/usr/bin/env ruby
+<h2 id="options-reference"><a class="header" href="#options-reference">Options reference</a></h2>
+<blockquote>
+<p>Same content is served at
+<a href="../mcp/index.html#resources"><code>spectre://options/reference</code></a> over
+MCP — single source of truth for both surfaces.</p>
+</blockquote>
+<p>The full option surface accepted by <code>spawn_instance.options</code>
+(over MCP) and by the <code>POST /instances</code> body (over REST). Hash,
+all keys optional.</p>
+<p>The bare engine defaults leave every audit element OFF and every
+check unloaded; only <code>bin/spectre_scan</code> (and the option presets)
+enable them. If you build options from scratch, ship at least
+<code>url</code>, <code>audit.elements</code> (or per-element booleans), and <code>checks</code>,
+or use <code>spectre://option-presets/quick-scan</code>.</p>
+<h3 id="wire-shape"><a class="header" href="#wire-shape">Wire shape</a></h3>
+<p>This is what gets POSTed to <code>/instances</code> (REST) or sent as
+<code>spawn_instance.options</code> (MCP) — a single nested JSON object,
+all groups optional, every leaf documented further down. Each
+top-level key is its own JSON object (<code>audit</code>, <code>scope</code>, <code>http</code>,
+<code>dom</code>, <code>device</code>, <code>input</code>, <code>session</code>, <code>timeout</code>); the
+top-level scalars (<code>url</code>, <code>checks</code>, <code>plugins</code>, <code>authorized_by</code>,
+<code>no_fingerprinting</code>) sit alongside.</p>
+<pre><code class="language-json">{
+  "url":     "http://example.com/",
+  "checks":  ["*"],
+  "plugins": {},
+  "authorized_by":     "you@example.com",
+  "no_fingerprinting": false,
 
-require 'pp'
-require_relative 'http-helpers'
-
-# Create a new scanner Instance (process) and run a scan with the following options.
-request :post, 'instances', {
-
-  # Scan this URL.
-  url:    'http://testhtml5.vulnweb.com',
-
-  # Audit all element types.
-  audit:  {
-    elements: [:links, :forms, :cookies, :headers, :jsons, :xmls, :ui_inputs, :ui_forms]
+  "audit": {
+    "elements":             ["links","forms","cookies","headers","ui_inputs","ui_forms","jsons","xmls"],
+    "link_templates":       [],
+    "parameter_values":     true,
+    "parameter_names":      false,
+    "with_raw_payloads":    false,
+    "with_extra_parameter": false,
+    "with_both_http_methods": false,
+    "cookies_extensively":  false,
+    "mode":                 "moderate",
+    "exclude_vector_patterns": [],
+    "include_vector_patterns": []
   },
 
-  # Load all active checks.
-  checks: 'active/*'
-}
+  "scope": {
+    "page_limit":                  50,
+    "depth_limit":                 10,
+    "directory_depth_limit":       10,
+    "dom_depth_limit":             4,
+    "dom_event_limit":             500,
+    "dom_event_inheritance_limit": 500,
+    "include_subdomains":          false,
+    "https_only":                  false,
+    "include_path_patterns":       [],
+    "exclude_path_patterns":       [],
+    "exclude_content_patterns":    [],
+    "exclude_file_extensions":     ["gif","mp4","pdf","js","css"],
+    "exclude_binaries":            false,
+    "restrict_paths":              [],
+    "extend_paths":                [],
+    "redundant_path_patterns":     {},
+    "auto_redundant_paths":        15,
+    "url_rewrites":                {}
+  },
 
-# The ID is used to represent that instance and allow us to manage it from here on out.
-instance_id = response_data['id']
+  "http": {
+    "request_concurrency":     10,
+    "request_queue_size":      50,
+    "request_timeout":         20000,
+    "request_redirect_limit":  5,
+    "response_max_size":       500000,
+    "request_headers":         {},
+    "cookies":                 {},
+    "cookie_jar_filepath":     "/path/to/cookies.txt",
+    "cookie_string":           "name=value; Path=/",
+    "authentication_username": "user",
+    "authentication_password": "pass",
+    "authentication_type":     "auto",
+    "proxy":                   "host:port",
+    "proxy_host":              "host",
+    "proxy_port":              8080,
+    "proxy_username":          "user",
+    "proxy_password":          "pass",
+    "proxy_type":              "auto",
+    "ssl_verify_peer":         false,
+    "ssl_verify_host":         false,
+    "ssl_certificate_filepath":"/path/to/cert.pem",
+    "ssl_certificate_type":    "pem",
+    "ssl_key_filepath":        "/path/to/key.pem",
+    "ssl_key_type":            "pem",
+    "ssl_key_password":        "secret",
+    "ssl_ca_filepath":         "/path/to/ca.pem",
+    "ssl_ca_directory":        "/path/to/ca-dir/",
+    "ssl_version":             "tlsv1_3"
+  },
 
-while sleep( 1 )
-  request :get, "instances/#{instance_id}/scan/progress", {
-    # Include these types of objects only.
-    with: [:issues, :sitemap, :errors]
+  "dom": {
+    "engine":              "chrome",
+    "pool_size":           4,
+    "job_timeout":         120,
+    "worker_time_to_live": 1000,
+    "wait_for_timers":     false,
+    "local_storage":       {},
+    "session_storage":     {},
+    "wait_for_elements":   {}
+  },
+
+  "device": {
+    "visible":     false,
+    "width":       1600,
+    "height":      1200,
+    "user_agent":  "...",
+    "pixel_ratio": 1.0,
+    "touch":       false
+  },
+
+  "input": {
+    "values":           {},
+    "default_values":   {},
+    "without_defaults": false,
+    "force":            false
+  },
+
+  "session": {
+    "check_url":     "https://example.com/account",
+    "check_pattern": "Logout"
+  },
+
+  "timeout": {
+    "duration": 3600,
+    "suspend":  false
   }
-
-  # Print out instance progress.
-  pp response_data
-
-  # Continue looping while instance status is 'busy'.
-  request :get, "instances/#{instance_id}"
-  break if !response_data['busy']
-end
-
-puts '*' * 88
-
-# Get the scan report.
-request :get, "instances/#{instance_id}/scan/report.json"
-# Print out the report.
-pp response_data
-
-# Shutdown the Instance.
-request :delete, "instances/#{instance_id}"
+}
 </code></pre>
-<h4 id="http-helpers"><a class="header" href="#http-helpers">HTTP helpers</a></h4>
-<p>This client example included some helpers for the HTTP requests:</p>
+<p>In the per-key sections below, <strong><code>group.key</code> is shorthand for the
+JSON path <code>{ "group": { "key": ... } }</code></strong> — <code>audit.elements</code>
+means the <code>elements</code> field of the <code>audit</code> object, not a literal
+key called <code>audit.elements</code>.</p>
+<h3 id="table-of-contents-1"><a class="header" href="#table-of-contents-1">Table of contents</a></h3>
+<ul>
+<li><a href="#top-level">Top-level</a>
+<ul>
+<li><a href="#url"><code>url</code></a></li>
+<li><a href="#checks"><code>checks</code></a></li>
+<li><a href="#plugins"><code>plugins</code></a></li>
+<li><a href="#authorized_by"><code>authorized_by</code></a></li>
+<li><a href="#no_fingerprinting"><code>no_fingerprinting</code></a></li>
+</ul>
+</li>
+<li><a href="#audit"><code>audit</code></a> — what the engine traces
+<ul>
+<li><a href="#auditelements"><code>audit.elements</code></a></li>
+<li><a href="#per-element-toggles">Per-element toggles</a></li>
+<li><a href="#auditlink_templates"><code>audit.link_templates</code></a></li>
+<li><a href="#auditparameter_values"><code>audit.parameter_values</code></a> / <a href="#auditparameter_names"><code>parameter_names</code></a></li>
+<li><a href="#auditwith_raw_payloads"><code>audit.with_raw_payloads</code></a> / <a href="#auditwith_extra_parameter"><code>with_extra_parameter</code></a> / <a href="#auditwith_both_http_methods"><code>with_both_http_methods</code></a></li>
+<li><a href="#auditcookies_extensively"><code>audit.cookies_extensively</code></a></li>
+<li><a href="#auditmode"><code>audit.mode</code></a></li>
+<li><a href="#auditexclude_vector_patterns"><code>audit.exclude_vector_patterns</code></a> / <a href="#auditinclude_vector_patterns"><code>include_vector_patterns</code></a></li>
+</ul>
+</li>
+<li><a href="#scope"><code>scope</code></a> — crawl bounds
+<ul>
+<li><a href="#scopepage_limit"><code>scope.page_limit</code></a></li>
+<li><a href="#scopedepth_limit"><code>scope.depth_limit</code></a> / <a href="#scopedirectory_depth_limit"><code>directory_depth_limit</code></a></li>
+<li><a href="#scopedom_depth_limit"><code>scope.dom_depth_limit</code></a> / <a href="#scopedom_event_limit"><code>dom_event_limit</code></a> / <a href="#scopedom_event_inheritance_limit"><code>dom_event_inheritance_limit</code></a></li>
+<li><a href="#scopeinclude_subdomains"><code>scope.include_subdomains</code></a> / <a href="#scopehttps_only"><code>https_only</code></a></li>
+<li><a href="#scopeinclude_path_patterns"><code>scope.include_path_patterns</code></a> / <a href="#scopeexclude_path_patterns"><code>exclude_path_patterns</code></a> / <a href="#scopeexclude_content_patterns"><code>exclude_content_patterns</code></a></li>
+<li><a href="#scopeexclude_file_extensions"><code>scope.exclude_file_extensions</code></a> / <a href="#scopeexclude_binaries"><code>exclude_binaries</code></a></li>
+<li><a href="#scoperestrict_paths"><code>scope.restrict_paths</code></a> / <a href="#scopeextend_paths"><code>extend_paths</code></a></li>
+<li><a href="#scoperedundant_path_patterns"><code>scope.redundant_path_patterns</code></a> / <a href="#scopeauto_redundant_paths"><code>auto_redundant_paths</code></a></li>
+<li><a href="#scopeurl_rewrites"><code>scope.url_rewrites</code></a></li>
+</ul>
+</li>
+<li><a href="#http"><code>http</code></a> — HTTP client tuning
+<ul>
+<li><a href="#concurrency--queue--timeouts">Concurrency / queue / timeouts</a></li>
+<li><a href="#headers--cookies">Headers / cookies</a></li>
+<li><a href="#http-authentication">HTTP authentication</a></li>
+<li><a href="#proxy">Proxy</a></li>
+<li><a href="#tls--ssl">TLS / SSL</a></li>
+</ul>
+</li>
+<li><a href="#dom"><code>dom</code></a> — browser cluster + DOM crawl</li>
+<li><a href="#device"><code>device</code></a> — viewport / identity</li>
+<li><a href="#input"><code>input</code></a> — auto-fill rules</li>
+<li><a href="#session"><code>session</code></a> — login-session monitoring</li>
+<li><a href="#timeout"><code>timeout</code></a> — wall-clock cap</li>
+</ul>
+<hr>
+<h3 id="top-level"><a class="header" href="#top-level">Top-level</a></h3>
+<h4 id="url"><a class="header" href="#url"><code>url</code></a></h4>
+<p><em>(string, required for a real scan)</em></p>
+<p>The target. Anything reachable over HTTP(S). Required for any
+<code>POST /instances</code> (or <code>spawn_instance</code> with <code>start: true</code>); the
+only spawn path where it can be omitted is <code>start: false</code> (an
+idle instance set up to be configured later).</p>
+<pre><code class="language-json">{ "url": "http://example.com/" }
+</code></pre>
+<h4 id="checks"><a class="header" href="#checks"><code>checks</code></a></h4>
+<p><em>(string[], default: <code>[]</code> — no checks loaded)</em></p>
+<p>Check shortnames or globs to load. Use <code>["*"]</code> for the full
+catalogue (the <code>bin/spectre_scan</code> default). Examples:</p>
+<ul>
+<li><code>["xss*", "sql_injection*"]</code> — XSS family + SQLi family.</li>
+<li><code>["xss"]</code> — exactly the <code>xss</code> check.</li>
+</ul>
+<p>Call the <code>list_checks</code> MCP tool (or <code>bin/spectre_scan --list-checks</code>) to enumerate the available shortnames + their
+severity / tags / element coverage.</p>
+<pre><code class="language-json">{ "checks": ["xss*", "sql_injection*"] }
+</code></pre>
+<h4 id="plugins"><a class="header" href="#plugins"><code>plugins</code></a></h4>
+<p><em>(object | string[] | string, default: <code>{}</code> — no plugins)</em></p>
+<p>Plugins to load. Three accepted shapes:</p>
+<pre><code class="language-json">{ "plugins": {} }                         // load nothing extra
+{ "plugins": ["defaults/*"] }             // array of names / globs
+{ "plugins": { "live": { "url": "..." } } } // hash with per-plugin options
+</code></pre>
+<p>The application <strong>always</strong> merges its default-plugin set in
+first; this key is purely for extras / overrides.</p>
+<h4 id="authorized_by"><a class="header" href="#authorized_by"><code>authorized_by</code></a></h4>
+<p><em>(string)</em></p>
+<p>E-mail address of the authorising operator. Flows into outbound
+HTTP requests’ <code>From</code> header so target-site admins can identify
+the scan. Polite on third-party targets.</p>
+<pre><code class="language-json">{ "authorized_by": "ops@example.com" }
+</code></pre>
+<h4 id="no_fingerprinting"><a class="header" href="#no_fingerprinting"><code>no_fingerprinting</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Skip server / client tech fingerprinting. The fingerprint feeds
+<code>platforms</code> on each issue (<code>tomcat,java</code>, <code>php,mysql</code>, etc.) and
+narrows which checks run; turning it off speeds the start-up but
+loses platform-specific check skipping.</p>
+<pre><code class="language-json">{ "no_fingerprinting": true }
+</code></pre>
+<hr>
+<h3 id="audit"><a class="header" href="#audit"><code>audit</code></a></h3>
+<p>What the engine traces. All keys nest under the top-level
+<code>"audit"</code> object:</p>
+<pre><code class="language-json">{ "audit": { "elements": ["links","forms"], "parameter_values": true } }
+</code></pre>
+<h4 id="auditelements"><a class="header" href="#auditelements"><code>audit.elements</code></a></h4>
+<p><em>(string[])</em></p>
+<p>Shortcut for the per-element booleans below. Pick from:
+<code>links</code>, <code>forms</code>, <code>cookies</code>, <code>nested_cookies</code>, <code>headers</code>,
+<code>ui_inputs</code>, <code>ui_forms</code>, <code>jsons</code>, <code>xmls</code>. Equivalent to setting
+each named boolean to <code>true</code>.</p>
+<p>The presets ship the standard 8-element list (<code>links</code>, <code>forms</code>,
+<code>cookies</code>, <code>headers</code>, <code>ui_inputs</code>, <code>ui_forms</code>, <code>jsons</code>, <code>xmls</code>).
+<code>nested_cookies</code> is opt-in; <code>link_templates</code> is <strong>not</strong> an
+element — see below.</p>
+<pre><code class="language-json">{ "audit": { "elements": ["links","forms","cookies","headers","ui_inputs","ui_forms","jsons","xmls"] } }
+</code></pre>
+<h4 id="per-element-toggles"><a class="header" href="#per-element-toggles">Per-element toggles</a></h4>
+<p><code>audit.links</code> / <code>audit.forms</code> / <code>audit.cookies</code> /
+<code>audit.headers</code> / <code>audit.jsons</code> / <code>audit.xmls</code> /
+<code>audit.ui_inputs</code> / <code>audit.ui_forms</code> / <code>audit.nested_cookies</code></p>
+<p><em>(boolean)</em></p>
+<p>Equivalent to listing the element name in <code>audit.elements</code>.
+Default on each is unset (<code>nil</code>), which the engine treats as
+off; <code>bin/spectre_scan</code> flips them on for the default 8.</p>
+<pre><code class="language-json">{ "audit": { "links": true, "forms": true, "cookies": false } }
+</code></pre>
+<h4 id="auditlink_templates"><a class="header" href="#auditlink_templates"><code>audit.link_templates</code></a></h4>
+<p><em>(regex[], default: <code>[]</code>)</em></p>
+<p>Regex patterns with named captures for extracting input info
+from REST-style paths. Example: <code>(?&lt;id&gt;\d+)</code> against
+<code>/users/42</code> lets the engine treat <code>42</code> as the value of an
+<code>id</code> input. <strong>Not</strong> a boolean toggle — putting <code>link_templates</code>
+in <code>audit.elements</code> is an error.</p>
+<pre><code class="language-json">{ "audit": { "link_templates": ["users/(?&lt;id&gt;\\d+)", "posts/(?&lt;post_id&gt;\\d+)"] } }
+</code></pre>
+<h4 id="auditparameter_values"><a class="header" href="#auditparameter_values"><code>audit.parameter_values</code></a></h4>
+<p><em>(boolean, default: true)</em></p>
+<p>Inject payloads into parameter values. Turning this off limits
+auditing to parameter <em>names</em> (with <code>parameter_names: true</code>) or
+extra-parameter injection — rarely what you want.</p>
+<h4 id="auditparameter_names"><a class="header" href="#auditparameter_names"><code>audit.parameter_names</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Inject payloads into parameter names themselves. Catches
+mass-assignment / unintended-parameter classes of bug. Adds one
+extra mutation per known input.</p>
+<h4 id="auditwith_raw_payloads"><a class="header" href="#auditwith_raw_payloads"><code>audit.with_raw_payloads</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Send payloads in raw form (no HTTP encoding). Useful when you
+suspect the target has a decoder that mangles encoded bytes.</p>
+<h4 id="auditwith_extra_parameter"><a class="header" href="#auditwith_extra_parameter"><code>audit.with_extra_parameter</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Inject an additional, unexpected parameter into each element.
+Catches code paths that read undeclared parameters.</p>
+<h4 id="auditwith_both_http_methods"><a class="header" href="#auditwith_both_http_methods"><code>audit.with_both_http_methods</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Audit each link / form with both <code>GET</code> and <code>POST</code>. <strong>Doubles
+audit time</strong> — only enable when the target’s behaviour is
+known to vary by method.</p>
+<h4 id="auditcookies_extensively"><a class="header" href="#auditcookies_extensively"><code>audit.cookies_extensively</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Submit every link and form along with each cookie permutation.
+<strong>Severely increases scan time</strong> — useful when cookie state
+gates application behaviour.</p>
+<h4 id="auditmode"><a class="header" href="#auditmode"><code>audit.mode</code></a></h4>
+<p><em>(string, default: <code>"moderate"</code>)</em></p>
+<p>Audit aggressiveness. Values: <code>light</code>, <code>moderate</code>, <code>aggressive</code>.
+Higher modes try more payload variants per input.</p>
+<h4 id="auditexclude_vector_patterns"><a class="header" href="#auditexclude_vector_patterns"><code>audit.exclude_vector_patterns</code></a></h4>
+<p><em>(regex[], default: <code>[]</code>)</em></p>
+<p>Skip input vectors whose name matches any pattern. Example:
+<code>["^csrf$", "^_token$"]</code> to leave anti-CSRF tokens alone.</p>
+<h4 id="auditinclude_vector_patterns"><a class="header" href="#auditinclude_vector_patterns"><code>audit.include_vector_patterns</code></a></h4>
+<p><em>(regex[], default: <code>[]</code>)</em></p>
+<p>Inverse of <code>exclude_vector_patterns</code> — only audit vectors whose
+name matches. Empty means “no whitelist.”</p>
+<hr>
+<h3 id="scope"><a class="header" href="#scope"><code>scope</code></a></h3>
+<p>Crawl bounds. All keys nest under <code>"scope"</code>:</p>
+<pre><code class="language-json">{ "scope": { "page_limit": 50, "include_subdomains": false } }
+</code></pre>
+<h4 id="scopepage_limit"><a class="header" href="#scopepage_limit"><code>scope.page_limit</code></a></h4>
+<p><em>(int, default: nil — infinite)</em></p>
+<p>Hard cap on crawled pages. The quick-scan preset sets this to
+<code>50</code>; the full-scan preset omits it.</p>
+<h4 id="scopedepth_limit"><a class="header" href="#scopedepth_limit"><code>scope.depth_limit</code></a></h4>
+<p><em>(int, default: 10)</em></p>
+<p>How deep to follow links from the seed. Counts every hop
+regardless of directory layout.</p>
+<h4 id="scopedirectory_depth_limit"><a class="header" href="#scopedirectory_depth_limit"><code>scope.directory_depth_limit</code></a></h4>
+<p><em>(int, default: 10)</em></p>
+<p>How deep to descend into the URL path tree.</p>
+<h4 id="scopedom_depth_limit"><a class="header" href="#scopedom_depth_limit"><code>scope.dom_depth_limit</code></a></h4>
+<p><em>(int, default: 4)</em></p>
+<p>How deep into the DOM tree of each JavaScript-rendered page.
+<code>0</code> disables browser analysis entirely.</p>
+<h4 id="scopedom_event_limit"><a class="header" href="#scopedom_event_limit"><code>scope.dom_event_limit</code></a></h4>
+<p><em>(int, default: 500)</em></p>
+<p>Max DOM events triggered per DOM depth. Caps crawl time on
+event-heavy SPAs.</p>
+<h4 id="scopedom_event_inheritance_limit"><a class="header" href="#scopedom_event_inheritance_limit"><code>scope.dom_event_inheritance_limit</code></a></h4>
+<p><em>(int, default: 500)</em></p>
+<p>How many descendant elements inherit a parent’s bound events.</p>
+<h4 id="scopeinclude_subdomains"><a class="header" href="#scopeinclude_subdomains"><code>scope.include_subdomains</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Follow links to subdomains of the seed host.</p>
+<h4 id="scopehttps_only"><a class="header" href="#scopehttps_only"><code>scope.https_only</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Refuse plaintext HTTP follow-throughs.</p>
+<h4 id="scopeinclude_path_patterns"><a class="header" href="#scopeinclude_path_patterns"><code>scope.include_path_patterns</code></a></h4>
+<p><em>(regex[], default: <code>[]</code>)</em></p>
+<p>Whitelist patterns for path segments. Empty = include all.</p>
+<h4 id="scopeexclude_path_patterns"><a class="header" href="#scopeexclude_path_patterns"><code>scope.exclude_path_patterns</code></a></h4>
+<p><em>(regex[], default: <code>[]</code>)</em></p>
+<p>Blacklist patterns. Pages whose paths match are skipped.</p>
+<pre><code class="language-json">{ "scope": { "exclude_path_patterns": ["/logout", "/admin/.*"] } }
+</code></pre>
+<h4 id="scopeexclude_content_patterns"><a class="header" href="#scopeexclude_content_patterns"><code>scope.exclude_content_patterns</code></a></h4>
+<p><em>(regex[], default: <code>[]</code>)</em></p>
+<p>Blacklist patterns for <em>response body</em> content. A page whose
+body matches gets dropped from the audit pool — useful for
+“don’t audit /logout” via response-side pattern.</p>
+<h4 id="scopeexclude_file_extensions"><a class="header" href="#scopeexclude_file_extensions"><code>scope.exclude_file_extensions</code></a></h4>
+<p><em>(string[])</em></p>
+<p>Skip URLs ending in these extensions. Defaults to a long list
+of media / archive / executable / asset / document extensions
+(<code>gif</code>, <code>mp4</code>, <code>pdf</code>, <code>js</code>, <code>css</code>, …). Override if you need to
+audit something the default skips (e.g. force-include <code>js</code> for
+DOM analysis).</p>
+<h4 id="scopeexclude_binaries"><a class="header" href="#scopeexclude_binaries"><code>scope.exclude_binaries</code></a></h4>
+<p><em>(boolean, default: false)</em></p>
+<p>Skip non-text-typed responses. Cheaper than maintaining a
+content-type allowlist; can confuse passive checks that
+pattern-match on bodies.</p>
+<h4 id="scoperestrict_paths"><a class="header" href="#scoperestrict_paths"><code>scope.restrict_paths</code></a></h4>
+<p><em>(string[], default: <code>[]</code>)</em></p>
+<p>Use these paths INSTEAD of crawling. Pre-seeded path discovery
+— the engine audits exactly what’s listed.</p>
+<h4 id="scopeextend_paths"><a class="header" href="#scopeextend_paths"><code>scope.extend_paths</code></a></h4>
+<p><em>(string[], default: <code>[]</code>)</em></p>
+<p>Add to whatever the crawler discovers. Useful for hidden URLs
+that aren’t linked from anywhere.</p>
+<h4 id="scoperedundant_path_patterns"><a class="header" href="#scoperedundant_path_patterns"><code>scope.redundant_path_patterns</code></a></h4>
+<p><em>(object: <code>{regex: int}</code>, default: <code>{}</code>)</em></p>
+<p>Pages matching the regex are crawled at most <code>N</code> times. Stops
+infinite-calendar / infinite-page traps.</p>
+<pre><code class="language-json">{ "scope": { "redundant_path_patterns": { "calendar/\\d+": 1, "events/\\d+": 5 } } }
+</code></pre>
+<h4 id="scopeauto_redundant_paths"><a class="header" href="#scopeauto_redundant_paths"><code>scope.auto_redundant_paths</code></a></h4>
+<p><em>(int, default: 15)</em></p>
+<p>Follow URLs with the same query-parameter-name combination at
+most <code>auto_redundant_paths</code> times. Catches the
+<code>?page=1&amp;offset=10</code>, <code>?page=2&amp;offset=20</code>, … pattern without
+needing explicit <code>redundant_path_patterns</code>.</p>
+<h4 id="scopeurl_rewrites"><a class="header" href="#scopeurl_rewrites"><code>scope.url_rewrites</code></a></h4>
+<p><em>(object: <code>{regex: string}</code>, default: <code>{}</code>)</em></p>
+<p>Rewrite seed-discovered URLs before audit:</p>
+<pre><code class="language-json">{ "scope": { "url_rewrites": { "articles/(\\d+)": "articles.php?id=\\1" } } }
+</code></pre>
+<hr>
+<h3 id="http"><a class="header" href="#http"><code>http</code></a></h3>
+<p>HTTP client tuning. All keys nest under <code>"http"</code>:</p>
+<pre><code class="language-json">{ "http": { "request_concurrency": 5, "request_timeout": 30000 } }
+</code></pre>
+<h4 id="concurrency--queue--timeouts"><a class="header" href="#concurrency--queue--timeouts">Concurrency / queue / timeouts</a></h4>
+<ul>
+<li><strong><code>http.request_concurrency</code></strong> <em>(int, default: 10)</em> — parallel
+requests in flight. The engine throttles down automatically if
+the target’s response time degrades.</li>
+<li><strong><code>http.request_queue_size</code></strong> <em>(int, default: 50)</em> — max
+requests queued client-side. Larger queue = better network
+utilisation, more RAM.</li>
+<li><strong><code>http.request_timeout</code></strong> <em>(int, ms, default: 20000)</em> —
+per-request timeout.</li>
+<li><strong><code>http.request_redirect_limit</code></strong> <em>(int, default: 5)</em> — max
+redirects to follow on each request.</li>
+<li><strong><code>http.response_max_size</code></strong> <em>(int, bytes, default: 500000)</em> —
+don’t download response bodies larger than this. Prevents
+runaway RAM on a target that streams large payloads.</li>
+</ul>
+<h4 id="headers--cookies"><a class="header" href="#headers--cookies">Headers / cookies</a></h4>
+<ul>
+<li>
+<p><strong><code>http.request_headers</code></strong> <em>(object, default: <code>{}</code>)</em> — extra
+headers on every request:</p>
+<pre><code class="language-json">{ "http": { "request_headers": { "X-API-Key": "abc123", "X-Debug": "1" } } }
+</code></pre>
+</li>
+<li>
+<p><strong><code>http.cookies</code></strong> <em>(object, default: <code>{}</code>)</em> — preset cookies:</p>
+<pre><code class="language-json">{ "http": { "cookies": { "session_id": "abc", "auth": "xyz" } } }
+</code></pre>
+</li>
+<li>
+<p><strong><code>http.cookie_jar_filepath</code></strong> <em>(string)</em> — path to a
+Netscape-format cookie jar file.</p>
+</li>
+<li>
+<p><strong><code>http.cookie_string</code></strong> <em>(string)</em> — raw cookie string,
+<code>Set-Cookie</code>-style:</p>
+<pre><code class="language-json">{ "http": { "cookie_string": "my_cookie=my_value; Path=/, other=other; Path=/test" } }
+</code></pre>
+</li>
+</ul>
+<h4 id="http-authentication"><a class="header" href="#http-authentication">HTTP authentication</a></h4>
+<pre><code class="language-json">{ "http": {
+    "authentication_username": "user",
+    "authentication_password": "pass",
+    "authentication_type":     "basic"
+} }
+</code></pre>
+<ul>
+<li><strong><code>http.authentication_username</code></strong> / <strong><code>http.authentication_password</code></strong> <em>(string)</em></li>
+<li><strong><code>http.authentication_type</code></strong> <em>(string, default: <code>"auto"</code>)</em> —
+explicit values: <code>basic</code>, <code>digest</code>, <code>ntlm</code>, <code>negotiate</code>, <code>any</code>,
+<code>anysafe</code>.</li>
+</ul>
+<h4 id="proxy"><a class="header" href="#proxy">Proxy</a></h4>
+<pre><code class="language-json">{ "http": {
+    "proxy":          "proxy.example.com:8080",
+    "proxy_type":     "http",
+    "proxy_username": "user",
+    "proxy_password": "pass"
+} }
+</code></pre>
+<ul>
+<li><strong><code>http.proxy</code></strong> <em>(string, <code>"host:port"</code> shortcut)</em></li>
+<li><strong><code>http.proxy_host</code></strong> / <strong><code>http.proxy_port</code></strong> — split form,
+overrides <code>proxy</code> if set.</li>
+<li><strong><code>http.proxy_username</code></strong> / <strong><code>http.proxy_password</code></strong> <em>(string)</em></li>
+<li><strong><code>http.proxy_type</code></strong> <em>(string, default: <code>"auto"</code>)</em> — <code>http</code>,
+<code>https</code>, <code>socks4</code>, <code>socks4a</code>, <code>socks5</code>, <code>socks5_hostname</code>.</li>
+</ul>
+<h4 id="tls--ssl"><a class="header" href="#tls--ssl">TLS / SSL</a></h4>
+<ul>
+<li><strong><code>http.ssl_verify_peer</code></strong> / <strong><code>http.ssl_verify_host</code></strong>
+<em>(boolean, default: false)</em> — TLS peer / hostname verification.
+Off by default; both <code>true</code> for full chain validation.</li>
+<li><strong><code>http.ssl_certificate_filepath</code></strong> / <strong><code>http.ssl_certificate_type</code></strong>
+/ <strong><code>http.ssl_key_filepath</code></strong> / <strong><code>http.ssl_key_type</code></strong> /
+<strong><code>http.ssl_key_password</code></strong> — client-cert auth. <code>*_type</code>
+values: <code>pem</code>, <code>der</code>, <code>eng</code>.</li>
+<li><strong><code>http.ssl_ca_filepath</code></strong> / <strong><code>http.ssl_ca_directory</code></strong> —
+custom CA bundle / directory for peer verification.</li>
+<li><strong><code>http.ssl_version</code></strong> <em>(string)</em> — pin a TLS version: <code>tlsv1</code>,
+<code>tlsv1_0</code>, <code>tlsv1_1</code>, <code>tlsv1_2</code>, <code>tlsv1_3</code>, <code>sslv2</code>, <code>sslv3</code>.</li>
+</ul>
+<pre><code class="language-json">{ "http": {
+    "ssl_verify_peer":          true,
+    "ssl_verify_host":          true,
+    "ssl_ca_filepath":          "/etc/ssl/cert.pem",
+    "ssl_certificate_filepath": "/path/to/client.pem",
+    "ssl_key_filepath":         "/path/to/client.key",
+    "ssl_version":              "tlsv1_3"
+} }
+</code></pre>
+<hr>
+<h3 id="dom"><a class="header" href="#dom"><code>dom</code></a></h3>
+<p>Browser cluster + DOM crawl. All keys nest under <code>"dom"</code>:</p>
+<pre><code class="language-json">{ "dom": { "pool_size": 4, "job_timeout": 120, "wait_for_timers": true } }
+</code></pre>
+<ul>
+<li>
+<p><strong><code>dom.engine</code></strong> <em>(string, default: <code>"chrome"</code>)</em> — browser
+engine. Chrome is the only supported value.</p>
+</li>
+<li>
+<p><strong><code>dom.pool_size</code></strong> <em>(int, default: <code>min(cpu_count/2, 10) || 1</code>)</em> —
+number of browser workers in the pool. More workers = faster
+DOM crawl on JS-heavy targets, more RAM.</p>
+</li>
+<li>
+<p><strong><code>dom.job_timeout</code></strong> <em>(int, sec, default: 120)</em> — per-page
+browser job ceiling. Pages that don’t settle are dropped from
+DOM-side analysis.</p>
+</li>
+<li>
+<p><strong><code>dom.worker_time_to_live</code></strong> <em>(int, default: 1000)</em> — re-spawn
+each browser after this many jobs. Caps memory leaks in
+long-lived headless instances.</p>
+</li>
+<li>
+<p><strong><code>dom.wait_for_timers</code></strong> <em>(boolean, default: false)</em> — wait
+for the longest <code>setTimeout()</code> on each page before considering
+DOM analysis “done”. Catches lazy-mounted UI.</p>
+</li>
+<li>
+<p><strong><code>dom.local_storage</code></strong> / <strong><code>dom.session_storage</code></strong> <em>(object,
+default: <code>{}</code>)</em> — pre-seed key/value maps:</p>
+<pre><code class="language-json">{ "dom": {
+    "local_storage":   { "user": "abc", "preferred_lang": "en" },
+    "session_storage": { "csrf_token": "xyz" }
+} }
+</code></pre>
+</li>
+<li>
+<p><strong><code>dom.wait_for_elements</code></strong> <em>(object: <code>{regex: css}</code>, default:
+<code>{}</code>)</em> — when navigating to a URL matching the key, wait for
+the CSS selector value to match before continuing:</p>
+<pre><code class="language-json">{ "dom": { "wait_for_elements": {
+    "/dashboard":  "#main-app .ready",
+    "/settings/.*": "#settings-form"
+} } }
+</code></pre>
+</li>
+</ul>
+<hr>
+<h3 id="device"><a class="header" href="#device"><code>device</code></a></h3>
+<p>Browser viewport / identity. All keys nest under <code>"device"</code>:</p>
+<pre><code class="language-json">{ "device": { "width": 375, "height": 812, "touch": true, "pixel_ratio": 3.0 } }
+</code></pre>
+<ul>
+<li><strong><code>device.visible</code></strong> <em>(boolean, default: false)</em> — show the
+browser window (head-ful mode). Massively slower; primarily
+for debugging login flows / interactive traps.</li>
+<li><strong><code>device.width</code></strong> / <strong><code>device.height</code></strong> <em>(int)</em> — viewport
+dimensions in CSS pixels.</li>
+<li><strong><code>device.user_agent</code></strong> <em>(string)</em> — override the User-Agent
+header / JS API.</li>
+<li><strong><code>device.pixel_ratio</code></strong> <em>(float, default: 1.0)</em> — device
+pixel ratio. Bump for high-DPI sniffing (some sites serve
+different markup at <code>2.0</code>).</li>
+<li><strong><code>device.touch</code></strong> <em>(boolean, default: false)</em> — advertise as
+a touch device.</li>
+</ul>
+<hr>
+<h3 id="input"><a class="header" href="#input"><code>input</code></a></h3>
+<p>How inputs are auto-filled by the engine before mutation. All
+keys nest under <code>"input"</code>:</p>
+<pre><code class="language-json">{ "input": { "values": { "email": "scan@example.com" }, "force": true } }
+</code></pre>
+<ul>
+<li>
+<p><strong><code>input.values</code></strong> <em>(object: <code>{regex: string}</code>, default: <code>{}</code>)</em>
+— match an input’s name against the regex key; use the value:</p>
+<pre><code class="language-json">{ "input": { "values": {
+    "email":          "scan@example.com",
+    "first_name":     "Scan",
+    "creditcard|cc":  "4111111111111111"
+} } }
+</code></pre>
+</li>
+<li>
+<p><strong><code>input.default_values</code></strong> <em>(object)</em> — layered under <code>values</code>
+— patterns the engine ships out of the box (<code>first_name</code> →
+“John”, etc.).</p>
+</li>
+<li>
+<p><strong><code>input.without_defaults</code></strong> <em>(boolean, default: false)</em> —
+skip the shipped <code>default_values</code> table; only your <code>values</code>
+get used.</p>
+</li>
+<li>
+<p><strong><code>input.force</code></strong> <em>(boolean, default: false)</em> — fill even
+non-empty inputs (overwrites pre-populated form fields).</p>
+</li>
+</ul>
+<hr>
+<h3 id="session"><a class="header" href="#session"><code>session</code></a></h3>
+<p>Login-session monitoring. The engine periodically checks the
+target is still logged in. All keys nest under <code>"session"</code>:</p>
+<pre><code class="language-json">{ "session": {
+    "check_url":     "https://example.com/account",
+    "check_pattern": "Logout"
+} }
+</code></pre>
+<ul>
+<li><strong><code>session.check_url</code></strong> <em>(string)</em> — URL whose response body
+should match <code>check_pattern</code> while the session is valid.</li>
+<li><strong><code>session.check_pattern</code></strong> <em>(regex)</em> — matched against
+<code>check_url</code>’s body. Mismatch = session expired; the scan halts
+pending re-login.</li>
+</ul>
+<p>Both fields are required to enable session monitoring; setting
+only one is rejected at validation time.</p>
+<hr>
+<h3 id="timeout"><a class="header" href="#timeout"><code>timeout</code></a></h3>
+<p>Wall-clock cap on the run. All keys nest under <code>"timeout"</code>:</p>
+<pre><code class="language-json">{ "timeout": { "duration": 3600, "suspend": true } }
+</code></pre>
+<ul>
+<li><strong><code>timeout.duration</code></strong> <em>(int, sec)</em> — stop the scan after this
+many seconds.</li>
+<li><strong><code>timeout.suspend</code></strong> <em>(boolean, default: false)</em> — when the
+timeout fires, suspend to a snapshot file (loadable later via
+<code>POST /instances/restore</code>). Without this the run is aborted.</li>
+</ul>
+<hr>
+<h2 id="quick-start"><a class="header" href="#quick-start">Quick start</a></h2>
+<p>Smallest working flow – spawn, poll, fetch report, tear down.
+Uses <code>curl</code> and assumes the server is at <code>127.0.0.1:7331</code>.</p>
+<pre><code class="language-bash"># 1. Spawn an instance.
+IID=$(curl -sS -c /tmp/cookies -b /tmp/cookies \
+    -X POST http://127.0.0.1:7331/instances \
+    -H 'Content-Type: application/json' \
+    --data '{
+        "url":     "http://testfire.net/",
+        "checks":  ["*"],
+        "audit":   { "elements": ["links","forms","cookies","headers","ui_inputs","ui_forms","jsons","xmls"] },
+        "scope":   { "page_limit": 50 }
+    }' | jq -r '.id')
+
+# 2. Poll progress (deltas only, thanks to the cookie jar).
+while true; do
+    PROGRESS=$(curl -sS -c /tmp/cookies -b /tmp/cookies \
+        http://127.0.0.1:7331/instances/$IID/scan/progress)
+    BUSY=$(curl -sS -c /tmp/cookies -b /tmp/cookies \
+        http://127.0.0.1:7331/instances/$IID | jq -r '.busy')
+    [ "$BUSY" = "false" ] &amp;&amp; break
+    sleep 5
+done
+
+# 3. Final report.
+curl -sS -c /tmp/cookies -b /tmp/cookies \
+    http://127.0.0.1:7331/instances/$IID/scan/report.json &gt; report.json
+
+# 4. Tear down.
+curl -sS -c /tmp/cookies -b /tmp/cookies \
+    -X DELETE http://127.0.0.1:7331/instances/$IID
+</code></pre>
+<h2 id="client-ruby"><a class="header" href="#client-ruby">Client (Ruby)</a></h2>
+<p>A minimal Typhoeus-based client. The cookie jar is what makes
+<code>progress</code> deltas work.</p>
 <pre><code class="language-ruby">require 'json'
 require 'tmpdir'
 require 'typhoeus'
 
-def response
-  if @last_response.headers['Content-Type'].include? 'json'
-    data = JSON.load( @last_response.body )
-  else
-    data = @last_response.body
-  end
-  {
-    code: @last_response.code,
-    data: data
-  }
+COOKIES = "#{Dir.tmpdir}/cookiejar.txt"
+
+def request( method, resource, params = nil )
+    options = { cookiejar: COOKIES, cookiefile: COOKIES }
+    if params
+        if method == :get
+            options[:params] = params
+        else
+            options[:body]    = params.to_json
+            options[:headers] = { 'Content-Type' =&gt; 'application/json' }
+        end
+    end
+    @last = Typhoeus.send(method, "http://127.0.0.1:7331/#{resource}", options)
 end
 
 def response_data
-  response[:data]
+    JSON.load(@last.body)
 end
 
-def request( method, resource = nil, parameters = nil )
-  options = {}
-
-  if parameters
-    if method == :get
-      options[:params] = parameters
-    else
-      options[:body] = parameters.to_json
-    end
-  end
-
-  options[:cookiejar]  = "#{Dir.tmpdir}/cookiejar.txt"
-  options[:cookiefile] = options[:cookiejar]
-
-  @last_response = Typhoeus.send(
-    method,
-    "http://127.0.0.1:7331/#{resource}",
-    options
-  )
-end
-</code></pre>
-<h3 id="incremental-scans-using-sessions"><a class="header" href="#incremental-scans-using-sessions">Incremental scans using sessions</a></h3>
-<p>In order to save valuable time on subsequent scans, Spectre Scan allows you to extract a session file from
-completed/aborted scans, in order to allow for incremental re-scans.</p>
-<p>This means that only newly introduced input vectors will be audited the next time around, which can save immense amounts
-of time.</p>
-<pre><code class="language-ruby"># Utility method that polls for progress and prints out the report once the scan is done.
-def monitor_and_report( instance_id )
-    print 'Scanning.'
-    while sleep( 1 )
-        request :get, "instances/#{instance_id}/scan/progress", {
-          with: [:issues, :sitemap, :errors]
-        }
-        # pp response_data
-
-        print '.'
-
-        # Continue looping while instance status is 'busy'.
-        request :get, "instances/#{instance_id}"
-        break if !response_data['busy']
-    end
-
-    puts
-
-    # Get the scan report.
-    request :get, "instances/#{instance_id}/scan/report.json"
-    # Print out the report.
-    pp response_data
-end
-
-# Create a new scanner Instance (process) and run a scan with the following options.
+# Spawn.
 request :post, 'instances', {
-
-  # Scan this URL.
-  url:    'https://ginandjuice.shop/',
-
-  # Audit the following element types.
-  audit:  {
-    elements: [:links, :forms, :cookies, :headers, :jsons, :xmls, :ui_inputs, :ui_forms]
-  },
-
-  # Load all active checks.
-  checks: ['*']
+    url:     'http://testfire.net/',
+    checks:  ['*'],
+    audit:   { elements: %w[links forms cookies headers ui_inputs ui_forms jsons xmls] },
+    scope:   { page_limit: 50 }
 }
+iid = response_data['id']
 
-# The ID is used to represent that instance and allow us to manage it from here on out.
-instance_id = response_data['id']
+# Poll until done.
+loop do
+    request :get, "instances/#{iid}/scan/progress"
+    pp response_data    # deltas only
 
-monitor_and_report( instance_id )
+    request :get, "instances/#{iid}"
+    break if !response_data['busy']
 
-########################################################################################################################
-# Get the location of the scan session file, to later restore it, in order to save loads of time on rescans by only
-# checking for new input vectors.
-########################################################################################################################
-request :get, "instances/#{instance_id}/scan/session"
+    sleep 1
+end
+
+# Report.
+request :get, "instances/#{iid}/scan/report.json"
+pp response_data
+
+# Tear down.
+request :delete, "instances/#{iid}"
+</code></pre>
+<h2 id="incremental-rescans-via-sessions"><a class="header" href="#incremental-rescans-via-sessions">Incremental rescans via sessions</a></h2>
+<p><code>/instances/:id/scan/session</code> returns the path to a snapshot file
+that can be fed back to <code>POST /instances/restore</code>. The restored
+instance only audits <strong>new</strong> input vectors – huge speedup on
+re-scans of large apps.</p>
+<pre><code class="language-ruby"># 1. First scan, fully audit the target.
+request :post, 'instances', {
+    url:    'https://ginandjuice.shop/',
+    checks: ['*'],
+    audit:  { elements: %w[links forms cookies headers ui_inputs ui_forms jsons xmls] }
+}
+iid = response_data['id']
+
+# Poll-and-report helper (omitted; same as the Quick start example).
+monitor_and_report(iid)
+
+# 2. Save the session snapshot path.
+request :get, "instances/#{iid}/scan/session"
 session = response_data['session']
 
-# Shutdown the Instance.
-request :delete, "instances/#{instance_id}"
+request :delete, "instances/#{iid}"
 
-#########################################################################################
-# Create a new Instance and restore the previous session to check new input vectors only.
-#########################################################################################
-puts '-' * 88
-puts 'RESCANNING'
-puts '-' * 88
-
+# 3. Re-spawn with `instances/restore`. New vectors only this time.
 request :post, 'instances/restore', session: session
-instance_id = response_data['id']
+iid = response_data['id']
 
-monitor_and_report( instance_id )
+monitor_and_report(iid)
 
-# Shutdown the Instance.
-request :delete, "instances/#{instance_id}"
+request :delete, "instances/#{iid}"
 </code></pre>
+<h2 id="status-semantics"><a class="header" href="#status-semantics">Status semantics</a></h2>
+<p><code>GET /instances/:id</code> returns the same lifecycle states the
+<a href="../mcp/index.html#status-semantics">MCP surface</a> advertises:
+<code>ready</code> → <code>preparing</code> → <code>scanning</code> → <code>auditing</code> → (<code>paused</code>/<code>resumed</code>) →
+<code>cleanup</code> → <code>done</code> (or <code>aborted</code>). <code>busy</code> flips to <code>false</code> only on
+<code>done</code>/<code>aborted</code>.</p>
+<h2 id="things-to-know"><a class="header" href="#things-to-know">Things to know</a></h2>
+<ul>
+<li>Each spawned instance reserves engine resources up front
+(provisioned cores / RAM / disk). At capacity, <code>POST /instances</code>
+returns <code>503</code> – check <code>/scheduler/size</code> if you’ve configured a
+Scheduler so the request is queued instead.</li>
+<li>Sessions are <code>Rack::Session::Pool</code> – in-memory, single-process.
+Fronting Spectre’s REST with multiple Pumas behind a load
+balancer requires a shared session store.</li>
+<li>The REST server and the <a href="../mcp/index.html">MCP server</a> speak to
+the same engine instances. You can spawn over REST and inspect
+via MCP (or vice versa) – IDs are identical.</li>
+</ul>
 
                     </main>
 
