@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-2d3f14b4.js";
+            window.path_to_searchindex_js = "../../searchindex-491b09f0.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-f64bbaef.js"></script>
@@ -1259,11 +1259,11 @@ glossary in one hop.</li>
 <li><strong>Structured error codes.</strong> Errors come back as text. If you want to
 branch on “bad option key” vs “engine crashed” vs “auth failed”,
 you’re parsing the text.</li>
-<li><strong>Plugin / check catalogue.</strong> There’s no <code>list_checks</code> tool; if a
-user asks “which checks would run for this scan”, you’d have to know
-the bundled set out of band, or fall back to running with
-<code>checks: ["*"]</code> and reading <code>scan_report</code>’s <code>plugins</code> block
-afterwards.</li>
+<li><strong>Plugin catalogue.</strong> There’s no <code>list_plugins</code> tool; if a user
+asks “which plugins would load”, you’d have to know the bundled
+default set out of band, or read <code>scan_report</code>’s <code>plugins</code> block
+after a run to see which actually fired. (Checks have a catalogue —
+call the <code>list_checks</code> tool.)</li>
 </ul>
 <p>Each of those is on the roadmap. Until they land, the resources +
 prompt expansion are the supported way to ground a model.</p>
