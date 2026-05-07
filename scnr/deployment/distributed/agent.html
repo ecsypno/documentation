@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-3fc1069f.js";
+            window.path_to_searchindex_js = "../../searchindex-f2e1f4aa.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-f64bbaef.js"></script>
@@ -175,7 +175,7 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="agent"><a class="header" href="#agent">Agent</a></h1>
-<p>To start an <em>Agent</em> run the <code>scnr_agent</code> CLI executable.</p>
+<p>To start an <em>Agent</em> run the <code>spectre_agent</code> CLI executable.</p>
 <p>To see all available options run:</p>
 <pre><code class="language-bash">bin/spectre_agent -h
 </code></pre>
@@ -184,7 +184,7 @@ provide <em>Instances</em> to clients; each <em>Instance</em> is a scanner proce
 <p>The <em>Agent</em> will also split the available resources of the machine on which
 it runs into <em>slots</em>, with each <em>slot</em> corresponding to enough space for one
 <em>Instance</em>.</p>
-<p>(To see how many slots a machine has you can use the <code>scnr_system_info</code> utility.)</p>
+<p>(To see how many slots a machine has you can use the <code>spectre_system_info</code> utility.)</p>
 <h1 id="example"><a class="header" href="#example">Example</a></h1>
 <h2 id="server"><a class="header" href="#server">Server</a></h2>
 <p>In one terminal run:</p>
@@ -196,7 +196,7 @@ I, [2022-01-23T09:54:21.849730 #1121060]  INFO -- System: Listening on 127.0.0.1
 </code></pre>
 <h2 id="client"><a class="header" href="#client">Client</a></h2>
 <p>To start a scan originating from that <em>Agent</em> you must issue a <code>spawn</code>
-call in order to obtain an <em>Instance</em>; this can be achieved using the <code>scnr_spawn</code>
+call in order to obtain an <em>Instance</em>; this can be achieved using the <code>spectre_spawn</code>
 CLI executable.</p>
 <p>In another terminal run:</p>
 <pre><code class="language-bash">bin/spectre_spawn --agent-url=127.0.0.1:7331 http://testhtml5.vulnweb.com
@@ -204,7 +204,7 @@ CLI executable.</p>
 <p>The above will run a scan with the default options against
 <a href="http://testhtml5.vulnweb.com">http://testhtml5.vulnweb.com</a>, originating from
 the <em>Agent</em> node.</p>
-<p>The <code>scnr_spawn</code> utility largely accepts the same options as <code>scnr</code>.</p>
+<p>The <code>spectre_spawn</code> utility largely accepts the same options as <code>spectre</code>.</p>
 <p>If the <em>Agent</em> is out of <em>slots</em> you will see the following message:</p>
 <pre><code>[~] Agent is at maximum utilization, please try again later.
 </code></pre>

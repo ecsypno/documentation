@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-3fc1069f.js";
+            window.path_to_searchindex_js = "searchindex-f2e1f4aa.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-f64bbaef.js"></script>
@@ -375,7 +375,7 @@ on the aforementioned system requirements.</p>
 to examine the applicable overrides.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="direct"><a class="header" href="#direct">Direct</a></h1>
-<p>The easiest approach is a direct scan using the <code>scnr</code> CLI executable.</p>
+<p>The easiest approach is a direct scan using the <code>spectre</code> CLI executable.</p>
 <p>To see all available options run:</p>
 <pre><code class="language-bash">bin/spectre -h
 </code></pre>
@@ -1220,7 +1220,7 @@ will outline the architecture.</p>
 <p>In this case, the Cuboid application is Spectre Scan.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="agent"><a class="header" href="#agent">Agent</a></h1>
-<p>To start an <em>Agent</em> run the <code>scnr_agent</code> CLI executable.</p>
+<p>To start an <em>Agent</em> run the <code>spectre_agent</code> CLI executable.</p>
 <p>To see all available options run:</p>
 <pre><code class="language-bash">bin/spectre_agent -h
 </code></pre>
@@ -1229,7 +1229,7 @@ provide <em>Instances</em> to clients; each <em>Instance</em> is a scanner proce
 <p>The <em>Agent</em> will also split the available resources of the machine on which
 it runs into <em>slots</em>, with each <em>slot</em> corresponding to enough space for one
 <em>Instance</em>.</p>
-<p>(To see how many slots a machine has you can use the <code>scnr_system_info</code> utility.)</p>
+<p>(To see how many slots a machine has you can use the <code>spectre_system_info</code> utility.)</p>
 <h1 id="example-1"><a class="header" href="#example-1">Example</a></h1>
 <h2 id="server"><a class="header" href="#server">Server</a></h2>
 <p>In one terminal run:</p>
@@ -1241,7 +1241,7 @@ I, [2022-01-23T09:54:21.849730 #1121060]  INFO -- System: Listening on 127.0.0.1
 </code></pre>
 <h2 id="client"><a class="header" href="#client">Client</a></h2>
 <p>To start a scan originating from that <em>Agent</em> you must issue a <code>spawn</code>
-call in order to obtain an <em>Instance</em>; this can be achieved using the <code>scnr_spawn</code>
+call in order to obtain an <em>Instance</em>; this can be achieved using the <code>spectre_spawn</code>
 CLI executable.</p>
 <p>In another terminal run:</p>
 <pre><code class="language-bash">bin/spectre_spawn --agent-url=127.0.0.1:7331 http://testhtml5.vulnweb.com
@@ -1249,7 +1249,7 @@ CLI executable.</p>
 <p>The above will run a scan with the default options against
 <a href="http://testhtml5.vulnweb.com">http://testhtml5.vulnweb.com</a>, originating from
 the <em>Agent</em> node.</p>
-<p>The <code>scnr_spawn</code> utility largely accepts the same options as <code>scnr</code>.</p>
+<p>The <code>spectre_spawn</code> utility largely accepts the same options as <code>spectre</code>.</p>
 <p>If the <em>Agent</em> is out of <em>slots</em> you will see the following message:</p>
 <pre><code>[~] Agent is at maximum utilization, please try again later.
 </code></pre>
@@ -1295,7 +1295,7 @@ be receiving any workload.</p>
 <p>Same as <a href="#client">Agent client</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="scheduler"><a class="header" href="#scheduler">Scheduler</a></h1>
-<p>To start a <em>Scheduler</em> run the <code>scnr_scheduler</code> CLI executable.</p>
+<p>To start a <em>Scheduler</em> run the <code>spectre_scheduler</code> CLI executable.</p>
 <p>To see all available options run:</p>
 <pre><code class="language-bash">bin/spectre_scheduler -h
 </code></pre>
@@ -5112,7 +5112,7 @@ JSON, XML, plain-text, AFR archive).</p>
 <li><code>*.crf</code> – Cuboid report file.</li>
 <li><code>*.ser</code> – Spectre Scan report.</li>
 </ol>
-<p>Both of these files can be handled by the CLI <code>scnr_reporter</code> utility in order
+<p>Both of these files can be handled by the CLI <code>spectre_reporter</code> utility in order
 to convert them to a multitude of formats or print the results to <code>STDOUT</code>.</p>
 <p>For example, to generate an HTML report:</p>
 <p><code>bin/spectre_reporter --report=html:outfile=my_report.html.zip /home/user/.spectre/reports/report.ser</code></p>
@@ -5129,6 +5129,7 @@ Awesome prints a scan report hash.
 
 Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
 Version:        0.1.1
+Path:   /home/zapotek/workspace/scnr/engine/components/reporters/ap.rb
 
  [*] html:
 --------------------
@@ -5139,11 +5140,12 @@ Exports the audit results as a compressed HTML report.
 Options:
  [~]    outfile - Where to save the report.
  [~]    Type:        string
- [~]    Default:     2022-01-24 23_17_13 +0200.html.zip
+ [~]    Default:     2026-05-07_13_45_31_+0300.html.zip
  [~]    Required?:   false
 
 Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
 Version:        0.4.4
+Path:   /home/zapotek/workspace/scnr/engine/components/reporters/html.rb
 
  [*] json:
 --------------------
@@ -5154,11 +5156,33 @@ Exports the audit results as a JSON (.json) file.
 Options:
  [~]    outfile - Where to save the report.
  [~]    Type:        string
- [~]    Default:     2022-01-24 23_17_13 +0200.json
+ [~]    Default:     2026-05-07_13_45_31_+0300.json
  [~]    Required?:   false
 
 Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
 Version:        0.1.3
+Path:   /home/zapotek/workspace/scnr/engine/components/reporters/json.rb
+
+ [*] markdown:
+--------------------
+Name:           Markdown
+Description:
+Exports the audit results as a Markdown (.md) file.
+
+Options:
+ [~]    outfile - Where to save the report.
+ [~]    Type:        string
+ [~]    Default:     2026-05-07_13_45_31_+0300.md
+ [~]    Required?:   false
+
+ [~]    ai_friendly - Emit a flatter, compacter Markdown variant tuned for LLM ingestion (no TOC, blobs truncated, explicit section markers).
+ [~]    Type:        bool
+ [~]    Default:     false
+ [~]    Required?:   false
+
+Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
+Version:        0.1
+Path:   /home/zapotek/workspace/scnr/engine/components/reporters/markdown.rb
 
  [*] marshal:
 --------------------
@@ -5169,11 +5193,28 @@ Exports the audit results as a Marshal (.marshal) file.
 Options:
  [~]    outfile - Where to save the report.
  [~]    Type:        string
- [~]    Default:     2022-01-24 23_17_13 +0200.marshal
+ [~]    Default:     2026-05-07_13_45_31_+0300.marshal
  [~]    Required?:   false
 
 Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
 Version:        0.1.1
+Path:   /home/zapotek/workspace/scnr/engine/components/reporters/marshal.rb
+
+ [*] pdf:
+--------------------
+Name:           PDF
+Description:
+Exports the audit results as a PDF (.pdf) file.
+
+Options:
+ [~]    outfile - Where to save the report.
+ [~]    Type:        string
+ [~]    Default:     2026-05-07_13_45_31_+0300.pdf
+ [~]    Required?:   false
+
+Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
+Version:        0.5
+Path:   /home/zapotek/workspace/scnr/engine/components/reporters/pdf.rb
 
  [*] stdout:
 --------------------
@@ -5183,6 +5224,7 @@ Prints the results to standard output.
 
 Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
 Version:        0.3.3
+Path:   /home/zapotek/workspace/scnr/engine/components/reporters/stdout.rb
 
  [*] txt:
 --------------------
@@ -5193,11 +5235,12 @@ Exports the audit results as a text (.txt) file.
 Options:
  [~]    outfile - Where to save the report.
  [~]    Type:        string
- [~]    Default:     2022-01-24 23_17_13 +0200.txt
+ [~]    Default:     2026-05-07_13_45_31_+0300.txt
  [~]    Required?:   false
 
 Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
 Version:        0.2.1
+Path:   /home/zapotek/workspace/scnr/engine/components/reporters/txt.rb
 
  [*] xml:
 --------------------
@@ -5208,11 +5251,12 @@ Exports the audit results as an XML (.xml) file.
 Options:
  [~]    outfile - Where to save the report.
  [~]    Type:        string
- [~]    Default:     2022-01-24 23_17_13 +0200.xml
+ [~]    Default:     2026-05-07_13_45_31_+0300.xml
  [~]    Required?:   false
 
 Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
 Version:        0.3.7
+Path:   /home/zapotek/workspace/scnr/engine/components/reporters/xml.rb
 
  [*] yaml:
 --------------------
@@ -5223,11 +5267,12 @@ Exports the audit results as a YAML (.yaml) file.
 Options:
  [~]    outfile - Where to save the report.
  [~]    Type:        string
- [~]    Default:     2022-01-24 23_17_13 +0200.yaml
+ [~]    Default:     2026-05-07_13_45_31_+0300.yaml
  [~]    Required?:   false
 
 Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
 Version:        0.2
+Path:   /home/zapotek/workspace/scnr/engine/components/reporters/yaml.rb
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="optimize-scans"><a class="header" href="#optimize-scans">Optimize scans</a></h1>
