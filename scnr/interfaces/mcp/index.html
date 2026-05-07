@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-491b09f0.js";
+            window.path_to_searchindex_js = "../../searchindex-3fc1069f.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-f64bbaef.js"></script>
@@ -556,9 +556,9 @@ severity / tags / element coverage.</p>
 <h4 id="plugins"><a class="header" href="#plugins"><code>plugins</code></a></h4>
 <p><em>(object | string[] | string, default: <code>{}</code> — no plugins)</em></p>
 <p>Plugins to load. Three accepted shapes:</p>
-<pre><code class="language-json">{ "plugins": {} }                         // load nothing extra
-{ "plugins": ["defaults/*"] }             // array of names / globs
-{ "plugins": { "live": { "url": "..." } } } // hash with per-plugin options
+<pre><code class="language-json">{ "plugins": {} }                                    // load nothing extra
+{ "plugins": ["defaults/*"] }                        // array of names / globs
+{ "plugins": { "webhook_notify": { "url": "..." } } } // hash with per-plugin options
 </code></pre>
 <p>The application <strong>always</strong> merges its default-plugin set in
 first; this key is purely for extras / overrides.</p>
