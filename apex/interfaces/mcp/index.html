@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-83491aea.js";
+            window.path_to_searchindex_js = "../../searchindex-fc09d3b9.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-dc061d7d.js"></script>
@@ -180,12 +180,11 @@
 drive scans directly: spawn an <em>Instance</em>, watch its progress, fetch
 entries and reports, and tear it down again — over a single HTTP
 endpoint.</p>
-<p>It is the same conceptual surface as the <a href="../rest-api/index.html">REST API</a>,
-but exposed as MCP <em>tools</em>, <em>prompts</em>, and <em>resources</em>, and described to
-the client via the protocol’s own discovery calls (<code>tools/list</code>,
-<code>prompts/list</code>, <code>resources/list</code>). Whatever the model sees in its
-context is exactly what the surface advertises — the descriptions <em>are</em>
-the docs.</p>
+<p>The full surface is exposed as MCP <em>tools</em>, <em>prompts</em>, and
+<em>resources</em>, and described to the client via the protocol’s own
+discovery calls (<code>tools/list</code>, <code>prompts/list</code>, <code>resources/list</code>).
+Whatever the model sees in its context is exactly what the
+surface advertises — the descriptions <em>are</em> the docs.</p>
 <p>This page is the canonical reference. It is the only document an AI
 needs to understand and drive the surface end to end; everything else
 in this section either complements it or provides language bindings.</p>
@@ -246,13 +245,13 @@ response. Every tool that returns structured data declares an
 </tbody>
 </table>
 </div>
-<p><code>spawn_instance.options</code> is forwarded to <code>instance.run(...)</code> — same
-shape as the <a href="../rest-api/index.html">REST API</a> <code>POST /instances</code> body.
-To spawn an <em>Instance</em> without running anything, pass <code>start: false</code>;
+<p><code>spawn_instance.options</code> is forwarded to <code>instance.run(...)</code>. To
+spawn an <em>Instance</em> without running anything, pass <code>start: false</code>;
 passing <code>options: {}</code> does <strong>not</strong> skip the run.</p>
 <p>For the full options surface, read the
 <a href="#resources"><code>apex://options/reference</code></a> resource (covered below) or
-the <a href="../rest-api/index.html#scan-options">REST API options reference</a>.</p>
+the inlined <a href="#options-reference">Options reference</a> further down this
+page.</p>
 <h3 id="per-scan-tools"><a class="header" href="#per-scan-tools">Per-scan tools</a></h3>
 <p>Every per-scan tool requires <code>instance_id</code>. Two delta-arg shapes:</p>
 <ul>
@@ -1059,16 +1058,15 @@ in your error path.</li>
 <li>The instance does <strong>not</strong> survive an MCP-server restart cleanly. The
 daemonised engine keeps running but the MCP server’s in-memory
 <code>@@instances</code> map is empty after a restart, so you can’t
-<code>kill_instance</code> it through MCP any more (you’d need REST or a
-process-level kill). <strong>Don’t restart the MCP server while scans are
-mid-flight.</strong></li>
+<code>kill_instance</code> it through MCP any more (you’d need a process-level
+kill). <strong>Don’t restart the MCP server while scans are mid-flight.</strong></li>
 <li>Each instance reserves about 2 GB RAM and 4 GB disk by default. On a
 laptop, parallel scans are bounded by RAM; the host won’t proactively
 refuse a third spawn if the second one is still warming up.</li>
 <li><code>start: false</code> is rare in practice. It registers an idle instance
-that sits there waiting for a <code>run</code>, and the only way to <code>run</code> is
-via REST/RPC — MCP’s <code>spawn_instance</code> doesn’t have a separate “start
-now” tool. Use it when something else is going to drive the run.</li>
+that sits there waiting for a <code>run</code>, and MCP’s <code>spawn_instance</code>
+doesn’t have a separate “start now” tool — driving the run requires
+out-of-band RPC. Use it when something else is going to drive the run.</li>
 </ul>
 <h2 id="error-idiom"><a class="header" href="#error-idiom">Error idiom</a></h2>
 <p>Engine exceptions don’t crash the MCP server — <code>MCPProxy.instrumented_call</code>

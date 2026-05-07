@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-896a14ff.js";
+            window.path_to_searchindex_js = "../../searchindex-3257bf6a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-f64bbaef.js"></script>
@@ -179,11 +179,11 @@
 (Claude Desktop / Code, Cursor, Continue — anything that speaks MCP) can
 drive scans directly: spawn an <em>Instance</em>, watch its progress, fetch
 issues and reports, and tear it down again — over a single HTTP endpoint.</p>
-<p>It is the same conceptual surface as the <a href="../rest-api/index.html">REST API</a>,
-but exposed as MCP <em>tools</em>, <em>prompts</em>, and <em>resources</em>, and described to
-the client via the protocol’s own discovery calls (<code>tools/list</code>,
-<code>prompts/list</code>, <code>resources/list</code>). Whatever the model sees in its context
-is exactly what the surface advertises — the descriptions <em>are</em> the docs.</p>
+<p>The full surface is exposed as MCP <em>tools</em>, <em>prompts</em>, and <em>resources</em>,
+and described to the client via the protocol’s own discovery calls
+(<code>tools/list</code>, <code>prompts/list</code>, <code>resources/list</code>). Whatever the model
+sees in its context is exactly what the surface advertises — the
+descriptions <em>are</em> the docs.</p>
 <p>This page is the canonical reference. It is the only document an AI
 needs to understand and drive the surface end to end; everything else
 in this section either complements it or provides language bindings.</p>
@@ -252,8 +252,7 @@ discover what’s available and pick the <code>shortname</code>s you want to sco
 into <code>options.checks</code>. Filterable by <code>severities</code> (e.g. just <code>high</code>) or
 <code>tags</code> (e.g. <code>xss</code>, <code>sqli</code>). The response is sorted high-severity-first
 then by name.</p>
-<p><code>spawn_instance.options</code> is forwarded to <code>instance.run(...)</code> — same
-shape as the <a href="../rest-api/index.html">REST API</a> <code>POST /instances</code> body. To
+<p><code>spawn_instance.options</code> is forwarded to <code>instance.run(...)</code>. To
 spawn an <em>Instance</em> without running anything, pass <code>start: false</code>;
 passing <code>options: {}</code> does <strong>not</strong> skip the run.</p>
 <p><code>live</code> is on by default — when the call arrives over an MCP session
@@ -266,8 +265,9 @@ to (e.g. <code>notifications/spectre/live</code>). See
 <a href="#live-events">Live events</a> for the envelope shape and the
 end-to-end flow. Pass <code>live: false</code> to opt out and poll instead.</p>
 <p>For the full options surface, read the
-<a href="#resources"><code>spectre://options/reference</code></a> resource (covered below) or
-the <a href="../rest-api/index.html#scan-options">REST API options reference</a>.</p>
+<a href="#resources"><code>spectre://options/reference</code></a> resource (covered below)
+or the inlined <a href="#options-reference">Options reference</a> further down
+this page.</p>
 <h3 id="per-scan-tools"><a class="header" href="#per-scan-tools">Per-scan tools</a></h3>
 <p>Every per-scan tool requires <code>instance_id</code>. Two delta-arg shapes:</p>
 <ul>
@@ -348,21 +348,19 @@ clear pull path for the data — it doesn’t need to memorise option names.</p>
 <h2 id="options-reference"><a class="header" href="#options-reference">Options reference</a></h2>
 <blockquote>
 <p>Same content is served at
-<a href="#resources"><code>spectre://options/reference</code></a> and is documented
-identically on the <a href="../rest-api/index.html#options-reference">REST API page</a>.</p>
+<a href="#resources"><code>spectre://options/reference</code></a>.</p>
 </blockquote>
-<p>The full option surface accepted by <code>spawn_instance.options</code>
-(over MCP) and by the <code>POST /instances</code> body (over REST). Hash,
-all keys optional.</p>
+<p>The full option surface accepted by <code>spawn_instance.options</code>.
+Hash, all keys optional.</p>
 <p>The bare engine defaults leave every audit element OFF and every
 check unloaded; only <code>bin/spectre_scan</code> (and the option presets)
 enable them. If you build options from scratch, ship at least
 <code>url</code>, <code>audit.elements</code> (or per-element booleans), and <code>checks</code>,
 or use <code>spectre://option-presets/quick-scan</code>.</p>
 <h3 id="wire-shape"><a class="header" href="#wire-shape">Wire shape</a></h3>
-<p>This is what gets POSTed to <code>/instances</code> (REST) or sent as
-<code>spawn_instance.options</code> (MCP) — a single nested JSON object,
-all groups optional, every leaf documented further down. Each
+<p>This is what gets sent as <code>spawn_instance.options</code> — a single
+nested JSON object, all groups optional, every leaf documented
+further down. Each
 top-level key is its own JSON object (<code>audit</code>, <code>scope</code>, <code>http</code>,
 <code>dom</code>, <code>device</code>, <code>input</code>, <code>session</code>, <code>timeout</code>); the
 top-level scalars (<code>url</code>, <code>checks</code>, <code>plugins</code>, <code>authorized_by</code>,
@@ -538,9 +536,9 @@ key called <code>audit.elements</code>.</p>
 <h4 id="url"><a class="header" href="#url"><code>url</code></a></h4>
 <p><em>(string, required for a real scan)</em></p>
 <p>The target. Anything reachable over HTTP(S). Required for any
-<code>POST /instances</code> (or <code>spawn_instance</code> with <code>start: true</code>); the
-only spawn path where it can be omitted is <code>start: false</code> (an
-idle instance set up to be configured later).</p>
+<code>spawn_instance</code> with <code>start: true</code>; the only spawn path where
+it can be omitted is <code>start: false</code> (an idle instance set up to
+be configured later).</p>
 <pre><code class="language-json">{ "url": "http://example.com/" }
 </code></pre>
 <h4 id="checks"><a class="header" href="#checks"><code>checks</code></a></h4>
@@ -964,8 +962,8 @@ only one is rejected at validation time.</p>
 <li><strong><code>timeout.duration</code></strong> <em>(int, sec)</em> — stop the scan after this
 many seconds.</li>
 <li><strong><code>timeout.suspend</code></strong> <em>(boolean, default: false)</em> — when the
-timeout fires, suspend to a snapshot file (loadable later via
-<code>POST /instances/restore</code>). Without this the run is aborted.</li>
+timeout fires, suspend to a snapshot file (loadable later out of
+band). Without this the run is aborted.</li>
 </ul>
 <hr>
 <h2 id="auth"><a class="header" href="#auth">Auth</a></h2>
@@ -1174,16 +1172,15 @@ your error path.</li>
 <li>The instance does <strong>not</strong> survive an MCP-server restart cleanly. The
 daemonised engine keeps running but the MCP server’s in-memory
 <code>@@instances</code> map is empty after a restart, so you can’t
-<code>kill_instance</code> it through MCP any more (you’d need REST or a
-process-level kill). <strong>Don’t restart the MCP server while scans are
-mid-flight.</strong></li>
+<code>kill_instance</code> it through MCP any more (you’d need a process-level
+kill). <strong>Don’t restart the MCP server while scans are mid-flight.</strong></li>
 <li>Each instance reserves about 2 GB RAM and 4 GB disk by default. On a
 laptop, parallel scans are bounded by RAM; the host won’t proactively
 refuse a third spawn if the second one is still warming up.</li>
-<li><code>start: false</code> is rare in practice. It registers an idle instance that
-sits there waiting for a <code>run</code>, and the only way to <code>run</code> is via
-REST/RPC — MCP’s <code>spawn_instance</code> doesn’t have a separate “start now”
-tool. Use it when something else is going to drive the run.</li>
+<li><code>start: false</code> is rare in practice. It registers an idle instance
+that sits there waiting for a <code>run</code>, and MCP’s <code>spawn_instance</code>
+doesn’t have a separate “start now” tool — driving the run requires
+out-of-band RPC. Use it when something else is going to drive the run.</li>
 </ul>
 <h2 id="error-idiom"><a class="header" href="#error-idiom">Error idiom</a></h2>
 <p>Engine exceptions don’t crash the MCP server — <code>MCPProxy.instrumented_call</code>
