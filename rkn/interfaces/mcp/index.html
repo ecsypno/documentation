@@ -35,10 +35,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-1289f19e.js";
+            window.path_to_searchindex_js = "../../searchindex-d9d02dc7.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-dc061d7d.js"></script>
+        <script src="../../toc-e3d94c90.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -242,12 +242,22 @@ response. Every tool that returns structured data declares an
 <tr><td><code>list_instances</code></td><td>—</td><td>—</td><td><code>{ instances: { &lt;id&gt;: { url } } }</code></td></tr>
 <tr><td><code>spawn_instance</code></td><td>—</td><td><code>options</code>, <code>start=true</code></td><td><code>{ instance_id, url }</code></td></tr>
 <tr><td><code>kill_instance</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ killed: &lt;id&gt; }</code></td></tr>
+<tr><td><code>list_plugins</code></td><td>—</td><td>—</td><td><code>{ plugins: [{ shortname, name, description, default, options[] }] }</code></td></tr>
 </tbody>
 </table>
 </div>
 <p><code>spawn_instance.options</code> is forwarded to <code>instance.run(...)</code>. To
 spawn an <em>Instance</em> without running anything, pass <code>start: false</code>;
 passing <code>options: {}</code> does <strong>not</strong> skip the run.</p>
+<p><code>list_plugins</code> enumerates the plugin catalog — shortname + name +
+description + per-plugin config schema. Plugins flagged <code>default: true</code>
+auto-load on every scan; you can name additional ones in
+<code>options.plugins</code> (array form: <code>["autologin"]</code>) or pass config via the
+hash form (<code>{"autologin": {"url": "...", "params": "..."}}</code>). The list
+is filtered to only the plugins Apex actually accepts — output-streaming
+(<code>live</code>, <code>webhook_notify</code>, <code>email_notify</code>), AI-augmentation
+(<code>openai</code>, <code>claude</code>), and the in-process trap-doors (<code>exec</code>, <code>script</code>)
+never appear because the application would reject them at validation.</p>
 <p>For the full options surface, read the
 <a href="#resources"><code>apex://options/reference</code></a> resource (covered below) or
 the inlined <a href="#options-reference">Options reference</a> further down this
@@ -310,6 +320,8 @@ names.</p>
 <tr><td><code>apex://options/reference</code></td><td><code>text/markdown</code></td><td>Concrete keys for <code>spawn_instance.options</code> (url, scope, audit, http, dom, authorized_by, sinks_filter). Apex auto-loads its sink-trace checks — no <code>checks</code> key.</td></tr>
 <tr><td><code>apex://option-presets/quick-scan</code></td><td><code>application/json</code></td><td>JSON template — every audit element traced, the four-kind <code>sinks_filter</code> default (every sink except <code>blind</code>), <strong><code>scope.page_limit: 50</code></strong> so a real-site smoke test finishes in minutes. Bump / drop the cap (or switch to <code>full-scan</code>) for a longer recon.</td></tr>
 <tr><td><code>apex://option-presets/full-scan</code></td><td><code>application/json</code></td><td>Same shape as <code>quick-scan</code> minus the page cap — uncapped recon. Use when you want a complete run and accept a long wait.</td></tr>
+<tr><td><code>apex://how-to/optimize-scans</code></td><td><code>text/markdown</code></td><td>How to dial <code>spawn_instance.options</code> for a slow target, tight RAM, runaway crawls, JS-heavy apps, or finding-class triage. MCP-flavoured port of <a href="../../how-to/optimize-scans.html">How to ▸ Optimize scans</a>.</td></tr>
+<tr><td><code>apex://how-to/maintain-a-valid-session</code></td><td><code>text/markdown</code></td><td>How to authenticate against a target behind a login wall — <code>login_form</code>, <code>login_script</code>, or external cookie-jar paths. MCP-flavoured port of <a href="../../how-to/maintain-a-valid-session.html">How to ▸ Maintain a valid session</a>.</td></tr>
 </tbody>
 </table>
 </div>

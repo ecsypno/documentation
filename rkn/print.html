@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-1289f19e.js";
+            window.path_to_searchindex_js = "searchindex-d9d02dc7.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-dc061d7d.js"></script>
+        <script src="toc-e3d94c90.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -313,12 +313,22 @@ response. Every tool that returns structured data declares an
 <tr><td><code>list_instances</code></td><td>—</td><td>—</td><td><code>{ instances: { &lt;id&gt;: { url } } }</code></td></tr>
 <tr><td><code>spawn_instance</code></td><td>—</td><td><code>options</code>, <code>start=true</code></td><td><code>{ instance_id, url }</code></td></tr>
 <tr><td><code>kill_instance</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ killed: &lt;id&gt; }</code></td></tr>
+<tr><td><code>list_plugins</code></td><td>—</td><td>—</td><td><code>{ plugins: [{ shortname, name, description, default, options[] }] }</code></td></tr>
 </tbody>
 </table>
 </div>
 <p><code>spawn_instance.options</code> is forwarded to <code>instance.run(...)</code>. To
 spawn an <em>Instance</em> without running anything, pass <code>start: false</code>;
 passing <code>options: {}</code> does <strong>not</strong> skip the run.</p>
+<p><code>list_plugins</code> enumerates the plugin catalog — shortname + name +
+description + per-plugin config schema. Plugins flagged <code>default: true</code>
+auto-load on every scan; you can name additional ones in
+<code>options.plugins</code> (array form: <code>["autologin"]</code>) or pass config via the
+hash form (<code>{"autologin": {"url": "...", "params": "..."}}</code>). The list
+is filtered to only the plugins Apex actually accepts — output-streaming
+(<code>live</code>, <code>webhook_notify</code>, <code>email_notify</code>), AI-augmentation
+(<code>openai</code>, <code>claude</code>), and the in-process trap-doors (<code>exec</code>, <code>script</code>)
+never appear because the application would reject them at validation.</p>
 <p>For the full options surface, read the
 <a href="#resources"><code>apex://options/reference</code></a> resource (covered below) or
 the inlined <a href="#options-reference">Options reference</a> further down this
@@ -381,6 +391,8 @@ names.</p>
 <tr><td><code>apex://options/reference</code></td><td><code>text/markdown</code></td><td>Concrete keys for <code>spawn_instance.options</code> (url, scope, audit, http, dom, authorized_by, sinks_filter). Apex auto-loads its sink-trace checks — no <code>checks</code> key.</td></tr>
 <tr><td><code>apex://option-presets/quick-scan</code></td><td><code>application/json</code></td><td>JSON template — every audit element traced, the four-kind <code>sinks_filter</code> default (every sink except <code>blind</code>), <strong><code>scope.page_limit: 50</code></strong> so a real-site smoke test finishes in minutes. Bump / drop the cap (or switch to <code>full-scan</code>) for a longer recon.</td></tr>
 <tr><td><code>apex://option-presets/full-scan</code></td><td><code>application/json</code></td><td>Same shape as <code>quick-scan</code> minus the page cap — uncapped recon. Use when you want a complete run and accept a long wait.</td></tr>
+<tr><td><code>apex://how-to/optimize-scans</code></td><td><code>text/markdown</code></td><td>How to dial <code>spawn_instance.options</code> for a slow target, tight RAM, runaway crawls, JS-heavy apps, or finding-class triage. MCP-flavoured port of <a href="#optimize-scans">How to ▸ Optimize scans</a>.</td></tr>
+<tr><td><code>apex://how-to/maintain-a-valid-session</code></td><td><code>text/markdown</code></td><td>How to authenticate against a target behind a login wall — <code>login_form</code>, <code>login_script</code>, or external cookie-jar paths. MCP-flavoured port of <a href="#maintain-a-valid-session">How to ▸ Maintain a valid session</a>.</td></tr>
 </tbody>
 </table>
 </div>
@@ -1647,6 +1659,143 @@ list as <code>options.sinks_filter</code> (omit the key to inherit the
 four-kind default; pass <code>[]</code> for a crawl-only run that produces
 just a sitemap). The web profile UI exposes the same toggles per
 profile.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="maintain-a-valid-session"><a class="header" href="#maintain-a-valid-session">Maintain a valid session</a></h1>
+<p>Apex Recon supports automated logout detection and re-login, as well as improved login procedures.</p>
+<ul>
+<li><a href="#login_form-plugin">Form-based login</a></li>
+<li><a href="#login_script-plugin">Script-based login</a></li>
+<li><a href="#proxy-plugin">Proxy-based login</a></li>
+<li><a href="#cookie-jar">Cookie-jar login</a></li>
+</ul>
+<h2 id="login_form-plugin"><a class="header" href="#login_form-plugin">login_form plugin</a></h2>
+<p>The <code>login_form</code> plugin expects for following options:</p>
+<ul>
+<li><code>url</code> – The URL containing the login form;</li>
+<li><code>parameters</code> – A URL-query-like string of form parameters;</li>
+<li><code>check</code> – A pattern to be matched against the response body after requesting
+the supplied URL in order to verify a successful login.</li>
+</ul>
+<p>After a successful login, the plugin will configure the system-wide session manager
+and let it know of the procedure it needs to follow in order to be able to login
+automatically, in case it gets logged out during the scan or the session expires.</p>
+<p><strong>Hint:</strong> If the response of the form submission doesn’t contain the <code>check</code>,
+you can set a different check URL via the global <code>--session-check-url</code> option,
+this will also require that a <code>--session-check-pattern</code> be set as well (it can
+be the same as the autologin <code>check</code> option).</p>
+<h3 id="limitations"><a class="header" href="#limitations">Limitations</a></h3>
+<p>This plugin operates a browser just like a regular user would and is thus limited
+to the same extent.</p>
+<p>For example, if the login form is by default hidden and requires a sequence of UI
+interactions in order to become visible, this plugin will not be able to submit it.</p>
+<p>For more complex sequences please use the <a href="#login_script-plugin">login_script</a> plugin.</p>
+<h3 id="example"><a class="header" href="#example">Example</a></h3>
+<pre><code>bin/apex http://testfire.net --plugin=login_form:url=http://testfire.net/bank/login.aspx,parameters="uid=jsmith&amp;passw=Demo1234",check="Sign Off|MY ACCOUNT" --scope-exclude-pattern=logout
+</code></pre>
+<p>The login form found in <code>http://testfire.net/bank/login.aspx</code> which contains the
+<code>uid</code> and <code>passw</code> inputs will be <strong>updated</strong> with the given values and submitted.</p>
+<p>After that, the response will be matched against the <code>check</code> pattern – which will
+also be used for the duration of the scan to check whether or not the session is still valid.</p>
+<p>(Since the “Sign Off” and “MY ACCOUNT” strings only appear when the user is logged-in,
+they are a reliable way to check the validity of the session.)</p>
+<p>Lastly, we <strong>exclude</strong> (<code>--scope-exclude-pattern</code>) the logout link from the audit in order to avoid getting logged out.</p>
+<h2 id="login_script-plugin"><a class="header" href="#login_script-plugin">login_script plugin</a></h2>
+<p>The <code>login_script</code> plugin can be used to specify custom login procedures, as simple
+Ruby or JS scripts, to be executed prior to the scan and each time a logout is detected.</p>
+<p>The script will be run under the context of a plugin, which means that it will
+have access to all system components, allowing you to login in the most optimal
+way – be that via a real browser, via HTTP requests, by loading an external
+cookie-jar file and many more.</p>
+<h3 id="with-browser"><a class="header" href="#with-browser">With browser</a></h3>
+<p>If a <a href="http://watir.com/">browser</a> is available, it will be exposed to the script
+via the <code>browser</code> variable. Otherwise, that variable will have a value of <code>nil</code>.</p>
+<p>If you require access to Selenium, <code>browser.wd</code> will provide you access to the appropriate <code>WebDriver</code>.</p>
+<pre><code class="language-ruby">browser.goto 'http://testfire.net/bank/login.aspx'
+
+form = browser.form( id: 'login' )
+form.text_field( name: 'uid' ).set 'jsmith'
+form.text_field( name: 'passw' ).set 'Demo1234'
+
+form.submit
+
+# You can also configure the session check from the script, dynamically,
+# if you don't want to set static options via the user interface.
+SCNR::Engine::Options.session.check_url     = browser.url
+SCNR::Engine::Options.session.check_pattern = /Sign Off|MY ACCOUNT/
+</code></pre>
+<h3 id="with-http-client"><a class="header" href="#with-http-client">With HTTP Client</a></h3>
+<p>If a real browser environment is not required for the login operation, then using
+the system-wide HTTP interface is preferable, as it will be much faster and consume
+much less resources.</p>
+<pre><code class="language-ruby">response = http.post( 'http://testfire.net/bank/login.aspx',
+    parameters:     {
+        'uid'   =&gt; 'jsmith',
+        'passw' =&gt; 'Demo1234'
+    },
+    mode:           :sync,
+    update_cookies: true
+)
+
+SCNR::Engine::Options.session.check_url     = to_absolute( response.headers.location, response.url )
+SCNR::Engine::Options.session.check_pattern = /Sign Off|MY ACCOUNT/
+</code></pre>
+<h3 id="from-cookie-jar"><a class="header" href="#from-cookie-jar">From cookie-jar</a></h3>
+<p>If an external process is used to manage sessions, you can keep Apex Recon in sync by
+loading cookies from a shared Netscape-style cookie-jar file.</p>
+<pre><code class="language-ruby">http.cookie_jar.load 'cookies.txt'
+</code></pre>
+<h3 id="advanced-session-check-configuration"><a class="header" href="#advanced-session-check-configuration">Advanced session check configuration</a></h3>
+<p>In addition to just setting the <code>check_url</code> and <code>check_pattern</code> options, you can
+also set arbitrary HTTP request options for the login check, to cover cases where
+extra tokens or a method other than <code>GET</code> must be used.</p>
+<pre><code class="language-ruby">framework.session.check_options = {
+    # :get, :post, :put, :delete
+    method:     :post,
+
+    # URL query parameters.
+    parameters: {
+        'param1' =&gt; 'value'
+    },
+
+    # Request body parameters -- can also be a String instead of Hash.
+    body:       {
+        'body_param1' =&gt; 'value'
+    },
+
+    cookies:    {
+        'custom_cookie' =&gt; 'value'
+    },
+
+    headers:    {
+        'X-Custom-Header' =&gt; 'value'
+    }
+}
+</code></pre>
+<h2 id="proxy-plugin"><a class="header" href="#proxy-plugin">Proxy plugin</a></h2>
+<p>The <code>proxy</code> plugin can be used to train the system by inspecting the traffic
+exchanged between the browser and the web application. From that traffic, it can
+extract input vectors like links, forms and cookies from both sides – i.e. from
+server responses as well as browser requests.</p>
+<p>Since the proxy can inspect all this traffic, it can be instructed to record a
+login sequence and then deduce the login form and the values with which it was filled.</p>
+<p>Like the <code>form_login</code> plugin, the <code>proxy</code> plugin will configure the system accordingly.</p>
+<h3 id="example-1"><a class="header" href="#example-1">Example</a></h3>
+<pre><code>bin/apex http://testfire.net --plugin=proxy --scope-exclude-pattern=logout
+</code></pre>
+<p>You then need to configure your browser to use this proxy when connecting to the
+webapp, press the <em>record</em> button just before logging in and the <em>stop</em> button after.</p>
+<p>You’ll then be presented with a simple wizard which will guide you through configuring
+a login check and verifying that the deduced login sequence works properly.</p>
+<p>Lastly, we <strong>exclude</strong> (<code>--scope-exclude-pattern=logout</code>) the logout link from the audit in order to avoid getting logged out.</p>
+<h2 id="cookie-jar"><a class="header" href="#cookie-jar">Cookie-jar</a></h2>
+<p>If the aforementioned techniques don’t work for you, you can pass a cookie-jar and manually configure the login-check using the following options:</p>
+<ul>
+<li><code>--http-cookie-jar</code></li>
+<li><code>--session-check-url</code></li>
+<li><code>--session-check-pattern</code></li>
+</ul>
+<p>This way Apex Recon will still be able to know if it gets logged out (which is helpful to several system components) but won’t be able to log-in automatically.</p>
+<p>Of course, you should still exclude any path that can lead to the destruction of the session.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="copyright"><a class="header" href="#copyright">Copyright</a></h1>
 <p>Copyright 2024 <a href="https://ecsypno.com">Ecsypno</a>.</p>

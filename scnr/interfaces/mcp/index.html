@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-f2e1f4aa.js";
+            window.path_to_searchindex_js = "../../searchindex-ed549155.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-f64bbaef.js"></script>
@@ -244,6 +244,7 @@ don’t speak typed outputs) <em>and</em> <code>structuredContent</code> matchin
 <tr><td><code>spawn_instance</code></td><td>—</td><td><code>options</code>, <code>start=true</code>, <code>live=true</code></td><td><code>{ instance_id, url, live? }</code></td></tr>
 <tr><td><code>kill_instance</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ killed: &lt;id&gt; }</code></td></tr>
 <tr><td><code>list_checks</code></td><td>—</td><td><code>severities[]</code>, <code>tags[]</code></td><td><code>{ checks: [{ shortname, name, description, severity, elements[], tags[], platforms[] }] }</code></td></tr>
+<tr><td><code>list_plugins</code></td><td>—</td><td>—</td><td><code>{ plugins: [{ shortname, name, description, default, options[] }] }</code></td></tr>
 </tbody>
 </table>
 </div>
@@ -252,6 +253,16 @@ discover what’s available and pick the <code>shortname</code>s you want to sco
 into <code>options.checks</code>. Filterable by <code>severities</code> (e.g. just <code>high</code>) or
 <code>tags</code> (e.g. <code>xss</code>, <code>sqli</code>). The response is sorted high-severity-first
 then by name.</p>
+<p><code>list_plugins</code> is the parallel catalog for plugins — shortname + name</p>
+<ul>
+<li>description + per-plugin config schema. Plugins flagged
+<code>default: true</code> auto-load on every scan; you can name additional ones
+in <code>options.plugins</code> (array form: <code>["webhook_notify"]</code>) or pass config
+inline (hash form: <code>{ "webhook_notify": { "url": "https://..." } }</code>)
+using the keys in each plugin’s <code>options[]</code> array. The <code>live</code> plugin
+is intentionally hidden — it’s auto-attached by the MCP server when
+the session supports notifications, not a knob clients toggle.</li>
+</ul>
 <p><code>spawn_instance.options</code> is forwarded to <code>instance.run(...)</code>. To
 spawn an <em>Instance</em> without running anything, pass <code>start: false</code>;
 passing <code>options: {}</code> does <strong>not</strong> skip the run.</p>
@@ -325,6 +336,8 @@ clear pull path for the data — it doesn’t need to memorise option names.</p>
 <tr><td><code>spectre://options/reference</code></td><td><code>text/markdown</code></td><td>Concrete keys for <code>spawn_instance.options</code> (url, scope, audit, checks, http, dom, plugins, authorized_by).</td></tr>
 <tr><td><code>spectre://option-presets/quick-scan</code></td><td><code>application/json</code></td><td>JSON template — every audit element, every check, default plugins, <strong><code>scope.page_limit: 50</code></strong> so a real-site smoke test finishes in minutes. Bump / drop the cap (or switch to <code>full-scan</code>) for a longer run.</td></tr>
 <tr><td><code>spectre://option-presets/full-scan</code></td><td><code>application/json</code></td><td>Same shape as <code>quick-scan</code> minus the page cap — uncapped audit. Use when you want a complete run and accept a long wait.</td></tr>
+<tr><td><code>spectre://how-to/optimize-scans</code></td><td><code>text/markdown</code></td><td>How to dial <code>spawn_instance.options</code> for a slow target, tight RAM, runaway crawls, JS-heavy apps, or a focused triage check set. MCP-flavoured port of <a href="../../how-to/optimize-scans.html">How to ▸ Optimize scans</a>.</td></tr>
+<tr><td><code>spectre://how-to/maintain-a-valid-session</code></td><td><code>text/markdown</code></td><td>How to authenticate against a target behind a login wall — <code>login_form</code>, <code>login_script</code>, or external cookie-jar paths. MCP-flavoured port of <a href="../../how-to/maintain-a-valid-session.html">How to ▸ Maintain a valid session</a>.</td></tr>
 </tbody>
 </table>
 </div>
@@ -1259,11 +1272,6 @@ glossary in one hop.</li>
 <li><strong>Structured error codes.</strong> Errors come back as text. If you want to
 branch on “bad option key” vs “engine crashed” vs “auth failed”,
 you’re parsing the text.</li>
-<li><strong>Plugin catalogue.</strong> There’s no <code>list_plugins</code> tool; if a user
-asks “which plugins would load”, you’d have to know the bundled
-default set out of band, or read <code>scan_report</code>’s <code>plugins</code> block
-after a run to see which actually fired. (Checks have a catalogue —
-call the <code>list_checks</code> tool.)</li>
 </ul>
 <p>Each of those is on the roadmap. Until they land, the resources +
 prompt expansion are the supported way to ground a model.</p>
