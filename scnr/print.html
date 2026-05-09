@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-ed549155.js";
+            window.path_to_searchindex_js = "searchindex-4ddf6fe8.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-f64bbaef.js"></script>
@@ -3729,19 +3729,21 @@ end-to-end flow. Pass <code>live: false</code> to opt out and poll instead.</p>
 or the inlined <a href="#options-reference-1">Options reference</a> further down
 this page.</p>
 <h3 id="per-scan-tools"><a class="header" href="#per-scan-tools">Per-scan tools</a></h3>
-<p>Every per-scan tool requires <code>instance_id</code>. Two delta-arg shapes:</p>
-<ul>
-<li><code>*_seen</code> — array of issue digests already processed; the response
-excludes those.</li>
-<li><code>*_since</code> — integer offset; the response is the tail past that index.</li>
-</ul>
+<p>Every per-scan tool requires <code>instance_id</code>. <code>scan_progress</code> is
+incremental via a caller-chosen <code>session</code> token — pass any string
+(typically a UUID) and the engine returns only items not previously
+emitted under that token. Reuse the same token across polls for the
+same logical view; pick a fresh one to start fresh. Without a token
+every poll returns the full set. The standalone <code>scan_sitemap</code> /
+<code>scan_issues</code> / <code>scan_errors</code> tools are direct one-shot fetches and
+take their own delta args (<code>*_seen</code> / <code>*_since</code>).</p>
 <div class="table-wrapper">
 <table>
 <thead>
 <tr><th>Tool</th><th>Required</th><th>Optional</th><th>Returns</th></tr>
 </thead>
 <tbody>
-<tr><td><code>scan_progress</code></td><td><code>instance_id</code></td><td><code>issues_seen</code>, <code>errors_since</code>, <code>sitemap_since</code>, <code>without_issues</code>, <code>without_errors</code>, <code>without_sitemap</code>, <code>without_statistics</code></td><td><code>{ status, running, seed, statistics?, issues?, errors?, sitemap?, messages }</code></td></tr>
+<tr><td><code>scan_progress</code></td><td><code>instance_id</code></td><td><code>session</code>, <code>without_issues</code>, <code>without_errors</code>, <code>without_sitemap</code>, <code>without_statistics</code></td><td><code>{ status, running, seed, statistics?, issues?, errors?, sitemap?, messages }</code></td></tr>
 <tr><td><code>scan_report</code></td><td><code>instance_id</code></td><td>—</td><td><code>{ issues, sitemap, statistics, plugins }</code></td></tr>
 <tr><td><code>scan_sitemap</code></td><td><code>instance_id</code></td><td><code>sitemap_since=0</code></td><td><code>{ sitemap: { &lt;url&gt;: &lt;code&gt; } }</code></td></tr>
 <tr><td><code>scan_issues</code></td><td><code>instance_id</code></td><td><code>issues_seen=[]</code></td><td><code>{ issues: { &lt;digest&gt;: &lt;issue&gt; } }</code></td></tr>
@@ -3755,11 +3757,11 @@ excludes those.</li>
 <h3 id="issue-digests"><a class="header" href="#issue-digests">Issue digests</a></h3>
 <p>Issue <code>digest</code> values are the <strong>keys</strong> of the returned <code>issues</code> hash
 (NOT a field nested inside the value) — unsigned 32-bit <code>xxh32</code>
-integers, e.g. <code>3162940604</code>. Both <code>scan_progress</code> and <code>scan_issues</code>
-accept the digest array as integers or numeric strings (some JSON-RPC
-clients stringify large numbers); the server coerces. If you ever see
-the same issue stream back unchanged after passing it as <code>issues_seen</code>,
-a stringified-vs-int mismatch is the first thing to check.</p>
+integers, e.g. <code>3162940604</code>. <code>scan_issues</code> accepts the digest array as
+integers or numeric strings (some JSON-RPC clients stringify large
+numbers); the server coerces. If you ever see the same issue stream
+back unchanged after passing it as <code>issues_seen</code>, a stringified-vs-int
+mismatch is the first thing to check.</p>
 <h2 id="prompts"><a class="header" href="#prompts">Prompts</a></h2>
 <div class="table-wrapper">
 <table>
@@ -4602,26 +4604,13 @@ prompt suggests, and it’s a sensible floor:</p>
 <li>Faster than ~2 s burns context tokens for almost no new state.</li>
 <li><code>scan_progress</code> with <code>without_statistics: true</code> is cheap; the
 <code>statistics</code> block dwarfs the rest of the payload.</li>
-<li>Use <code>errors_since</code> / <code>sitemap_since</code> / <code>issues_seen</code> from the second
-poll onwards — the engine returns only deltas, keeping each response
-small.</li>
+<li>Pass a stable <code>session</code> token (typically a UUID) on every poll
+after the first — the engine returns only items not previously
+emitted under that token, keeping each response small. The token
+lives for the engine instance’s lifetime; pick a fresh one to
+start fresh.</li>
 <li>For very long scans (hours), 30 s is fine.</li>
 </ul>
-<h3 id="delta-arg-shapes--when-to-use-which"><a class="header" href="#delta-arg-shapes--when-to-use-which">Delta-arg shapes — when to use which</a></h3>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr><th>Field</th><th>Shape</th><th>Why</th></tr>
-</thead>
-<tbody>
-<tr><td><code>issues_seen</code></td><td>array of digests (int / string)</td><td>Issues are content-addressed; offsets aren’t stable across deduplication.</td></tr>
-<tr><td><code>errors_since</code></td><td>integer offset</td><td>Engine errors are an append-only log.</td></tr>
-<tr><td><code>sitemap_since</code></td><td>integer offset</td><td>Sitemap is discovery-ordered, append-only.</td></tr>
-</tbody>
-</table>
-</div>
-<p><code>scan_progress</code> accepts all three at once — gives you exactly the right
-delta for each block.</p>
 <h2 id="instance-lifetime"><a class="header" href="#instance-lifetime">Instance lifetime</a></h2>
 <p>Every <code>spawn_instance</code> forks a daemonised Spectre Scan engine subprocess on the
 host (or, if a Cuboid Agent is configured, allocates one over the grid).
@@ -4817,15 +4806,14 @@ curl -X POST http://127.0.0.1:7331/mcp ... \
                           "live":    false
                         } } }'
 
-# poll, fetching deltas only after the first call
+# poll, fetching only items new since the previous call under
+# the chosen `session` token (any caller-chosen string)
 curl -X POST http://127.0.0.1:7331/mcp ... \
   --data '{ "jsonrpc": "2.0", "id": 3, "method": "tools/call",
             "params": { "name": "scan_progress",
                         "arguments": {
                           "instance_id":        "'$IID'",
-                          "issues_seen":        [3162940604, 1457298731],
-                          "errors_since":       12,
-                          "sitemap_since":      37,
+                          "session":            "client-poll-1",
                           "without_statistics": true
                         } } }'
 </code></pre>
