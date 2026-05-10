@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-5b752270.js";
+            window.path_to_searchindex_js = "searchindex-fded64a6.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-e3d94c90.js"></script>
+        <script src="toc-a3819588.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -1427,6 +1427,51 @@ result-set level.</li>
 <li><strong>Notifications.</strong> Per-event email / browser push for scan
 start / finish / failure / suspension.</li>
 </ul>
+<h3 id="djin--in-app-ai-assistant"><a class="header" href="#djin--in-app-ai-assistant">Djin! — in-app AI assistant</a></h3>
+<ul>
+<li><strong>Side-dock chat on every page.</strong> A right-side panel (with full-
+page expand and a launcher button bottom-right) that uses your
+configured AI provider (OpenAI or Claude). Streamed replies via
+Action Cable; conversation history persists per-user.</li>
+<li><strong>Page-aware grounding.</strong> Each turn carries the current
+<code>(controller, action, resource ids)</code> so questions like “what’s
+this entry?” or “what did this revision pick up?” are answered
+against what you’re looking at, no need to spell it out.</li>
+<li><strong>Read tools.</strong> Djin! can call <code>list_sites</code> / <code>list_scans</code> /
+<code>list_revisions</code> / <code>list_entries</code>, drill into a single record
+(<code>fetch_entry</code>, <code>fetch_revision</code>), free-text <code>search</code> across
+sites / scans / entries (including entry type / vector source /
+page URL / DOM data-flow sink fields / stack-frame URLs / JS
+function names), pull the audit log (<code>list_events</code>), the
+crawled URL coverage (<code>list_sitemap</code>), profiles / devices /
+site-roles / notifications, and an operator-wide rollup
+(<code>fetch_dashboard</code>). Every query is scoped to the records you
+own — Djin! cannot see another operator’s data.</li>
+<li><strong>Navigation.</strong> “Take me there” works — Djin! resolves
+<code>navigate_to({ kind: 'entry', id: &lt;digest&gt; })</code> or top-level
+destinations like <code>dashboard</code>, <code>sites</code>, <code>logs</code>, <code>profiles</code>,
+<code>devices</code>, <code>settings</code>, <code>notifications</code> and the browser jumps
+there.</li>
+<li><strong>Approval-gated write actions.</strong> Djin! can also propose
+<code>mark_reviewed</code>, <code>clear_state</code>, <code>pause_scan</code> /
+<code>resume_scan</code> / <code>abort_scan</code> / <code>suspend_scan</code> / <code>restore_scan</code>,
+<code>start_scan</code>, <code>quick_scan</code>, <code>create_site_role</code>, and
+<code>mark_notifications_read</code>. Every write tool surfaces an inline
+yellow card in the dock with the proposed args — nothing
+happens until you click <strong>Approve</strong>. Deny instead and Djin!
+sees the rejection reason and adjusts.</li>
+<li><strong>Audit trail.</strong> Approved Djin!-driven mutations are tagged
+with <code>whodunnit = "djin:&lt;your_id&gt;"</code> in the PaperTrail log, so
+the per-user activity feed distinguishes AI-driven actions
+from hand-driven ones.</li>
+<li><strong>Cancel &amp; rate-limit.</strong> Stop a streaming reply mid-flight; a
+configurable per-user daily token budget caps spend across
+conversations (<code>0</code> for unlimited, in Settings).</li>
+<li><strong>Privacy &amp; opt-in.</strong> Disabled by default; flip on in Settings
+once your AI provider key is configured. The dock surfaces an
+empty “configure in Settings” hint instead of failing silently
+if the key isn’t set.</li>
+</ul>
 <h3 id="quality-of-life"><a class="header" href="#quality-of-life">Quality of life</a></h3>
 <ul>
 <li><strong>Light &amp; dark themes</strong> with a one-click toggle that persists across
@@ -1498,6 +1543,56 @@ snapshot at the moment of capture.</p>
 <p><img src="interfaces/web/screenshots/apex-entry-sinks-inspect-3.png" alt="Sink inspector — frame (3)"></p>
 <p><img src="interfaces/web/screenshots/apex-entry-sinks-inspect-4.png" alt="Sink inspector — frame (4)"></p>
 <p><img src="interfaces/web/screenshots/apex-entry-sinks-inspect-5.png" alt="Sink inspector — frame (5)"></p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="setup-ai"><a class="header" href="#setup-ai">Setup AI</a></h1>
+<p>Apex Recon integrates with two AI providers — pick whichever
+account you have credit on:</p>
+<ul>
+<li><strong>OpenAI</strong> (<a href="https://openai.com/">openai.com</a>) — <code>openai</code>
+provider.</li>
+<li><strong>Anthropic Claude</strong> (<a href="https://www.anthropic.com/">anthropic.com</a>)
+— <code>claude</code> provider.</li>
+</ul>
+<p>Configuring a provider unlocks
+<a href="#djin--in-app-ai-assistant">Djin!</a> —
+the in-app side-dock chat assistant — across the Pro web UI.
+Apex’s domain is input-vector discovery (not security findings
+to triage as resolved), so there’s no per-record analysis plugin
+the way Spectre Scan ships one; configuring the AI key here
+enables only Djin!.</p>
+<h2 id="web-ui-1"><a class="header" href="#web-ui-1">Web UI</a></h2>
+<p>In <strong>Settings → Djin! AI assistant</strong>:</p>
+<ol>
+<li>Pick a <strong>provider</strong> (OpenAI or Claude) from the dropdown.</li>
+<li>Paste your <strong>API key</strong>. Apex Recon Pro pings the provider on
+save to verify the key — invalid keys / billing issues / no
+model access surface as a precise error rather than a silent
+failure.</li>
+<li>Save.</li>
+</ol>
+<p>That alone enables Djin!. Two extra controls in the same
+section tune behaviour:</p>
+<ul>
+<li><strong>Djin! assistant</strong> — toggle. Off by default; flip on once
+the provider key validates. Off renders the dock as an
+empty “Djin! is disabled — enable in settings” hint instead
+of failing silently.</li>
+<li><strong>Djin! daily token budget</strong> — per-user 24-hour cap on prompt
+<ul>
+<li>completion tokens summed across every Djin! conversation
+(default 500 000). <code>0</code> disables the cap entirely.</li>
+</ul>
+</li>
+</ul>
+<h2 id="what-djin-does"><a class="header" href="#what-djin-does">What Djin! does</a></h2>
+<p>See the dedicated section in the
+<a href="#djin--in-app-ai-assistant">Pro features page</a>
+for the full surface — page-context grounding, the read tools
+(list / fetch / search / events / sitemap / dashboard / …), the
+write tools (mark_reviewed, scan lifecycle, quick_scan,
+create_site_role, …) gated behind explicit Approve clicks, and
+the PaperTrail audit-trail tagging that distinguishes
+AI-driven mutations as <code>whodunnit = "djin:&lt;your_id&gt;"</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="run-air-gapped"><a class="header" href="#run-air-gapped">Run air-gapped</a></h1>
 <p>In order to run Apex Recon in an air-gapped environment you need to:</p>

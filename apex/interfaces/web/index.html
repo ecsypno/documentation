@@ -35,10 +35,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-5b752270.js";
+            window.path_to_searchindex_js = "../../searchindex-fded64a6.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-e3d94c90.js"></script>
+        <script src="../../toc-a3819588.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -279,6 +279,51 @@ result-set level.</li>
 <li><strong>Notifications.</strong> Per-event email / browser push for scan
 start / finish / failure / suspension.</li>
 </ul>
+<h3 id="djin--in-app-ai-assistant"><a class="header" href="#djin--in-app-ai-assistant">Djin! — in-app AI assistant</a></h3>
+<ul>
+<li><strong>Side-dock chat on every page.</strong> A right-side panel (with full-
+page expand and a launcher button bottom-right) that uses your
+configured AI provider (OpenAI or Claude). Streamed replies via
+Action Cable; conversation history persists per-user.</li>
+<li><strong>Page-aware grounding.</strong> Each turn carries the current
+<code>(controller, action, resource ids)</code> so questions like “what’s
+this entry?” or “what did this revision pick up?” are answered
+against what you’re looking at, no need to spell it out.</li>
+<li><strong>Read tools.</strong> Djin! can call <code>list_sites</code> / <code>list_scans</code> /
+<code>list_revisions</code> / <code>list_entries</code>, drill into a single record
+(<code>fetch_entry</code>, <code>fetch_revision</code>), free-text <code>search</code> across
+sites / scans / entries (including entry type / vector source /
+page URL / DOM data-flow sink fields / stack-frame URLs / JS
+function names), pull the audit log (<code>list_events</code>), the
+crawled URL coverage (<code>list_sitemap</code>), profiles / devices /
+site-roles / notifications, and an operator-wide rollup
+(<code>fetch_dashboard</code>). Every query is scoped to the records you
+own — Djin! cannot see another operator’s data.</li>
+<li><strong>Navigation.</strong> “Take me there” works — Djin! resolves
+<code>navigate_to({ kind: 'entry', id: &lt;digest&gt; })</code> or top-level
+destinations like <code>dashboard</code>, <code>sites</code>, <code>logs</code>, <code>profiles</code>,
+<code>devices</code>, <code>settings</code>, <code>notifications</code> and the browser jumps
+there.</li>
+<li><strong>Approval-gated write actions.</strong> Djin! can also propose
+<code>mark_reviewed</code>, <code>clear_state</code>, <code>pause_scan</code> /
+<code>resume_scan</code> / <code>abort_scan</code> / <code>suspend_scan</code> / <code>restore_scan</code>,
+<code>start_scan</code>, <code>quick_scan</code>, <code>create_site_role</code>, and
+<code>mark_notifications_read</code>. Every write tool surfaces an inline
+yellow card in the dock with the proposed args — nothing
+happens until you click <strong>Approve</strong>. Deny instead and Djin!
+sees the rejection reason and adjusts.</li>
+<li><strong>Audit trail.</strong> Approved Djin!-driven mutations are tagged
+with <code>whodunnit = "djin:&lt;your_id&gt;"</code> in the PaperTrail log, so
+the per-user activity feed distinguishes AI-driven actions
+from hand-driven ones.</li>
+<li><strong>Cancel &amp; rate-limit.</strong> Stop a streaming reply mid-flight; a
+configurable per-user daily token budget caps spend across
+conversations (<code>0</code> for unlimited, in Settings).</li>
+<li><strong>Privacy &amp; opt-in.</strong> Disabled by default; flip on in Settings
+once your AI provider key is configured. The dock surfaces an
+empty “configure in Settings” hint instead of failing silently
+if the key isn’t set.</li>
+</ul>
 <h3 id="quality-of-life"><a class="header" href="#quality-of-life">Quality of life</a></h3>
 <ul>
 <li><strong>Light &amp; dark themes</strong> with a one-click toggle that persists across
@@ -359,7 +404,7 @@ snapshot at the moment of capture.</p>
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../how-to/run-air-gapped.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../how-to/setup-ai.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -373,7 +418,7 @@ snapshot at the moment of capture.</p>
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../how-to/run-air-gapped.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../how-to/setup-ai.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

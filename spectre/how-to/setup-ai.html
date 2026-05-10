@@ -35,7 +35,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-4ddf6fe8.js";
+            window.path_to_searchindex_js = "../searchindex-8e49d8bb.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-f64bbaef.js"></script>
@@ -175,12 +175,72 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="setup-ai"><a class="header" href="#setup-ai">Setup AI</a></h1>
-<p>Spectre Scan relies on <a href="https://openai.com/">OpenAI</a> to intelligently analyse issues, offer suggestions and provide feedback.</p>
+<p>Spectre Scan integrates with two AI providers — pick whichever
+account you have credit on:</p>
+<ul>
+<li><strong>OpenAI</strong> (<a href="https://openai.com/">openai.com</a>) — <code>openai</code>
+plugin / provider.</li>
+<li><strong>Anthropic Claude</strong> (<a href="https://www.anthropic.com/">anthropic.com</a>)
+— <code>claude</code> plugin / provider.</li>
+</ul>
+<p>Both expose the same surface: per-issue analysis (description,
+remediation, exploit, dissect, insights, patch, report) at scan
+time, and the <a href="../interfaces/web/index.html#djin--in-app-ai-assistant">Djin!</a>
+side-dock chat assistant in the Pro web UI.</p>
 <h2 id="cli"><a class="header" href="#cli">CLI</a></h2>
-<pre><code>bin/spectre --plugin=openai:apikey=YOUR_API_KEY [URL]
+<p>OpenAI:</p>
+<pre><code>bin/spectre --plugin=openai:apikey=YOUR_OPENAI_KEY [URL]
+</code></pre>
+<p>Claude:</p>
+<pre><code>bin/spectre --plugin=claude:apikey=YOUR_ANTHROPIC_KEY [URL]
+</code></pre>
+<p>Optional plugin parameters (both providers accept them):</p>
+<ul>
+<li><code>model</code> — override the default model
+(<code>gpt-4o</code> for OpenAI, <code>claude-opus-4-5</code> for Claude).</li>
+<li><code>min_severity</code> — restrict per-issue analysis to issues at or
+above this severity (<code>informational</code>, <code>low</code>, <code>medium</code>, <code>high</code>).
+Default: <code>medium</code>. Lower-severity findings are skipped, saving
+API tokens.</li>
+</ul>
+<p>Example with overrides:</p>
+<pre><code>bin/spectre \
+    --plugin=claude:apikey=YOUR_KEY,model=claude-haiku-4-5,min_severity=high \
+    [URL]
 </code></pre>
 <h2 id="web-ui"><a class="header" href="#web-ui">Web UI</a></h2>
-<p>To set your Open AI token, go to the “Settings” page.</p>
+<p>In <strong>Settings → Djin! AI assistant</strong>:</p>
+<ol>
+<li>Pick a <strong>provider</strong> (OpenAI or Claude) from the dropdown.</li>
+<li>Paste your <strong>API key</strong>. Spectre Pro pings the provider on
+save to verify the key — invalid keys / billing issues / no
+model access surface as a precise error rather than a silent
+failure.</li>
+<li>Save.</li>
+</ol>
+<p>That alone enables <a href="../interfaces/web/index.html#djin--in-app-ai-assistant">Djin!</a>
+— the in-app side-dock AI assistant. Two extra toggles in the
+same section control the rest:</p>
+<ul>
+<li><strong>Auto-analyze issues during scan</strong> — off by default. When on,
+the scanner attaches the same provider’s per-issue plugin to
+every scan, expanding each finding’s description / remediation
+/ exploit fields automatically. Costs roughly one provider call
+per issue.</li>
+<li><strong>Djin! daily token budget</strong> — per-user 24-hour cap on prompt
+<ul>
+<li>completion tokens summed across every Djin! conversation. <code>0</code>
+disables the cap.</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>Apex Recon ships with the same Djin! chat assistant, but no
+per-issue plugin (Apex’s domain is input-vector discovery, not
+security findings — there’s nothing per-record for the AI to
+auto-expand). Configuring the AI key in Apex Settings only
+enables Djin!.</p>
+</blockquote>
 
                     </main>
 

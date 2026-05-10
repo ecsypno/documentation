@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-4ddf6fe8.js";
+            window.path_to_searchindex_js = "../../searchindex-8e49d8bb.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-f64bbaef.js"></script>
@@ -275,6 +275,43 @@ result-set level.</li>
 start / finish / failure / suspension and severity thresholds.</li>
 <li><strong>OpenAI assist.</strong> Optional LLM-backed remediation expansion for
 individual findings (configurable in Settings).</li>
+</ul>
+<h3 id="djin--in-app-ai-assistant"><a class="header" href="#djin--in-app-ai-assistant">Djin! — in-app AI assistant</a></h3>
+<ul>
+<li><strong>Side-dock chat on every page.</strong> A right-side panel (with full-
+page expand and a launcher button bottom-right) that uses your
+configured AI provider (OpenAI or Claude) — same key as the
+per-issue OpenAI assist. Streamed replies via Action Cable;
+conversation history persists per-user.</li>
+<li><strong>Page-aware grounding.</strong> Each turn carries the current
+<code>(controller, action, resource ids)</code> so questions like “what’s
+this issue?” or “how bad is this revision?” are answered against
+what you’re looking at, no need to spell it out.</li>
+<li><strong>Read tools.</strong> Djin! can call <code>list_sites</code> / <code>list_scans</code> /
+<code>list_revisions</code> / <code>list_issues</code>, drill into a single record
+(<code>fetch_issue</code>, <code>fetch_revision</code>), free-text <code>search</code> across
+sites / scans / issues, and return your accessible scope. Every
+query is scoped to the records you own — Djin! cannot see another
+operator’s data.</li>
+<li><strong>Navigation.</strong> “Take me there” works — Djin! can call
+<code>navigate_to({ kind: 'issue', id: &lt;digest&gt; })</code> and your browser
+jumps to the issue page (or site / scan / revision).</li>
+<li><strong>Approval-gated write actions.</strong> Djin! can also propose
+<code>mark_false_positive</code>, <code>mark_fixed</code>, <code>clear_state</code>,
+<code>pause_scan</code> / <code>resume_scan</code> / <code>abort_scan</code>, and <code>start_scan</code>.
+Every write tool surfaces an inline yellow card in the dock with
+the proposed args — nothing happens until you click <strong>Approve</strong>.
+Deny instead and Djin! sees the rejection reason and adjusts.</li>
+<li><strong>Audit trail.</strong> Approved Djin!-driven mutations are tagged with
+<code>whodunnit = "djin:&lt;your_id&gt;"</code> in the PaperTrail log, so the
+per-user activity feed distinguishes AI-driven actions from
+hand-driven ones.</li>
+<li><strong>Cancel &amp; rate-limit.</strong> Stop a streaming reply mid-flight; a
+per-user daily token budget caps spend across conversations.</li>
+<li><strong>Privacy &amp; opt-in.</strong> Disabled by default; flip on in Settings
+once your AI provider key is configured. The dock surfaces an
+empty “configure in Settings” hint instead of failing silently
+if the key isn’t set.</li>
 </ul>
 <h3 id="quality-of-life"><a class="header" href="#quality-of-life">Quality of life</a></h3>
 <ul>
