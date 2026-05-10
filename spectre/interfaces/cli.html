@@ -183,7 +183,7 @@ at the time of writing are:</p>
 <li><code>spectre_reporter</code> – Generates reports from <code>.crf</code> (Cuboid report file) and <code>.ser</code> (Spectre Scan report) report files.</li>
 <li><code>spectre_reproduce</code> – Reproduces an issue(s) from a given report.</li>
 <li><code>spectre_restore</code> – Restores a suspended scan based on a snapshot file.</li>
-<li><code>spectre_script</code> – Runs a Ruby script under the context of <code>SCNR::Engine</code>.</li>
+<li><code>spectre_script</code> – Runs a Ruby script under the context of <a href="./ruby-api/index.html"><code>SCNR::Engine</code></a>.</li>
 </ol>
 <h2 id="pro"><a class="header" href="#pro">Pro</a></h2>
 <ol>
@@ -199,20 +199,20 @@ at the time of writing are:</p>
 </ol>
 <h2 id="enterprise-only"><a class="header" href="#enterprise-only">Enterprise-only</a></h2>
 <ol>
-<li><code>spectre_spawn</code> – Issues <code>spawn</code> calls to <em>Agents</em> to start scans remotely.</li>
-<li><code>spectre_agent</code> – Starts a <em>Agent</em>.</li>
-<li><code>spectre_scheduler</code> – Starts a <em>Scheduler</em>.</li>
+<li><code>spectre_spawn</code> – Issues <code>spawn</code> calls to <a href="../deployment/distributed/agent.html"><em>Agents</em></a> to start scans remotely.</li>
+<li><code>spectre_agent</code> – Starts a <a href="../deployment/distributed/agent.html"><em>Agent</em></a>.</li>
+<li><code>spectre_scheduler</code> – Starts a <a href="../deployment/distributed/scheduler.html"><em>Scheduler</em></a>.</li>
 </ol>
 <h3 id="clients---no-edition-checks"><a class="header" href="#clients---no-edition-checks">Clients - no edition checks</a></h3>
 <ol start="3">
-<li><code>spectre_agent_monitor</code> – Monitors a <em>Agent</em>.</li>
-<li><code>spectre_agent_unplug</code> – Unplugs a <em>Agent</em> from its <em>Grid</em>.</li>
-<li><code>spectre_instance_connect</code> – Utility to connect to an <em>Instance</em>.</li>
-<li><code>spectre_scheduler_attach</code> – Attaches a detached <em>Instance</em> to the given <em>Scheduler</em>.</li>
-<li><code>spectre_scheduler_clear</code> – Clears the <em>Scheduler</em> queue.</li>
-<li><code>spectre_scheduler_detach</code> – Detaches an <em>Instance</em> from the <em>Scheduler</em>.</li>
+<li><code>spectre_agent_monitor</code> – Monitors a <a href="../deployment/distributed/agent.html"><em>Agent</em></a>.</li>
+<li><code>spectre_agent_unplug</code> – Unplugs a <a href="../deployment/distributed/agent.html"><em>Agent</em></a> from its <a href="../deployment/distributed/agent/grid.html"><em>Grid</em></a>.</li>
+<li><code>spectre_instance_connect</code> – Utility to connect to an <a href="../deployment/distributed/agent.html"><em>Instance</em></a>.</li>
+<li><code>spectre_scheduler_attach</code> – Attaches a detached <a href="../deployment/distributed/agent.html"><em>Instance</em></a> to the given <a href="../deployment/distributed/scheduler.html"><em>Scheduler</em></a>.</li>
+<li><code>spectre_scheduler_clear</code> – Clears the <a href="../deployment/distributed/scheduler.html"><em>Scheduler</em></a> queue.</li>
+<li><code>spectre_scheduler_detach</code> – Detaches an <a href="../deployment/distributed/agent.html"><em>Instance</em></a> from the <a href="../deployment/distributed/scheduler.html"><em>Scheduler</em></a>.</li>
 <li><code>spectre_scheduler_get</code> – Retrieves information for a scheduled scan.</li>
-<li><code>spectre_scheduler_list</code> – Lists information about all scans under the <em>Scheduler</em>’s control.</li>
+<li><code>spectre_scheduler_list</code> – Lists information about all scans under the <a href="../deployment/distributed/scheduler.html"><em>Scheduler</em></a>’s control.</li>
 <li><code>spectre_scheduler_push</code> – Scheduled a scan.</li>
 <li><code>spectre_scheduler_remove</code> – Removes a scheduled scan from the queue.</li>
 </ol>
