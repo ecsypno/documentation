@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-8e49d8bb.js";
+            window.path_to_searchindex_js = "searchindex-e812de1c.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-f64bbaef.js"></script>
@@ -5146,6 +5146,89 @@ API tokens.</li>
     --plugin=claude:apikey=YOUR_KEY,model=claude-haiku-4-5,min_severity=high \
     [URL]
 </code></pre>
+<h2 id="rest-api-1"><a class="header" href="#rest-api-1">REST API</a></h2>
+<p>Drive the same per-issue plugin from
+<a href="#instances"><code>POST /instances</code></a> by
+adding the provider to the
+<a href="#plugins-1"><code>plugins</code></a> hash on the
+options body. Same <code>apikey</code> / <code>model</code> / <code>min_severity</code> parameters
+the CLI accepts.</p>
+<p>OpenAI:</p>
+<pre><code class="language-json">{
+  "url":    "http://example.com/",
+  "checks": ["*"],
+  "plugins": {
+    "openai": { "apikey": "YOUR_OPENAI_KEY" }
+  }
+}
+</code></pre>
+<p>Claude:</p>
+<pre><code class="language-json">{
+  "url":    "http://example.com/",
+  "checks": ["*"],
+  "plugins": {
+    "claude": { "apikey": "YOUR_ANTHROPIC_KEY" }
+  }
+}
+</code></pre>
+<p>Plugin parameters layer in as siblings of <code>apikey</code>:</p>
+<pre><code class="language-json">{
+  "plugins": {
+    "claude": {
+      "apikey":       "YOUR_KEY",
+      "model":        "claude-haiku-4-5",
+      "min_severity": "high"
+    }
+  }
+}
+</code></pre>
+<p>Only one of <code>openai</code> / <code>claude</code> should be present per scan — they
+both annotate the same issues, so loading both wastes API tokens
+on duplicate work.</p>
+<h2 id="mcp-1"><a class="header" href="#mcp-1">MCP</a></h2>
+<p>The MCP server forwards its <code>spawn_instance.options</code> straight to
+the engine, so the <code>plugins</code> shape is identical to REST — just
+nested under the <code>tools/call</code> envelope.</p>
+<p>OpenAI:</p>
+<pre><code class="language-json">{
+  "jsonrpc": "2.0", "id": 1, "method": "tools/call",
+  "params": {
+    "name": "spawn_instance",
+    "arguments": {
+      "options": {
+        "url":    "http://example.com/",
+        "checks": ["*"],
+        "plugins": {
+          "openai": { "apikey": "YOUR_OPENAI_KEY" }
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<p>Claude:</p>
+<pre><code class="language-json">{
+  "jsonrpc": "2.0", "id": 1, "method": "tools/call",
+  "params": {
+    "name": "spawn_instance",
+    "arguments": {
+      "options": {
+        "url":    "http://example.com/",
+        "checks": ["*"],
+        "plugins": {
+          "claude": { "apikey": "YOUR_ANTHROPIC_KEY" }
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<p><code>model</code> and <code>min_severity</code> slot in alongside <code>apikey</code> exactly as
+they do over REST.</p>
+<p>The <code>plugins</code> key is documented in full at
+<a href="#resources"><code>spectre://options/reference</code></a>
+(or inlined under the <a href="#plugins-2">Options reference</a>
+on the MCP page).</p>
 <h2 id="web-ui-1"><a class="header" href="#web-ui-1">Web UI</a></h2>
 <p>In <strong>Settings → Djin! AI assistant</strong>:</p>
 <ol>
