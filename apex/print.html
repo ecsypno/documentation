@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-fded64a6.js";
+            window.path_to_searchindex_js = "searchindex-419e821a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-a3819588.js"></script>
@@ -183,7 +183,7 @@ and I/O characteristics of modern web applications and web APIs.</p>
 <p>You can access Apex Recon via multiple interfaces, such as:</p>
 <ul>
 <li><a href="#cli">CLI</a></li>
-<li><a href="#mcp">MCP API</a></li>
+<li><a href="#mcp-1">MCP API</a></li>
 <li><a href="#web-ui">Web UI</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
@@ -210,17 +210,15 @@ and I/O characteristics of modern web applications and web APIs.</p>
 <h1 id="cli"><a class="header" href="#cli">CLI</a></h1>
 <p>Command-line interface executables can be found under the <code>bin/</code> directory and
 at the time of writing are:</p>
+<h2 id="basic-pro"><a class="header" href="#basic-pro">Basic, Pro</a></h2>
 <ol>
 <li><code>apex</code> – Direct scanning utility.</li>
-<li><code>apex_mcp_server</code> – Starts an <a href="#mcp">MCP</a> server daemon.</li>
-<li><code>apex_shell</code> – Starts a Bash shell under the package environment.</li>
-<li><code>apex_system_info</code> – Presents system information about the host.</li>
 </ol>
-<h2 id="scanning-and-reporting"><a class="header" href="#scanning-and-reporting">Scanning and reporting</a></h2>
+<h3 id="scanning-and-reporting"><a class="header" href="#scanning-and-reporting">Scanning and reporting</a></h3>
 <p>To start a scan and save the report as JSON:</p>
 <pre><code>bin/apex https://ginandjuice.shop/ --report-save-path=report.json
 </code></pre>
-<h2 id="sink-filter"><a class="header" href="#sink-filter">Sink filter</a></h2>
+<h3 id="sink-filter"><a class="header" href="#sink-filter">Sink filter</a></h3>
 <p>Apex traces five kinds of <a href="#resources">sink</a> — <code>active</code>,
 <code>body</code>, <code>header_name</code>, <code>header_value</code>, and <code>blind</code>. The CLI logs the
 first four by default and skips <code>blind</code> (input reaches a sink with
@@ -244,8 +242,12 @@ ones accumulate. The CLI prints which sinks are loaded at scan start:</p>
 <p>To run a crawl-only pass (sitemap, no entries), there is no CLI
 flag yet — use the <a href="#web-ui">profile UI</a> or the MCP
 <code>sinks_filter: []</code> shape.</p>
+<h2 id="mcp"><a class="header" href="#mcp">MCP</a></h2>
+<p>1.<code>apex_mcp_server</code> – Starts an <a href="#mcp-1">MCP</a> server daemon.</p>
+<h2 id="pro"><a class="header" href="#pro">Pro</a></h2>
+<p>1.<code>apex_pro</code> – Starts a <a href="#web-ui">Web Interface</a> server daemon.</p>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="mcp"><a class="header" href="#mcp">MCP</a></h1>
+<h1 id="mcp-1"><a class="header" href="#mcp-1">MCP</a></h1>
 <p>Apex Recon ships a <a href="https://modelcontextprotocol.io/">Model Context Protocol</a> server so an AI client
 (Claude Desktop / Code, Cursor, Continue — anything that speaks MCP) can
 drive scans directly: spawn an <em>Instance</em>, watch its progress, fetch

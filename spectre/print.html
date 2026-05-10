@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e812de1c.js";
+            window.path_to_searchindex_js = "searchindex-dfb952b5.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-f64bbaef.js"></script>
@@ -1645,20 +1645,37 @@ Test --&gt;
 <h1 id="cli"><a class="header" href="#cli">CLI</a></h1>
 <p>Command-line interface executables can be found under the <code>bin/</code> directory and
 at the time of writing are:</p>
+<h2 id="basic-pro-enterprise"><a class="header" href="#basic-pro-enterprise">Basic, Pro, Enterprise</a></h2>
 <ol>
 <li><code>spectre</code> – Direct scanning utility.</li>
-<li><code>spectre_console</code> – A <a href="https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop">REPL</a> Ruby console running from the context of <code>SCNR::Engine</code>.</li>
+<li><code>spectre_reporter</code> – Generates reports from <code>.crf</code> (Cuboid report file) and <code>.ser</code> (Spectre Scan report) report files.</li>
+<li><code>spectre_reproduce</code> – Reproduces an issue(s) from a given report.</li>
+<li><code>spectre_restore</code> – Restores a suspended scan based on a snapshot file.</li>
+<li><code>spectre_script</code> – Runs a Ruby script under the context of <code>SCNR::Engine</code>.</li>
+</ol>
+<h2 id="pro"><a class="header" href="#pro">Pro</a></h2>
+<ol>
+<li><code>spectre_pro</code> – Starts a <a href="#web-ui">Web interface</a> server daemon.</li>
+</ol>
+<h2 id="rest-sdlc-enterprise"><a class="header" href="#rest-sdlc-enterprise">REST, SDLC, Enterprise</a></h2>
+<ol>
+<li><code>spectre_rest_server</code> – Starts a <a href="#rest-api">REST</a> server daemon.</li>
+</ol>
+<h2 id="mcp-sdlc-enterprise"><a class="header" href="#mcp-sdlc-enterprise">MCP, SDLC, Enterprise</a></h2>
+<ol>
+<li><code>spectre_mcp_server</code> – Starts an <a href="#mcp">MCP</a> server daemon.</li>
+</ol>
+<h2 id="enterprise-only"><a class="header" href="#enterprise-only">Enterprise-only</a></h2>
+<ol>
 <li><code>spectre_spawn</code> – Issues <code>spawn</code> calls to <em>Agents</em> to start scans remotely.</li>
 <li><code>spectre_agent</code> – Starts a <em>Agent</em> daemon.</li>
+<li><code>spectre_scheduler</code> – Starts a <em>Scheduler</em> daemon.</li>
+</ol>
+<h3 id="clients---no-edition-checks"><a class="header" href="#clients---no-edition-checks">Clients - no edition checks</a></h3>
+<ol start="3">
 <li><code>spectre_agent_monitor</code> – Monitors a <em>Agent</em>.</li>
 <li><code>spectre_agent_unplug</code> – Unplugs a <em>Agent</em> from its <em>Grid</em>.</li>
 <li><code>spectre_instance_connect</code> – Utility to connect to an <em>Instance</em>.</li>
-<li><code>spectre_reporter</code> – Generates reports from <code>.crf</code> (Cuboid report file) and <code>.ser</code> (Spectre Scan report) report files.</li>
-<li><code>spectre_reproduce</code> – Reproduces an issue(s) from a given report.</li>
-<li><code>spectre_rest_server</code> – Starts a <a href="#rest-api">REST</a> server daemon.</li>
-<li><code>spectre_mcp_server</code> – Starts an <a href="#mcp">MCP</a> server daemon.</li>
-<li><code>spectre_restore</code> – Restores a suspended scan based on a snapshot file.</li>
-<li><code>spectre_scheduler</code> – Starts a <em>Scheduler</em> daemon.</li>
 <li><code>spectre_scheduler_attach</code> – Attaches a detached <em>Instance</em> to the given <em>Scheduler</em>.</li>
 <li><code>spectre_scheduler_clear</code> – Clears the <em>Scheduler</em> queue.</li>
 <li><code>spectre_scheduler_detach</code> – Detaches an <em>Instance</em> from the <em>Scheduler</em>.</li>
@@ -1666,8 +1683,16 @@ at the time of writing are:</p>
 <li><code>spectre_scheduler_list</code> – Lists information about all scans under the <em>Scheduler</em>’s control.</li>
 <li><code>spectre_scheduler_push</code> – Scheduled a scan.</li>
 <li><code>spectre_scheduler_remove</code> – Removes a scheduled scan from the queue.</li>
-<li><code>spectre_script</code> – Runs a Ruby script under the context of <code>SCNR::Engine</code>.</li>
-<li><code>spectre_shell</code> – Starts a Bash shell under the package environment.</li>
+</ol>
+<h2 id="license-utilities"><a class="header" href="#license-utilities">License utilities</a></h2>
+<ol>
+<li><code>spectre_activate</code></li>
+<li><code>spectre_edition</code></li>
+<li><code>spectre_available_seats</code></li>
+<li><code>spectre_license info</code></li>
+</ol>
+<h2 id="other"><a class="header" href="#other">Other</a></h2>
+<ol>
 <li><code>spectre_system_info</code> – Presents system information about the host.</li>
 </ol>
 <div style="break-before: page; page-break-before: always;"></div>
@@ -5280,7 +5305,7 @@ enables Djin!.</p>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="generate-reports"><a class="header" href="#generate-reports">Generate reports</a></h1>
-<h2 id="pro"><a class="header" href="#pro">Pro</a></h2>
+<h2 id="pro-1"><a class="header" href="#pro-1">Pro</a></h2>
 <p>You can export scan results in several formats from the “Export” tab of an aborted or completed revision scan.</p>
 <h2 id="cli-2"><a class="header" href="#cli-2">CLI</a></h2>
 <p>There are 2 reference report format types that you may encounter when using Spectre Scan:</p>
