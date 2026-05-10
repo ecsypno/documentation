@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-cf7ab424.js";
+            window.path_to_searchindex_js = "../../searchindex-a232be66.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-a3819588.js"></script>
@@ -176,6 +176,32 @@
                     <main>
                         <h1 id="web-ui"><a class="header" href="#web-ui">Web UI</a></h1>
 <p>The WebUI allows you to easily run, manage and schedule scans and their results via an intuitive web interface.</p>
+<h2 id="table-of-contents"><a class="header" href="#table-of-contents">Table of contents</a></h2>
+<ul>
+<li><a href="#boot-up">Boot-up</a></li>
+<li><a href="#features">Features</a>
+<ul>
+<li><a href="#scan-management">Scan management</a></li>
+<li><a href="#live-monitoring">Live monitoring</a></li>
+<li><a href="#findings--analysis">Findings &amp; analysis</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#operations--audit">Operations &amp; audit</a></li>
+<li><a href="#reporting--integrations">Reporting &amp; integrations</a></li>
+<li><a href="#djin--in-app-ai-assistant">Djin! — in-app AI assistant</a></li>
+<li><a href="#quality-of-life">Quality of life</a></li>
+</ul>
+</li>
+<li><a href="#screenshots">Screenshots</a>
+<ul>
+<li><a href="#welcome">Welcome</a></li>
+<li><a href="#dashboard">Dashboard</a></li>
+<li><a href="#sites">Sites</a></li>
+<li><a href="#revisions">Revisions</a></li>
+<li><a href="#entry">Entry</a></li>
+<li><a href="#djin--ai-assistant">Djin! — AI assistant</a></li>
+</ul>
+</li>
+</ul>
 <h2 id="boot-up"><a class="header" href="#boot-up">Boot-up</a></h2>
 <p>To boot the Pro interface please run:</p>
 <pre><code>bin/apex_pro
@@ -395,6 +421,24 @@ snapshot at the moment of capture.</p>
 <p><img src="screenshots/apex-entry-sinks-inspect-3.png" alt="Sink inspector — frame (3)"></p>
 <p><img src="screenshots/apex-entry-sinks-inspect-4.png" alt="Sink inspector — frame (4)"></p>
 <p><img src="screenshots/apex-entry-sinks-inspect-5.png" alt="Sink inspector — frame (5)"></p>
+<h3 id="djin--ai-assistant"><a class="header" href="#djin--ai-assistant">Djin! — AI assistant</a></h3>
+<p>Side-dock chat that streams via Action Cable, with page-aware
+grounding, scoped read tools and approval-gated write tools.</p>
+<h4 id="page-aware-answers--dashboard"><a class="header" href="#page-aware-answers--dashboard">Page-aware answers — dashboard</a></h4>
+<p>Dock open against the dashboard; questions like “any entries I
+haven’t seen before?” are grounded against your sites and
+revisions, not a free-form recap.</p>
+<p><img src="screenshots/djin-1.png" alt="Djin! — dashboard answer"></p>
+<h4 id="page-aware-answers--entry-detail"><a class="header" href="#page-aware-answers--entry-detail">Page-aware answers — entry detail</a></h4>
+<p>On an entry page, the dock breaks down what makes the entry
+interesting — input vector, data-flow trace, recommended next
+step — against the captured stack frames and source.</p>
+<p><img src="screenshots/djin-2.png" alt="Djin! — entry explainer"></p>
+<h4 id="page-aware-answers--logs"><a class="header" href="#page-aware-answers--logs">Page-aware answers — logs</a></h4>
+<p>On the logs page, the dock reasons over the visible event stream
+to surface the most-interesting entry / regression worth a
+human look.</p>
+<p><img src="screenshots/djin-3.png" alt="Djin! — log triage"></p>
 
                     </main>
 

@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-8e0e4691.js";
+            window.path_to_searchindex_js = "searchindex-8a0208af.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-f64bbaef.js"></script>
@@ -4847,6 +4847,41 @@ curl -X POST http://127.0.0.1:7331/mcp ... \
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="web-ui"><a class="header" href="#web-ui">Web UI</a></h1>
 <p>The WebUI allows you to easily run, manage and schedule scans and their results via an intuitive web interface.</p>
+<h2 id="table-of-contents-3"><a class="header" href="#table-of-contents-3">Table of contents</a></h2>
+<ul>
+<li><a href="#boot-up">Boot-up</a></li>
+<li><a href="#features">Features</a>
+<ul>
+<li><a href="#scan-management">Scan management</a></li>
+<li><a href="#live-monitoring">Live monitoring</a></li>
+<li><a href="#findings--analysis">Findings &amp; analysis</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#operations--audit">Operations &amp; audit</a></li>
+<li><a href="#reporting--integrations">Reporting &amp; integrations</a></li>
+<li><a href="#djin--in-app-ai-assistant">Djin! — in-app AI assistant</a></li>
+<li><a href="#quality-of-life">Quality of life</a></li>
+</ul>
+</li>
+<li><a href="#screenshots">Screenshots</a>
+<ul>
+<li><a href="#welcome">Welcome</a></li>
+<li><a href="#dashboard">Dashboard</a></li>
+<li><a href="#sites">Sites</a></li>
+<li><a href="#scans">Scans</a></li>
+<li><a href="#revisions">Revisions</a></li>
+<li><a href="#issues-1">Issues</a></li>
+<li><a href="#introspector-1">Introspector</a></li>
+<li><a href="#coverage">Coverage</a></li>
+<li><a href="#health">Health</a></li>
+<li><a href="#logs">Logs</a></li>
+<li><a href="#profiles">Profiles</a></li>
+<li><a href="#devices">Devices</a></li>
+<li><a href="#settings">Settings</a></li>
+<li><a href="#export">Export</a></li>
+<li><a href="#djin--ai-assistant">Djin! — AI assistant</a></li>
+</ul>
+</li>
+</ul>
 <h2 id="boot-up"><a class="header" href="#boot-up">Boot-up</a></h2>
 <p>To boot the Pro interface please run:</p>
 <pre><code>bin/spectre_pro
@@ -5136,6 +5171,24 @@ default scan / HTTP / browser-pool tuning.</p>
 <p>Export scan results in any of the supported report formats (HTML,
 JSON, XML, plain-text, AFR archive).</p>
 <p><img src="interfaces/web/screenshots/spectre-export.png" alt="Export"></p>
+<h3 id="djin--ai-assistant"><a class="header" href="#djin--ai-assistant">Djin! — AI assistant</a></h3>
+<p>Side-dock chat that streams via Action Cable, with page-aware
+grounding, scoped read tools and approval-gated write tools.</p>
+<h4 id="page-aware-answers--dashboard"><a class="header" href="#page-aware-answers--dashboard">Page-aware answers — dashboard</a></h4>
+<p>Dock open against the dashboard; “show me high-severity issues”
+is grounded against the records you actually own, not a
+free-form recap.</p>
+<p><img src="interfaces/web/screenshots/djin-1.png" alt="Djin! — dashboard answer"></p>
+<h4 id="page-aware-answers--issue-detail"><a class="header" href="#page-aware-answers--issue-detail">Page-aware answers — issue detail</a></h4>
+<p>On an issue page, the dock explains the finding and walks the
+execution flow against the captured request / response in front
+of you.</p>
+<p><img src="interfaces/web/screenshots/djin-2.png" alt="Djin! — issue explainer"></p>
+<h4 id="approval-gated-write-tools"><a class="header" href="#approval-gated-write-tools">Approval-gated write tools</a></h4>
+<p>Write tools (here: <code>abort_scan</code>) propose their args inline as a
+yellow card. Nothing happens until you click <strong>Approve</strong>; deny
+to send the rejection reason back to the model.</p>
+<p><img src="interfaces/web/screenshots/djin-3.png" alt="Djin! — approval card"></p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="setup-ai"><a class="header" href="#setup-ai">Setup AI</a></h1>
 <p>Spectre Scan integrates with two AI providers — pick whichever
