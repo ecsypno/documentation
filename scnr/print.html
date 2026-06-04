@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-8a0208af.js";
+            window.path_to_searchindex_js = "searchindex-130cd437.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-f64bbaef.js"></script>
@@ -394,7 +394,7 @@ fly.</p>
 <h3 id="as-configuration"><a class="header" href="#as-configuration">As configuration</a></h3>
 <h4 id="with-helpers"><a class="header" href="#with-helpers">With helpers</a></h4>
 <p><code>html5.config.rb</code>:</p>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
   require '/home/user/script/helpers'
 
   Dom {
@@ -513,7 +513,7 @@ def to_logout( url )
 end
 </code></pre>
 <h4 id="single-file"><a class="header" href="#single-file">Single file</a></h4>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Dom {
 
@@ -625,7 +625,7 @@ and not just serve as configuration.</p>
 
 require "#{Options.paths.root}/tmp/scripts/with_helpers/helpers"
 
-SCNR::Application::API.run do
+SCNR::Engine::API.run do
 
   Scan {
 
@@ -1007,7 +1007,7 @@ end
 # Mute output messages from the CLI interface, we've got our own output methods.
 SCNR::UI::CLI::Output.mute
 
-SCNR::Application::API.run do
+SCNR::Engine::API.run do
 
     State {
         on :change do |state|
@@ -1706,7 +1706,7 @@ generator and runner and allows you to:</p>
 </ol>
 <p>The API is separated into the following segments:</p>
 <pre><code class="language-ruby"># Runs the DSL.
-SCNR::Application::API.run do
+SCNR::Engine::API.run do
 
     Data {
         Sitemap {}
@@ -1745,7 +1745,7 @@ end
 </code></pre>
 <h2 id="examples-3"><a class="header" href="#examples-3">Examples</a></h2>
 <h3 id="as-configuration-1"><a class="header" href="#as-configuration-1">As configuration</a></h3>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Dom {
 
@@ -1851,7 +1851,7 @@ end
 # Mute output messages from the CLI interface, we've got our own output methods.
 SCNR::UI::CLI::Output.mute
 
-SCNR::Application::API.run do
+SCNR::Engine::API.run do
 
     State {
         on :change do |state|
@@ -2059,7 +2059,7 @@ end
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="data"><a class="header" href="#data">Data</a></h1>
 <p>Encapsulates functionality that has to do with the data of <code>SCNR::Engine</code>.</p>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Data {
         Sitemap {}
@@ -2072,7 +2072,7 @@ end
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="sitemap"><a class="header" href="#sitemap">Sitemap</a></h1>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Data {
         Sitemap {
@@ -2091,7 +2091,7 @@ end
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="urls"><a class="header" href="#urls">Urls</a></h1>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Data {
         Urls {
@@ -2109,7 +2109,7 @@ end
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="pages"><a class="header" href="#pages">Pages</a></h1>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Data {
         Pages {
@@ -2127,7 +2127,7 @@ end
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="issues"><a class="header" href="#issues">Issues</a></h1>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Data {
         Issues {
@@ -2148,7 +2148,7 @@ end
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="state"><a class="header" href="#state">State</a></h1>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     State {
         on :change do |state|
@@ -2164,7 +2164,7 @@ end
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="browserpool"><a class="header" href="#browserpool">Browserpool</a></h1>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Browserpool {
       
@@ -2194,7 +2194,7 @@ end
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="dom"><a class="header" href="#dom">Dom</a></h1>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Dom {
       
@@ -2262,7 +2262,7 @@ end
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="http"><a class="header" href="#http">Http</a></h1>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Http {
       
@@ -2294,7 +2294,7 @@ end
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="input"><a class="header" href="#input">Input</a></h1>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Input {
 
@@ -2314,7 +2314,7 @@ end
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="logging"><a class="header" href="#logging">Logging</a></h1>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Logging {
       
@@ -2339,7 +2339,7 @@ end
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="checks"><a class="header" href="#checks">Checks</a></h1>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Checks {
       
@@ -2377,7 +2377,7 @@ end
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="plugins"><a class="header" href="#plugins">Plugins</a></h1>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Plugins {
 
@@ -2420,7 +2420,7 @@ end
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="fingerprinters"><a class="header" href="#fingerprinters">Fingerprinters</a></h1>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Fingerprinters {
 
@@ -2439,12 +2439,12 @@ end
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="scan"><a class="header" href="#scan">Scan</a></h1>
 <p>Encapsulates functionality that has to do with the scan.</p>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Scan {
         Options {}
         Scope {}
-        Sesion {}
+        Session {}
         
         # Called before each page audit.
         before :page do |page|
@@ -2508,7 +2508,7 @@ end
 <h2 id="example-15"><a class="header" href="#example-15">Example</a></h2>
 <pre><code class="language-ruby">SCNR::UI::CLI::Output.mute
 
-api = SCNR::Application::API.new
+api = SCNR::Engine::API.new
 
 api.scan.options.set url: 'http://testhtml5.vulnweb.com',
                      checks: %w(allowed_methods interesting_responses)
@@ -2542,7 +2542,7 @@ ap api.scan.generate_report
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="options-2"><a class="header" href="#options-2">Options</a></h1>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Scan {
         Options {
@@ -2636,7 +2636,7 @@ end
 <h1 id="scope"><a class="header" href="#scope">Scope</a></h1>
 <p>Determines which resources are in or out of scope. All return values will be cast
 to boolean.</p>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Scan {
         Scope {
@@ -2675,7 +2675,7 @@ end
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="session"><a class="header" href="#session">Session</a></h1>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Scan {
 
@@ -4975,7 +4975,7 @@ responsive while two or more scans hammer the database.</li>
 <h3 id="reporting--integrations"><a class="header" href="#reporting--integrations">Reporting &amp; integrations</a></h3>
 <ul>
 <li><strong>Multi-format export.</strong> HTML, JSON, XML, plain-text and the
-framework-native AFR archive — at the scan, revision or filtered
+application-native SER archive — at the scan, revision or filtered
 result-set level.</li>
 <li><strong>Notifications.</strong> Per-event email / browser push for scan
 start / finish / failure / suspension and severity thresholds.</li>

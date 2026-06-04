@@ -36,10 +36,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-a232be66.js";
+            window.path_to_searchindex_js = "searchindex-f8816151.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-a3819588.js"></script>
+        <script src="toc-1a19bf05.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -213,6 +213,7 @@ at the time of writing are:</p>
 <h2 id="basic-pro"><a class="header" href="#basic-pro">Basic, Pro</a></h2>
 <ol>
 <li><code>apex</code> – Direct scanning utility.</li>
+<li><code>apex_reporter</code> – Generates reports from <code>.crf</code> (Cuboid report file) and <code>.aer</code> (Apex Recon report) report files.</li>
 </ol>
 <h3 id="scanning-and-reporting"><a class="header" href="#scanning-and-reporting">Scanning and reporting</a></h3>
 <p>To start a scan and save the report as JSON:</p>
@@ -1457,7 +1458,7 @@ responsive while two or more scans hammer the database.</li>
 <h3 id="reporting--integrations"><a class="header" href="#reporting--integrations">Reporting &amp; integrations</a></h3>
 <ul>
 <li><strong>Multi-format export.</strong> HTML, JSON, XML, plain-text and the
-framework-native AFR archive — at the scan, revision or filtered
+application-native AER archive — at the scan, revision or filtered
 result-set level.</li>
 <li><strong>Notifications.</strong> Per-event email / browser push for scan
 start / finish / failure / suspension.</li>
@@ -1931,6 +1932,178 @@ a login check and verifying that the deduced login sequence works properly.</p>
 </ul>
 <p>This way Apex Recon will still be able to know if it gets logged out (which is helpful to several system components) but won’t be able to log-in automatically.</p>
 <p>Of course, you should still exclude any path that can lead to the destruction of the session.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="generate-reports"><a class="header" href="#generate-reports">Generate reports</a></h1>
+<h2 id="pro-1"><a class="header" href="#pro-1">Pro</a></h2>
+<p>You can export scan results in several formats from the “Export” tab of an aborted or completed revision scan.</p>
+<h2 id="cli-1"><a class="header" href="#cli-1">CLI</a></h2>
+<p>There are 2 reference report format types that you may encounter when using Apex:</p>
+<ol>
+<li><code>*.crf</code> – Cuboid report file.</li>
+<li><code>*.aer</code> – Apex report.</li>
+</ol>
+<p>Both of these files can be handled by the CLI <code>apex_reporter</code> utility in order
+to convert them to a multitude of formats or print the results to <code>STDOUT</code>.</p>
+<p>For example, to generate an HTML report:</p>
+<p><code>bin/apex_reporter --report=html:outfile=my_report.html.zip /home/user/.apex/reports/report.aer</code></p>
+<p>Or, to just print the report to STDOUT:</p>
+<p><code>bin/apex_reporter --report=stdout /home/user/.apex/reports/report.aer</code></p>
+<p>At the time of writing, <code>bin/apex_reporter --reporters-list</code> yields:</p>
+<pre><code> [~] Available reports:
+
+ [*] ap:
+--------------------
+Name:           AP
+Description:
+Awesome prints a scan report hash.
+
+Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
+Version:        0.1.1
+Path:   /home/zapotek/workspace/rkn/application/components/reporters/ap.rb
+
+ [*] html:
+--------------------
+Name:           HTML
+Description:
+Exports the sink-trace entries as a compressed HTML report.
+
+Options:
+ [~]    outfile - Where to save the report.
+ [~]    Type:        string
+ [~]    Default:     2026-06-04_11_40_13_+0300.html.zip
+ [~]    Required?:   false
+
+Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
+Version:        0.5.0
+Path:   /home/zapotek/workspace/rkn/application/components/reporters/html.rb
+
+ [*] json:
+--------------------
+Name:           JSON
+Description:
+Exports the audit results as a JSON (.json) file.
+
+Options:
+ [~]    outfile - Where to save the report.
+ [~]    Type:        string
+ [~]    Default:     2026-06-04_11_40_13_+0300.json
+ [~]    Required?:   false
+
+Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
+Version:        0.1.3
+Path:   /home/zapotek/workspace/rkn/application/components/reporters/json.rb
+
+ [*] markdown:
+--------------------
+Name:           Markdown
+Description:
+Exports the audit results as a Markdown (.md) file.
+
+Options:
+ [~]    outfile - Where to save the report.
+ [~]    Type:        string
+ [~]    Default:     2026-06-04_11_40_13_+0300.md
+ [~]    Required?:   false
+
+ [~]    ai_friendly - Emit a flatter, compacter Markdown variant tuned for LLM ingestion (no TOC, blobs truncated, explicit section markers).
+ [~]    Type:        bool
+ [~]    Default:     false
+ [~]    Required?:   false
+
+Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
+Version:        0.1
+Path:   /home/zapotek/workspace/rkn/application/components/reporters/markdown.rb
+
+ [*] marshal:
+--------------------
+Name:           Marshal
+Description:
+Exports the audit results as a Marshal (.marshal) file.
+
+Options:
+ [~]    outfile - Where to save the report.
+ [~]    Type:        string
+ [~]    Default:     2026-06-04_11_40_13_+0300.marshal
+ [~]    Required?:   false
+
+Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
+Version:        0.1.1
+Path:   /home/zapotek/workspace/rkn/application/components/reporters/marshal.rb
+
+ [*] pdf:
+--------------------
+Name:           PDF
+Description:
+Exports the audit results as a PDF (.pdf) file.
+
+Options:
+ [~]    outfile - Where to save the report.
+ [~]    Type:        string
+ [~]    Default:     2026-06-04_11_40_13_+0300.pdf
+ [~]    Required?:   false
+
+Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
+Version:        0.5
+Path:   /home/zapotek/workspace/rkn/application/components/reporters/pdf.rb
+
+ [*] stdout:
+--------------------
+Name:           Stdout
+Description:
+Prints the results to standard output.
+
+Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
+Version:        0.3.3
+Path:   /home/zapotek/workspace/rkn/application/components/reporters/stdout.rb
+
+ [*] txt:
+--------------------
+Name:           Text
+Description:
+Exports the audit results as a text (.txt) file.
+
+Options:
+ [~]    outfile - Where to save the report.
+ [~]    Type:        string
+ [~]    Default:     2026-06-04_11_40_13_+0300.txt
+ [~]    Required?:   false
+
+Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
+Version:        0.2.1
+Path:   /home/zapotek/workspace/rkn/application/components/reporters/txt.rb
+
+ [*] xml:
+--------------------
+Name:           XML
+Description:
+Exports the sink-trace entries as an XML (.xml) file.
+
+Options:
+ [~]    outfile - Where to save the report.
+ [~]    Type:        string
+ [~]    Default:     2026-06-04_11_40_13_+0300.xml
+ [~]    Required?:   false
+
+Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
+Version:        0.5.0
+Path:   /home/zapotek/workspace/rkn/application/components/reporters/xml.rb
+
+ [*] yaml:
+--------------------
+Name:           YAML
+Description:
+Exports the audit results as a YAML (.yaml) file.
+
+Options:
+ [~]    outfile - Where to save the report.
+ [~]    Type:        string
+ [~]    Default:     2026-06-04_11_40_13_+0300.yaml
+ [~]    Required?:   false
+
+Author:         Tasos "Zapotek" Laskos &lt;tasos.laskos@gmail.com&gt;
+Version:        0.2
+Path:   /home/zapotek/workspace/rkn/application/components/reporters/yaml.rb
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="copyright"><a class="header" href="#copyright">Copyright</a></h1>
 <p>Copyright 2024 <a href="https://ecsypno.com">Ecsypno</a>.</p>

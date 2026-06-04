@@ -35,7 +35,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-8a0208af.js";
+            window.path_to_searchindex_js = "../../searchindex-130cd437.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-f64bbaef.js"></script>
@@ -184,7 +184,7 @@ generator and runner and allows you to:</p>
 </ol>
 <p>The API is separated into the following segments:</p>
 <pre><code class="language-ruby"># Runs the DSL.
-SCNR::Application::API.run do
+SCNR::Engine::API.run do
 
     Data {
         Sitemap {}
@@ -223,7 +223,7 @@ end
 </code></pre>
 <h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
 <h3 id="as-configuration"><a class="header" href="#as-configuration">As configuration</a></h3>
-<pre><code class="language-ruby">SCNR::Application::API.run do
+<pre><code class="language-ruby">SCNR::Engine::API.run do
 
     Dom {
 
@@ -329,7 +329,7 @@ end
 # Mute output messages from the CLI interface, we've got our own output methods.
 SCNR::UI::CLI::Output.mute
 
-SCNR::Application::API.run do
+SCNR::Engine::API.run do
 
     State {
         on :change do |state|
